@@ -1263,7 +1263,7 @@ void dbManager::dbManager_load_dxf(const QString &pathname)
 
 }
 
-void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int64_t Index_count_1,QString Block_naam_1, QString Block_value_1)
+void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int32_t Index_count_1,QString Block_naam_1, QString Block_value_1)
 {
 
 	QSqlQuery Query_entitie;
@@ -1286,7 +1286,7 @@ void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int64_t 
 
 }
 
-void dbManager::dbManager_create_elmt_block (const QString &pathname, int64_t Index_count_2,QString Block_naam_2, QString Block_value_2)
+void dbManager::dbManager_create_elmt_block (const QString &pathname, int32_t Index_count_2,QString Block_naam_2, QString Block_value_2)
 {
 	QSqlQuery Query_block;
 

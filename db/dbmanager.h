@@ -75,9 +75,9 @@ class dbManager : public QWidget
 
 	void dbManager_load_dxf_list(const QString &pathname);
 
-	void dbManager_create_elmt_entitie(const QString &pathname, int64_t Index_count_1,QString Block_naam_1, QString Block_value_1);
+	void dbManager_create_elmt_entitie(const QString &pathname, int32_t Index_count_1,QString Block_naam_1, QString Block_value_1);
 
-	void dbManager_create_elmt_block(const QString &pathname, int64_t Index_count_2, QString Block_naam_2, QString Block_value_2);
+	void dbManager_create_elmt_block(const QString &pathname, int32_t Index_count_2, QString Block_naam_2, QString Block_value_2);
 
 	QString db_split_header(const QString &pathname);
 
