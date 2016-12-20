@@ -1,0 +1,5479 @@
+#include "dxftoqet3db.h"
+#include "ui_dxftoqet3db.h"
+
+extern struct DXF_base DXF_main_base[DXF_base_set];
+extern struct DXF_codes DXF_code_tables[DXF_codes_set];
+
+extern struct DXF_codes DXF_codes_tables_empty;
+//static const struct x EmptyStruct[DXF_codes_set][DXF_codeset_copies];
+
+extern struct DXF_var DXF_variable;
+extern struct DXF_Layers DXF_Layer_list[DXF_layers_set];
+extern struct DXF_Entities DXF_Entities_List;
+
+DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
+	QWidget(parent),
+	ui(new Ui::DXFtoQET3DB)
+{
+
+	ui->setupUi(this);
+
+	QCoreApplication::setOrganizationName("rds");
+	QCoreApplication::setApplicationName("DXFtoQET3_DB");
+
+	QSettings settings;
+
+	//data ActifData;
+
+	if (!settings.contains("dxf_path"))
+	{
+		settings.setValue("dxf_path","..");
+	}
+	if (!settings.contains("qet_element_path"))
+	{
+		settings.setValue("qet_element_path","..");
+	}
+
+	settings.sync();
+
+
+
+	DXF_main_base[0].dxf_filepath = settings.value("dxf_path").toString();
+
+
+	DXF_main_base[0].dxf_savepath = settings.value("qet_element_path").toString();
+
+	ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_filepath);
+
+	ui->QET_user_symbole_path_save->setText(DXF_main_base[0].dxf_savepath);
+	ui->MainTab->repaint();
+
+
+}
+
+DXFtoQET3DB::~DXFtoQET3DB()
+{
+	delete ui;
+}
+
+void DXFtoQET3DB::changeEvent(QEvent *e)
+{
+	QWidget::changeEvent(e);
+	switch (e->type()) {
+		case QEvent::LanguageChange:
+			ui->retranslateUi(this);
+			break;
+		default:
+			break;
+	}
+}
+
+
+void DXFtoQET3DB::on_OpenFile_clicked()
+{
+	ui->MainTab->setCurrentIndex(0);
+	ui->MainTab->repaint();
+
+	ui->dxf_log->activateWindow();
+	ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
+	ui->QET_user_symbole_path_save->setText(DXF_main_base[0].dxf_filepath);
+
+	main_sw1=0;
+	main_sw2=0;
+	main_sw3=0;
+
+	DXF_main_base[0].DXF_file_loaded_into_table=-1;
+
+	// open file dialog
+
+	ui->dxf_log->clear();
+
+	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
+	ui->dxf_log->insertPlainText(" -> Open file \n");
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	QFileDialog dialog(this);
+	dialog.setNameFilter(tr("DXF files (*.dxf *.DXF *.csv *.CSV)"));
+	dialog.setFileMode(QFileDialog::ExistingFile);
+	dialog.setViewMode(QFileDialog::Detail);
+
+
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		DXF_main_base[0].dxf_filepath = dialog.selectedFiles().first();
+
+
+		DXF_main_base[0].dxf_dir = dialog.directory().absolutePath();
+		DXF_main_base[0].dxf_openfile=DXF_main_base[0].dxf_filepath.split("/").last();
+		//DXF_main_base[0].dxf_savepath=Config_QET_User_Symbols;//"../.qet/elements"; //DXF_main_base[0].dxf_dir;
+
+		ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
+
+		FileType=DXF_main_base[0].dxf_openfile.split(".").last();
+		FileName=DXF_main_base[0].dxf_openfile.split(".").first().toLower();
+
+		Filename2=FileName.remove(QRegExp("[+-/#_=<>]"));
+
+		DXF_main_base[0].dxf_openfile=Filename2.toLower();
+		DXF_main_base[0].dxf_filetype=FileType;
+
+		ui->dxf_log->insertPlainText(DXF_main_base[0].dxf_openfile);
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+
+		//DXF_main_base[0].DXF_ELMT_Name_text_en=FileName;
+		//DXF_main_base[0].DXF_ELMT_Name_text_fr=FileName;
+
+		//ui->elmt_lang_en->setText(FileName);
+		//ui->elmt_lang_fr->setText(FileName);
+
+		QFile file(DXF_main_base[0].dxf_filepath);
+		if (!file.open(QFile::ReadOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("Application"),
+					  tr("Cannot read file %1:\n%2.").arg(DXF_main_base[0].dxf_filepath).arg("binary or other non standard dxf file"));
+
+		}
+
+		ui->dxf_file_path->setPlaceholderText(DXF_main_base[0].dxf_dir);
+		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
+
+		status1="read file ";
+		status1.append(FileName);
+		status1.append(" into program \n");
+
+		ui->dxf_log->insertPlainText(status1);
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+
+		QTextStream in(&file);
+		DXF_main_base[0].dxf_text_all = in.readAll();
+
+		file.close();
+
+		ui->dxf_file_loaded->setPlainText(DXF_main_base[0].dxf_text_all);
+		ui->dxf_file_loaded->show();
+
+		dxf_line_count1=DXF_main_base[0].dxf_text_all.count();
+
+		ui->dxf_line_count1->setText(QString::number(dxf_line_count1,'f',0));
+
+		ui->dxf_log->insertPlainText("check file for correct type of file \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+
+		dxf_load dxf_lf(this);
+
+		dxf_lf.dxf_header_split();
+
+		dxf_line_count2=DXF_main_base[0].dxf_input.count();
+
+		main_sw1=dxf_lf.dxf_check_file();
+
+		if (FileType=="csv" or FileType=="CSV")
+		{
+			main_sw2=1;
+			main_sw3=0;
+
+			ui->dxf_log->insertPlainText("file of type CSV \n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+			//dxf_lf.dxf_csv_split();
+
+			//int32_t dxf_line_count2=DXF_main_base[0].dxf_csv_line_count;
+			//ui->dxf_line_count2->setText(QString::number(dxf_line_count2,'f',0));
+		}
+		else
+		{
+			main_sw2=0;
+		}
+
+		if (FileType=="dxf" or FileType=="DXF")
+		{
+
+			main_sw3=1;
+			main_sw2=0;
+
+			ui->dxf_log->insertPlainText("file of type DXF \n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+		else
+		{
+			main_sw3=0;
+		}
+
+		if (main_sw1==1 and main_sw2==0)
+		{
+			ui->dxf_log->insertPlainText("file of type ASCII DXF \n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+
+		if (main_sw1==0 and main_sw2==0)
+		{
+
+			ui->dxf_log->insertPlainText("file of type BINARY DXF \n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+
+
+
+	}
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	return;
+}
+
+void DXFtoQET3DB::on_savepath_2_clicked()
+{
+
+	QSettings settings;
+
+	Config_QET_User_Symbols = QFileDialog::getExistingDirectory(this, tr("Open Directory"),DXF_main_base[0].dxf_dir ,QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+	ui->QET_user_symbole_path_save->setText(Config_QET_User_Symbols);
+
+	if (!settings.contains("qet_element_path"))
+	{
+		settings.setValue("qet_element_path",Config_QET_User_Symbols);
+	}
+	else
+	{
+		settings.setValue("qet_element_path",Config_QET_User_Symbols);
+	}
+
+	settings.sync();
+
+	DXF_main_base[0].dxf_savepath=Config_QET_User_Symbols;
+}
+
+void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
+{
+	ui->MainTab->setCurrentIndex(0);
+	ui->MainTab->repaint();
+
+	Filename_db=DXF_main_base[0].dxf_savepath + "/" +FileName;
+	Filename_db.append(".db3");
+
+	on_Delete_DB_clicked();
+
+	ui->dxf_log->activateWindow();
+	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
+	ui->dxf_log->insertPlainText("=> Start loading dxf file into tables \n");
+
+	ui->dxf_log->insertPlainText("Creating DB : ");
+	ui->dxf_log->insertPlainText(FileName);
+	ui->dxf_log->insertPlainText(" \n");
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	//dbManager mydb;
+
+	//Filename_db=FileName;
+	//Filename_db.append(".db3");
+
+	ui->dxf_log->insertPlainText("created : ");
+	ui->dxf_log->insertPlainText("Filename_db");
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	mydb.dbManager1(Filename_db);
+
+	ui->dxf_log->insertPlainText("creating tables \n");
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	mydb.dbManager_create_tables(FileName);
+
+
+	//mydb.dbManager_load_dxf(FileName);
+	//mydb.dbManager_load_dxf_list(FileName);
+
+	/*ui->dxf_log->insertPlainText("load dxf file into database \n");
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();*/
+
+	dxf_split_count1=DXF_main_base[0].dxf_input.count();
+
+	counter1=0;
+
+	ui->dxf_log->insertPlainText("total characters : ");
+	ui->dxf_log->insertPlainText(QString::number(dxf_line_count1));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("total lines : ");
+	ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	index_header= DXF_main_base[0].dxf_input.indexOf("HEADER");
+	index_classes= DXF_main_base[0].dxf_input.indexOf("CLASSES");
+	index_tables= DXF_main_base[0].dxf_input.indexOf("TABLES");
+	index_blocks= DXF_main_base[0].dxf_input.indexOf("BLOCKS");
+	index_entities= DXF_main_base[0].dxf_input.indexOf("ENTITIES");
+	index_objects= DXF_main_base[0].dxf_input.indexOf("OBJECTS");
+	index_thumbnailimage= DXF_main_base[0].dxf_input.indexOf("THUMBNAILIMAGE");
+
+	ui->dxf_log->insertPlainText("index header : ");
+	ui->dxf_log->insertPlainText(QString::number(index_header));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("index classes : ");
+	ui->dxf_log->insertPlainText(QString::number(index_classes));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("index tables : ");
+	ui->dxf_log->insertPlainText(QString::number(index_tables));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("index blocks : ");
+	ui->dxf_log->insertPlainText(QString::number(index_blocks));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("index entities : ");
+	ui->dxf_log->insertPlainText(QString::number(index_entities));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("index objects : ");
+	ui->dxf_log->insertPlainText(QString::number(index_objects));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("index thumbnailimage : ");
+	ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	section_lengts();
+	copy_list();
+
+	if (index_header!=-1)
+	{
+		split_header();
+
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no HEADER list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+	if (index_classes!=-1)
+	{
+		//split_classes();
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no CLASSES list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+	if (index_tables!=-1)
+	{
+		split_tables();
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no TABLES list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+
+	if (index_blocks!=-1)
+	{
+		split_blocks();
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no BLOCKS list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+
+	if (index_entities!=-1)
+	{
+		split_entities();
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no ENTITIES list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+	if (index_objects!=-1)
+	{
+		//split_objects();
+		//ui->dxf_log->insertPlainText("OBJECTS split disabled ");
+
+		//ui->dxf_log->insertPlainText("\n");
+
+		//ui->dxf_log->moveCursor(QTextCursor::End);
+		//ui->dxf_log->repaint();
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no OBJECTS list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+	if (index_thumbnailimage!=-1)
+	{
+		//split_thumbnailimage();
+		ui->dxf_log->insertPlainText("THUMBNAILIMAGE split disabled ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+		ui->dxf_log->insertPlainText("no THUMBNAILIMAGE list to split ");
+
+		ui->dxf_log->insertPlainText("\n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+
+	mydb.dbManager_close(FileName);
+
+	ui->dxf_log->insertPlainText("End loading into db ");
+	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	return;
+}
+
+void DXFtoQET3DB::on_Delete_DB_clicked()
+{
+
+	ui->dxf_log->insertPlainText("deleting ");
+	ui->dxf_log->insertPlainText(Filename_db);
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+	QFile::remove(Filename_db);
+}
+
+void DXFtoQET3DB::section_lengts()
+{
+	ui->dxf_log->insertPlainText("calculating section lengths \n");
+	ui->dxf_log->insertPlainText("\n");
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	if (index_header==-1)
+	{
+		ui->dxf_log->insertPlainText("no section HEADER found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+		if ((index_classes-index_header)<index_header)
+		{
+			if ((index_tables-index_header)<index_header)
+			{
+				if((index_blocks-index_header)<index_header)
+				{
+					if((index_entities-index_header)<index_header)
+					{
+						if((index_objects-index_header)<index_header)
+						{
+							if((index_thumbnailimage-index_header)<index_header)
+							{
+								lenght_header=dxf_line_count2-index_header;
+								ui->dxf_log->insertPlainText("header lenght : ");
+								ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+								ui->dxf_log->insertPlainText(" - ");
+								ui->dxf_log->insertPlainText(QString::number(index_header));
+								ui->dxf_log->insertPlainText(" = ");
+								ui->dxf_log->insertPlainText(QString::number(lenght_header));
+								ui->dxf_log->insertPlainText("\n");
+
+								ui->dxf_log->moveCursor(QTextCursor::End);
+								ui->dxf_log->repaint();
+							}
+							else
+							{
+								lenght_header=index_thumbnailimage-index_header;
+								ui->dxf_log->insertPlainText("header lenght : ");
+								ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+								ui->dxf_log->insertPlainText(" - ");
+								ui->dxf_log->insertPlainText(QString::number(index_header));
+								ui->dxf_log->insertPlainText(" = ");
+								ui->dxf_log->insertPlainText(QString::number(lenght_header));
+								ui->dxf_log->insertPlainText("\n");
+
+								ui->dxf_log->moveCursor(QTextCursor::End);
+								ui->dxf_log->repaint();
+							}
+						}
+						else
+						{
+							lenght_header=index_objects-index_header;
+							ui->dxf_log->insertPlainText("header lenght : ");
+							ui->dxf_log->insertPlainText(QString::number(index_objects));
+							ui->dxf_log->insertPlainText(" - ");
+							ui->dxf_log->insertPlainText(QString::number(index_header));
+							ui->dxf_log->insertPlainText(" = ");
+							ui->dxf_log->insertPlainText(QString::number(lenght_header));
+							ui->dxf_log->insertPlainText("\n");
+
+							ui->dxf_log->moveCursor(QTextCursor::End);
+							ui->dxf_log->repaint();
+
+						}
+					}
+					else
+					{
+						lenght_header=index_entities-index_header;
+						ui->dxf_log->insertPlainText("header lenght : ");
+						ui->dxf_log->insertPlainText(QString::number(index_entities));
+						ui->dxf_log->insertPlainText(" - ");
+						ui->dxf_log->insertPlainText(QString::number(index_header));
+						ui->dxf_log->insertPlainText(" = ");
+						ui->dxf_log->insertPlainText(QString::number(lenght_header));
+						ui->dxf_log->insertPlainText("\n");
+
+						ui->dxf_log->moveCursor(QTextCursor::End);
+						ui->dxf_log->repaint();
+
+					}
+				}
+				else
+				{
+					lenght_header=index_blocks-index_header;
+					ui->dxf_log->insertPlainText("header lenght : ");
+					ui->dxf_log->insertPlainText(QString::number(index_blocks));
+					ui->dxf_log->insertPlainText(" - ");
+					ui->dxf_log->insertPlainText(QString::number(index_header));
+					ui->dxf_log->insertPlainText(" = ");
+					ui->dxf_log->insertPlainText(QString::number(lenght_header));
+					ui->dxf_log->insertPlainText("\n");
+
+					ui->dxf_log->moveCursor(QTextCursor::End);
+					ui->dxf_log->repaint();
+
+				}
+
+			}
+			else
+			{
+				lenght_header=index_tables-index_header;
+				ui->dxf_log->insertPlainText("header lenght : ");
+				ui->dxf_log->insertPlainText(QString::number(index_tables));
+				ui->dxf_log->insertPlainText(" - ");
+				ui->dxf_log->insertPlainText(QString::number(index_header));
+				ui->dxf_log->insertPlainText(" = ");
+				ui->dxf_log->insertPlainText(QString::number(lenght_header));
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+			}
+		}
+		else
+		{
+			lenght_header=index_classes-index_header;
+			ui->dxf_log->insertPlainText("header lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(index_classes));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_header));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_header));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+	}
+
+	if (index_classes==-1)
+	{
+		ui->dxf_log->insertPlainText("no section CLASSES found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+
+			if ((index_tables-index_classes)<index_classes)
+			{
+				if((index_blocks-index_classes)<index_classes)
+				{
+					if((index_entities-index_classes)<index_classes)
+					{
+						if((index_objects-index_classes)<index_classes)
+						{
+							if((index_thumbnailimage-index_classes)<index_classes)
+							{
+								lenght_classes=dxf_line_count2-index_classes;
+								ui->dxf_log->insertPlainText("classes lenght : ");
+								ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+								ui->dxf_log->insertPlainText(" - ");
+								ui->dxf_log->insertPlainText(QString::number(index_classes));
+								ui->dxf_log->insertPlainText(" = ");
+								ui->dxf_log->insertPlainText(QString::number(lenght_classes));
+								ui->dxf_log->insertPlainText("\n");
+
+								ui->dxf_log->moveCursor(QTextCursor::End);
+								ui->dxf_log->repaint();
+							}
+							else
+							{
+								lenght_classes=index_thumbnailimage-index_classes;
+								ui->dxf_log->insertPlainText("classes lenght : ");
+								ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+								ui->dxf_log->insertPlainText(" - ");
+								ui->dxf_log->insertPlainText(QString::number(index_classes));
+								ui->dxf_log->insertPlainText(" = ");
+								ui->dxf_log->insertPlainText(QString::number(lenght_classes));
+								ui->dxf_log->insertPlainText("\n");
+
+								ui->dxf_log->moveCursor(QTextCursor::End);
+								ui->dxf_log->repaint();
+							}
+						}
+						else
+						{
+							lenght_classes=index_objects-index_classes;
+							ui->dxf_log->insertPlainText("classes lenght : ");
+							ui->dxf_log->insertPlainText(QString::number(index_objects));
+							ui->dxf_log->insertPlainText(" - ");
+							ui->dxf_log->insertPlainText(QString::number(index_classes));
+							ui->dxf_log->insertPlainText(" = ");
+							ui->dxf_log->insertPlainText(QString::number(lenght_classes));
+							ui->dxf_log->insertPlainText("\n");
+
+							ui->dxf_log->moveCursor(QTextCursor::End);
+							ui->dxf_log->repaint();
+
+						}
+					}
+					else
+					{
+						lenght_classes=index_entities-index_classes;
+						ui->dxf_log->insertPlainText("classes lenght : ");
+						ui->dxf_log->insertPlainText(QString::number(index_entities));
+						ui->dxf_log->insertPlainText(" - ");
+						ui->dxf_log->insertPlainText(QString::number(index_classes));
+						ui->dxf_log->insertPlainText(" = ");
+						ui->dxf_log->insertPlainText(QString::number(lenght_classes));
+						ui->dxf_log->insertPlainText("\n");
+
+						ui->dxf_log->moveCursor(QTextCursor::End);
+						ui->dxf_log->repaint();
+
+					}
+				}
+				else
+				{
+					lenght_classes=index_blocks-index_classes;
+					ui->dxf_log->insertPlainText("classes lenght : ");
+					ui->dxf_log->insertPlainText(QString::number(index_blocks));
+					ui->dxf_log->insertPlainText(" - ");
+					ui->dxf_log->insertPlainText(QString::number(index_classes));
+					ui->dxf_log->insertPlainText(" = ");
+					ui->dxf_log->insertPlainText(QString::number(lenght_classes));
+					ui->dxf_log->insertPlainText("\n");
+
+					ui->dxf_log->moveCursor(QTextCursor::End);
+					ui->dxf_log->repaint();
+
+				}
+
+			}
+			else
+			{
+				lenght_header=index_tables-index_header;
+				ui->dxf_log->insertPlainText("header lenght : ");
+				ui->dxf_log->insertPlainText(QString::number(index_tables));
+				ui->dxf_log->insertPlainText(" - ");
+				ui->dxf_log->insertPlainText(QString::number(index_header));
+				ui->dxf_log->insertPlainText(" = ");
+				ui->dxf_log->insertPlainText(QString::number(lenght_header));
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+			}
+
+
+	}
+
+	if (index_tables==-1)
+	{
+		ui->dxf_log->insertPlainText("no section TABLES found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+
+		if((index_blocks-index_tables)<index_tables)
+		{
+			if((index_entities-index_tables)<index_tables)
+			{
+				if((index_objects-index_tables)<index_tables)
+				{
+					if((index_thumbnailimage-index_tables)<index_tables)
+					{
+						lenght_tables=dxf_line_count2-index_tables;
+						ui->dxf_log->insertPlainText("tables lenght : ");
+						ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+						ui->dxf_log->insertPlainText(" - ");
+						ui->dxf_log->insertPlainText(QString::number(index_tables));
+						ui->dxf_log->insertPlainText(" = ");
+						ui->dxf_log->insertPlainText(QString::number(lenght_tables));
+
+						ui->dxf_log->moveCursor(QTextCursor::End);
+						ui->dxf_log->repaint();
+					}
+					else
+					{
+						lenght_tables=index_thumbnailimage-index_tables;
+						ui->dxf_log->insertPlainText("tables lenght : ");
+						ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+						ui->dxf_log->insertPlainText(" - ");
+						ui->dxf_log->insertPlainText(QString::number(index_tables));
+						ui->dxf_log->insertPlainText(" = ");
+						ui->dxf_log->insertPlainText(QString::number(lenght_tables));
+						ui->dxf_log->insertPlainText("\n");
+
+						ui->dxf_log->moveCursor(QTextCursor::End);
+						ui->dxf_log->repaint();
+					}
+				}
+				else
+				{
+					lenght_tables=index_objects-index_tables;
+					ui->dxf_log->insertPlainText("tables lenght : ");
+					ui->dxf_log->insertPlainText(QString::number(index_objects));
+					ui->dxf_log->insertPlainText(" - ");
+					ui->dxf_log->insertPlainText(QString::number(index_tables));
+					ui->dxf_log->insertPlainText(" = ");
+					ui->dxf_log->insertPlainText(QString::number(lenght_tables));
+					ui->dxf_log->insertPlainText("\n");
+
+					ui->dxf_log->moveCursor(QTextCursor::End);
+					ui->dxf_log->repaint();
+
+				}
+			}
+			else
+			{
+				lenght_tables=index_entities-index_tables;
+				ui->dxf_log->insertPlainText("tables lenght : ");
+				ui->dxf_log->insertPlainText(QString::number(index_entities));
+				ui->dxf_log->insertPlainText(" - ");
+				ui->dxf_log->insertPlainText(QString::number(index_tables));
+				ui->dxf_log->insertPlainText(" = ");
+				ui->dxf_log->insertPlainText(QString::number(lenght_tables));
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+
+			}
+		}
+		else
+		{
+			lenght_tables=index_blocks-index_tables;
+			ui->dxf_log->insertPlainText("tables lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(index_blocks));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_tables));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_tables));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+	}
+
+	if (index_blocks==-1)
+	{
+		ui->dxf_log->insertPlainText("no section BLOCKS found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+
+		if((index_entities-index_blocks)<index_blocks)
+		{
+			if((index_objects-index_blocks)<index_blocks)
+			{
+				if((index_thumbnailimage-index_blocks)<index_blocks)
+				{
+					lenght_blocks=dxf_line_count2-index_blocks;
+					ui->dxf_log->insertPlainText("blocks lenght : ");
+					ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+					ui->dxf_log->insertPlainText(" - ");
+					ui->dxf_log->insertPlainText(QString::number(index_blocks));
+					ui->dxf_log->insertPlainText(" = ");
+					ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
+					ui->dxf_log->insertPlainText("\n");
+
+					ui->dxf_log->moveCursor(QTextCursor::End);
+					ui->dxf_log->repaint();
+				}
+				else
+				{
+					lenght_blocks=index_thumbnailimage-index_blocks;
+					ui->dxf_log->insertPlainText("blocks lenght : ");
+					ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+					ui->dxf_log->insertPlainText(" - ");
+					ui->dxf_log->insertPlainText(QString::number(index_blocks));
+					ui->dxf_log->insertPlainText(" = ");
+					ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
+					ui->dxf_log->insertPlainText("\n");
+
+					ui->dxf_log->moveCursor(QTextCursor::End);
+					ui->dxf_log->repaint();
+				}
+			}
+			else
+			{
+				lenght_blocks=index_objects-index_blocks;
+				ui->dxf_log->insertPlainText("blocks lenght : ");
+				ui->dxf_log->insertPlainText(QString::number(index_objects));
+				ui->dxf_log->insertPlainText(" - ");
+				ui->dxf_log->insertPlainText(QString::number(index_blocks));
+				ui->dxf_log->insertPlainText(" = ");
+				ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+
+			}
+		}
+		else
+		{
+			lenght_blocks=index_entities-index_blocks;
+			ui->dxf_log->insertPlainText("blocks lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(index_entities));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_blocks));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+	}
+
+
+	if (index_entities==-1)
+	{
+		ui->dxf_log->insertPlainText("no section ENTITIES found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+
+
+		if((index_objects-index_entities)<index_entities)
+		{
+			if((index_thumbnailimage-index_entities)<index_entities)
+			{
+				lenght_entities=dxf_line_count2-index_entities;
+				ui->dxf_log->insertPlainText("entities lenght : ");
+				ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+				ui->dxf_log->insertPlainText(" - ");
+				ui->dxf_log->insertPlainText(QString::number(index_entities));
+				ui->dxf_log->insertPlainText(" = ");
+				ui->dxf_log->insertPlainText(QString::number(lenght_entities));
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+			}
+			else
+			{
+				lenght_entities=index_thumbnailimage-index_entities;
+				ui->dxf_log->insertPlainText("entities lenght : ");
+				ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+				ui->dxf_log->insertPlainText(" - ");
+				ui->dxf_log->insertPlainText(QString::number(index_entities));
+				ui->dxf_log->insertPlainText(" = ");
+				ui->dxf_log->insertPlainText(QString::number(lenght_entities));
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+			}
+		}
+		else
+		{
+			lenght_entities=index_objects-index_entities;
+			ui->dxf_log->insertPlainText("entities lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(index_objects));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_entities));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_entities));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+	}
+
+	if (index_objects==-1)
+	{
+		ui->dxf_log->insertPlainText("no section OBJECTS found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+
+		if((index_thumbnailimage-index_objects)<index_objects)
+		{
+			lenght_objects=dxf_line_count2-index_objects;
+			ui->dxf_log->insertPlainText("objects lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_objects));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_objects));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+		else
+		{
+			lenght_objects=index_thumbnailimage-index_objects;
+			ui->dxf_log->insertPlainText("objects lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_objects));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_objects));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+
+	}
+
+	if (index_thumbnailimage==-1)
+	{
+		ui->dxf_log->insertPlainText("no section THUMBNAILIMAGE found \n");
+
+		ui->dxf_log->moveCursor(QTextCursor::End);
+		ui->dxf_log->repaint();
+	}
+	else
+	{
+
+
+		if((dxf_line_count2-index_thumbnailimage)<index_thumbnailimage)
+		{
+			ui->dxf_log->insertPlainText("no header lenght found\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+		else
+		{
+			lenght_thumbnailimage=dxf_line_count2-index_thumbnailimage;
+			ui->dxf_log->insertPlainText("thumbnailimage lenght : ");
+			ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
+			ui->dxf_log->insertPlainText(" - ");
+			ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
+			ui->dxf_log->insertPlainText(" = ");
+			ui->dxf_log->insertPlainText(QString::number(lenght_thumbnailimage));
+			ui->dxf_log->insertPlainText("\n");
+
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+
+	}
+
+
+
+
+}
+
+void DXFtoQET3DB::copy_list()
+{
+	dxf_header.clear();
+	dxf_classes.clear();
+	dxf_tables.clear();
+	dxf_blocks.clear();
+	dxf_entities.clear();
+	dxf_objects.clear();
+	dxf_thumbnailimage.clear();
+
+	list_header=0;
+	list_classes=0;
+	list_tables=0;
+	list_blocks=0;
+	list_entities=0;
+	list_objects=0;
+	list_thumbnailimage=0;
+
+	max_length=DXF_main_base[0].dxf_input.count();
+
+	max_header=index_header+lenght_header-5;
+	max_classes=index_classes+lenght_classes-5;
+	max_tables=index_tables+lenght_tables-5;
+	max_blocks=index_blocks+lenght_blocks-5;
+	max_entities=index_entities+lenght_entities-5;
+	max_objects=index_objects+lenght_objects-5;
+	max_thumbnailimage=index_thumbnailimage+lenght_thumbnailimage-5;
+
+	/*if (max_header>max_length)
+	{
+		max_header=max_length-1;
+	}
+
+	if (max_classes>max_length)
+	{
+		max_classes=max_length-1;
+	}
+
+	if (max_tables>max_length)
+	{
+		max_tables=max_length-1;
+	}
+
+	if (max_blocks>max_length)
+	{
+		max_blocks=max_length-1;
+	}
+
+	if (max_entities>max_length)
+	{
+		max_entities=max_length-1;
+	}
+
+	if (max_objects>max_length)
+	{
+		max_objects=max_length-1;
+	}
+
+	if (max_thumbnailimage>max_length)
+	{
+		max_thumbnailimage=max_length-1;
+	}*/
+
+
+
+
+
+
+	if (index_header != -1)
+	{
+		for (for1=index_header+1;for1<max_header; for1++)
+		{
+
+			dxf_header.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_header=dxf_header.count();
+	}
+
+	if (index_classes != -1)
+	{
+		for (for1=index_classes+1;for1<max_classes;for1++)
+		{
+
+			dxf_classes.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_classes=dxf_classes.count();
+	}
+
+	if (index_tables != -1)
+	{
+
+		for (for1=index_tables+1;for1<max_tables;for1++)
+		{
+
+			dxf_tables.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_tables=dxf_tables.count();
+	}
+
+	if (index_blocks != -1)
+	{
+		for (for1=index_blocks+1;for1<max_blocks;for1++)
+		{
+
+			dxf_blocks.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_blocks=dxf_blocks.count();
+	}
+
+	if (index_entities != -1)
+	{
+		for (for1=index_entities+1;for1<max_entities;for1++)
+		{
+
+			dxf_entities.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_entities=dxf_entities.count();
+	}
+
+	if (index_objects != -1)
+	{
+		for (for1=index_objects+1;for1<max_objects;for1++)
+		{
+
+			dxf_objects.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_objects=dxf_objects.count();
+	}
+
+	if (index_thumbnailimage != -1)
+	{
+		for (for1=index_thumbnailimage+1;for1<max_thumbnailimage;for1++)
+		{
+
+			dxf_thumbnailimage.append(DXF_main_base[0].dxf_input[for1]);
+
+		}
+
+		list_thumbnailimage=dxf_thumbnailimage.count();
+	}
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	return;
+
+}
+
+void DXFtoQET3DB::split_header()
+{
+	header_max_items=dxf_header.count("  9");
+	header_max_count=dxf_header.count();
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	ui->dxf_log->insertPlainText("header items :");
+	ui->dxf_log->insertPlainText(QString::number(header_max_items));
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	count_header=0;
+	count_header_record_id=1;
+	count_header_lines=0;
+	id_header=1;
+
+	clear_dxf_header_items();
+	clear_split_tables();
+	x1=-1;
+
+	// split input into tempory table
+
+	for (x2=0;x2<header_max_count and header_max_items<DXF_item_split;x2++)
+	{
+
+		if (dxf_header[x2]=="  9")
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_header[x2]); //??
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_header[x2]); //??
+		}
+	}
+
+
+	clear_sw_header();
+
+	ui->dxf_log->insertPlainText("Splitting HEADER \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	max=0;
+	Record_Count_Header=1;
+
+
+
+	clear_dxf_code_tables();
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Header");
+	ui->dxf_log->repaint();
+
+	while (count_header< header_max_items)
+	{
+		text1=QString::number(count_header);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();
+
+		count_header_item=0;
+		x3=split_tables_list[count_header].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->insertPlainText("Splitting header : out of range subitems acad command \n");
+			ui->dxf_log->insertPlainText(QString::number(x3));
+			ui->dxf_log->insertPlainText(" > ");
+			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
+			ui->dxf_log->insertPlainText("\n");
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+		clear_dxf_code_tables();
+
+
+		// record of temp table split to dxf table
+		max=Split_list("dxf_header", x3, count_header_item, count_header, id_header );
+
+
+
+		Record_Count_Header= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Header,"dxf_header");
+
+		sw_header[9]=0;
+		sw_header[0]=0;
+
+
+		id_header++;
+
+		count_header++;
+
+
+
+	}
+
+
+
+	return;
+
+}
+
+void DXFtoQET3DB::split_classes()
+{
+	classes_max_items=dxf_classes.count("  0");
+	classes_max_count=dxf_classes.count();
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	ui->dxf_log->insertPlainText("classes items :");
+	ui->dxf_log->insertPlainText(QString::number(classes_max_items));
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	count_classes=0;
+	count_classes_record_id=1;
+	count_classes_lines=0;
+	id_header=1;
+
+
+	clear_dxf_classes_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	for (x2=0;x2<classes_max_count and classes_max_items<DXF_item_split;x2++)
+	{
+
+		if (dxf_classes[x2]=="  0")
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_classes[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_classes[x2]);
+		}
+	}
+
+	clear_sw_header();
+
+
+	ui->dxf_log->insertPlainText("Splitting CLASSES \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	clear_dxf_code_tables();
+
+	max=0;
+	Record_Count_Classes=1;
+
+	//Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Classes");
+	ui->dxf_log->repaint();
+
+	while (count_classes< classes_max_items)
+	{
+		text1=QString::number(count_classes);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();
+
+		count_classes_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_classes].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->insertPlainText("Splitting classes : out of range subitems acad command \n");
+			ui->dxf_log->insertPlainText(QString::number(x3));
+			ui->dxf_log->insertPlainText(" > ");
+			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
+			ui->dxf_log->insertPlainText("\n");
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+		clear_dxf_code_tables();
+
+		max=Split_list("dxf_classes", x3, count_classes_item, count_classes, id_header );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_classes;
+
+		Record_Count_Tables= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Tables,"dxf_classes");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_classes++;
+		//Record_Count_Tables++;
+
+
+
+
+	}
+
+
+
+	return;
+}
+
+void DXFtoQET3DB::split_tables()
+{
+	tables_max_items=dxf_tables.count("  0");
+	tables_max_count=dxf_tables.count();
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	ui->dxf_log->insertPlainText("tables items :");
+	ui->dxf_log->insertPlainText(QString::number(tables_max_items));
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	count_tables=0;
+	count_tables_record_id=1;
+	count_tables_lines=0;
+	id_header=1;
+
+	clear_dxf_tables_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
+	{
+
+		if (dxf_tables[x2]=="  0")
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+	}
+
+	clear_sw_header();
+
+	ui->dxf_log->insertPlainText("Splitting tables \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	max=0;
+	Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Tables");
+	ui->dxf_log->repaint();
+
+	while (count_tables< tables_max_items)			
+	{
+		text1=QString::number(count_tables);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();
+
+		count_tables_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_tables].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->insertPlainText("Splitting tables : out of range subitems acad command \n");
+			ui->dxf_log->insertPlainText(QString::number(x3));
+			ui->dxf_log->insertPlainText(" > ");
+			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
+			ui->dxf_log->insertPlainText("\n");
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+		clear_dxf_code_tables();
+
+		max=Split_list("dxf_tables", x3, count_tables_item, count_tables, id_header  );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_tables;
+
+		Record_Count_Tables= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Tables,"dxf_tables");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_tables++;
+
+		//Record_Count_Tables++;
+
+
+	}
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	return;
+}
+
+void DXFtoQET3DB::split_blocks()
+{
+	blocks_max_items=dxf_blocks.count("  0");
+	blocks_max_count=dxf_blocks.count();
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+	ui->dxf_log->insertPlainText("blocks items :");
+	ui->dxf_log->insertPlainText(QString::number(blocks_max_items));
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+
+	count_blocks=0;
+	count_blocks_record_id=1;
+	count_blocks_lines=0;
+	id_header=1;
+
+	clear_dxf_blocks_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	for (x2=0;x2<blocks_max_count and blocks_max_items<DXF_item_split;x2++)
+	{
+
+		if (dxf_blocks[x2]=="  0")
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_blocks[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_blocks[x2]);
+		}
+	}
+
+	clear_sw_header();
+
+
+
+	ui->dxf_log->insertPlainText("Splitting BLOCKS \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	max=0;
+	Record_Count_Blocks=1;
+	//Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Blocks");
+	ui->dxf_log->repaint();
+
+	while (count_blocks< blocks_max_items)
+	{
+		text1=QString::number(count_blocks);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();
+
+		count_blocks_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_blocks].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->insertPlainText("Splitting blocks : out of range subitems acad command \n");
+			ui->dxf_log->insertPlainText(QString::number(x3));
+			ui->dxf_log->insertPlainText(" > ");
+			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
+			ui->dxf_log->insertPlainText("\n");
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+		}
+
+		clear_dxf_code_tables();
+
+		max=Split_list("dxf_blocks", x3, count_blocks_item, count_blocks , id_header );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_blocks;
+
+		Record_Count_Blocks= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Blocks,"dxf_blocks");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_blocks++;
+
+		//Record_Count_Tables++;
+
+
+
+
+	}
+
+
+
+	return;
+}
+
+void DXFtoQET3DB::split_entities()
+{
+	entities_max_items=dxf_entities.count("  0");
+	entities_max_count=dxf_entities.count();
+	count_entities=0;
+	count_entities_record_id=1;
+	count_entities_lines=0;
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+	ui->dxf_log->insertPlainText("entities items :");
+	ui->dxf_log->insertPlainText(QString::number(entities_max_items));
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+	count_entities=0;
+	count_entities_record_id=1;
+	count_entities_lines=0;
+	id_header=1;
+
+	clear_dxf_entities_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	for (x2=0;x2<entities_max_count and entities_max_items<DXF_item_split;x2++)
+	{
+
+		if (dxf_entities[x2]=="  0")
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_entities[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_entities[x2]);
+		}
+	}
+
+	clear_sw_header();
+
+	ui->dxf_log->insertPlainText("Splitting entities \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	max=0;
+	Record_Count_Entities=1;
+
+	//Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+
+	count_entities=0;
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Entities");
+	ui->dxf_log->repaint();
+
+	while (count_entities< entities_max_items)
+	{
+		text1=QString::number(count_entities);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();
+
+		count_entities_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_entities].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->insertPlainText("Splitting entities : out of range subitems acad command \n");
+			ui->dxf_log->insertPlainText(QString::number(x3));
+			ui->dxf_log->insertPlainText(" > ");
+			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
+			ui->dxf_log->insertPlainText("\n");
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+		clear_dxf_code_tables();
+
+		max=Split_list("dxf_entities", x3, count_entities_item, count_entities, id_header  );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_entities;
+
+		Record_Count_Entities= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Entities,"dxf_entities");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_entities++;
+
+		//Record_Count_Tables++;
+
+	}
+
+
+
+	return;
+}
+
+void DXFtoQET3DB::split_objects()
+{
+	objects_max_items=dxf_objects.count("  0");
+	objects_max_count=dxf_objects.count();
+	count_objects=0;
+	count_objects_record_id=1;
+	count_objects_lines=0;
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	ui->dxf_log->insertPlainText("objects items :");
+	ui->dxf_log->insertPlainText(QString::number(objects_max_items));
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	count_objects=0;
+	count_objects_record_id=1;
+	count_objects_lines=0;
+	id_header=1;
+
+	clear_dxf_tables_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	for (x2=0;x2<objects_max_count and objects_max_items<DXF_item_split;x2++)
+	{
+
+		if (dxf_objects[x2]=="  0")
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_objects[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_objects[x2]);
+		}
+	}
+
+	clear_sw_header();
+
+	ui->dxf_log->insertPlainText("Splitting objects \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	max=0;
+	Record_Count_Objects=1;
+
+	//Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Objects");
+	ui->dxf_log->repaint();
+
+	while (count_objects< objects_max_items)
+	{
+		text1=QString::number(count_objects);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();
+
+		count_object_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_objects].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->insertPlainText("Splitting objects : out of range subitems acad command \n");
+			ui->dxf_log->insertPlainText(QString::number(x3));
+			ui->dxf_log->insertPlainText(" > ");
+			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
+			ui->dxf_log->insertPlainText("\n");
+			ui->dxf_log->insertPlainText("============================================================================\n");
+			ui->dxf_log->moveCursor(QTextCursor::End);
+			ui->dxf_log->repaint();
+
+		}
+
+		clear_dxf_code_tables();
+
+		max=Split_list("dxf_objects", x3, count_object_item, count_objects, id_header  );
+
+		//Record_Count_Tables=Record_Count_Tables+count_objects;
+
+		Record_Count_Objects= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Objects,"dxf_objects");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_objects++;
+
+		//Record_Count_Tables++;
+
+	}
+
+
+
+	return;
+}
+
+void DXFtoQET3DB::split_thumbnailimage()
+{
+	thumbnailimage_max_items=dxf_thumbnailimage.count("  0");
+	count_thumbnailimage=0;
+	count_thumbnailimage_record_id=1;
+	count_thumbnailimage_lines=0;
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	ui->dxf_log->insertPlainText("Splitting thumbnailimage \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	while (count_thumbnailimage< dxf_thumbnailimage.count())
+	{
+
+
+
+		line1=QString(dxf_thumbnailimage[count_thumbnailimage]).toInt();
+		line2=(dxf_thumbnailimage[count_thumbnailimage+1]);
+		switch (line1)
+		{
+			case 0:
+
+			break;
+
+			case 9:
+
+
+			break;
+
+			default:
+
+				ui->dxf_log->insertPlainText("Found code : ");
+				ui->dxf_log->insertPlainText(dxf_thumbnailimage[count_thumbnailimage]);
+				ui->dxf_log->insertPlainText(" | ");
+				ui->dxf_log->insertPlainText(dxf_thumbnailimage[count_thumbnailimage+1]);
+				ui->dxf_log->insertPlainText("\n");
+
+				ui->dxf_log->moveCursor(QTextCursor::End);
+				ui->dxf_log->repaint();
+		}
+
+		count_thumbnailimage=count_thumbnailimage+2;
+
+
+
+		//count_thumbnailimage=count_thumbnailimage+count_thumbnailimage_lines;
+
+	}
+
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	return;
+
+}
+
+void DXFtoQET3DB::clear_sw_header()
+{
+
+	for (x4=0; x4<=1072;x4++)
+	{
+		sw_header[x4]=0;
+	}
+
+}
+
+void DXFtoQET3DB::clear_dxf_header_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_header_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_classes_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_classes_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_tables_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_tables_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_blocks_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_blocks_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_entities_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_entities_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_objects_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_objects_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_thumbnailimage_items()
+{
+
+	for (xclear=0;xclear<DXF_item_split;xclear++)
+	{
+		dxf_thumbnailimage_items[xclear].clear();
+	}
+}
+
+void DXFtoQET3DB::clear_dxf_code_tables()
+{
+
+	for (clear_code_set=0;clear_code_set<DXF_codes_set;clear_code_set++)
+	{
+		//for (int clear2=0;clear2<DXF_codeset_copies;clear2++)
+		//{
+			DXF_code_tables[clear_code_set]=DXF_codes_tables_empty;
+		//}
+	}
+
+	//memset(&myStruct, 0, sizeof(myStruct));
+
+	//memset (&DXF_code_tables,0,sizeof(DXF_code_tables));
+	//DXF_code_tables=DXF_codes_tables_empty;
+
+}
+
+int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, int count_tables_list, int header_id)
+{
+
+	max3=0;
+	clear_sw_header();
+
+
+	while (count_list_item<x3max and count_list_item<DXF_codeset_copies)
+	{
+
+		line1=QString(split_tables_list[count_tables_list][count_list_item]).toInt();
+		line2=split_tables_list[count_tables_list][count_list_item+1];
+
+
+			switch (line1)
+			{
+				case 0:
+					if (sw_header[0]==0)
+					{
+
+						DXF_code_tables[sw_header[0]].dxf_0=line2;
+
+						DXF_code_tables[sw_header[0]].Section=TypeList;
+						DXF_code_tables[sw_header[0]].Command=line2;
+
+						DXF_code_tables[sw_header[0]].ID_instruction=QString::number(header_id);
+
+						sw_header[0]++;
+
+						if (sw_header[0]>max3)
+						{
+							max3=sw_header[0];
+						}
+					}
+
+				break;
+
+				case 1:
+					if (sw_header[1]>=0)
+					{
+
+						DXF_code_tables[sw_header[1]].dxf_1=line2;
+						sw_header[1]++;
+
+						if (sw_header[1]>max3)
+						{
+							max3=sw_header[1];
+						}
+					}
+
+				break;
+
+				case 2:
+					if (sw_header[2]>=0)
+					{
+
+						DXF_code_tables[sw_header[2]].dxf_2=line2;
+						sw_header[2]++;
+
+						if (sw_header[2]>max3)
+						{
+							max3=sw_header[2];
+						}
+					}
+
+				break;
+
+				case 3:
+					if (sw_header[3]>=0)
+					{
+
+						DXF_code_tables[sw_header[3]].dxf_3=line2;
+						sw_header[3]++;
+
+						if (sw_header[3]>max3)
+						{
+							max3=sw_header[3];
+						}
+					}
+
+				break;
+
+				case 4:
+					if (sw_header[4]>=0)
+					{
+
+						DXF_code_tables[sw_header[4]].dxf_4=line2;
+						sw_header[4]++;
+
+						if (sw_header[4]>max3)
+						{
+							max3=sw_header[4];
+						}
+					}
+
+				break;
+
+				case 5:
+					if (sw_header[5]>=0)
+					{
+
+						DXF_code_tables[sw_header[5]].dxf_5=line2;
+						sw_header[5]++;
+
+						if (sw_header[5]>max3)
+						{
+							max3=sw_header[5];
+						}
+					}
+
+				break;
+
+				case 6:
+					if (sw_header[6]>=0)
+					{
+
+						DXF_code_tables[sw_header[6]].dxf_6=line2;
+						sw_header[6]++;
+
+						if (sw_header[6]>max3)
+						{
+							max3=sw_header[6];
+						}
+					}
+
+				break;
+
+				case 7:
+					if (sw_header[7]>=0)
+					{
+
+						DXF_code_tables[sw_header[7]].dxf_7=line2;
+						sw_header[7]++;
+
+						if (sw_header[7]>max3)
+						{
+							max3=sw_header[7];
+						}
+					}
+
+				break;
+
+				case 8:
+					if (sw_header[8]>=0)
+					{
+
+						DXF_code_tables[sw_header[8]].dxf_8=line2;
+						sw_header[8]++;
+
+						if (sw_header[8]>max3)
+						{
+							max3=sw_header[8];
+						}
+					}
+
+				break;
+
+				case 9:
+					if (sw_header[9]==0)
+					{
+
+						DXF_code_tables[sw_header[9]].dxf_9=line2;
+
+						DXF_code_tables[sw_header[9]].Section=TypeList;
+						DXF_code_tables[sw_header[9]].Command=line2;
+						DXF_code_tables[sw_header[9]].ID_instruction=QString::number(header_id);
+						//DXF_code_tables[sw_header[9]].ID_instruction=DXF_code_tables[sw_header[0]].dxf_5;
+
+						sw_header[9]++;
+
+						//Record_Count_Header++;
+
+						if (sw_header[9]>max)
+						{
+							max=sw_header[9];
+						}
+					}
+
+				break;
+
+				case 10:
+					if (sw_header[10]>=0)
+					{
+
+						DXF_code_tables[sw_header[10]].dxf_10=line2;
+						sw_header[10]++;
+
+						if (sw_header[10]>max3)
+						{
+							max3=sw_header[10];
+						}
+					}
+
+				break;
+
+				case 11:
+					if (sw_header[11]>=0)
+					{
+
+						DXF_code_tables[sw_header[11]].dxf_11=line2;
+						sw_header[11]++;
+
+						if (sw_header[11]>max3)
+						{
+							max3=sw_header[11];
+						}
+					}
+
+				break;
+
+				case 12:
+					if (sw_header[12]>=0)
+					{
+
+						DXF_code_tables[sw_header[12]].dxf_12=line2;
+						sw_header[12]++;
+
+						if (sw_header[12]>max3)
+						{
+							max3=sw_header[12];
+						}
+					}
+
+				break;
+
+
+				case 13:
+					if (sw_header[13]>=0)
+					{
+
+						DXF_code_tables[sw_header[13]].dxf_13=line2;
+						sw_header[13]++;
+
+						if (sw_header[13]>max3)
+						{
+							max3=sw_header[13];
+						}
+					}
+
+				break;
+
+
+				case 14:
+					if (sw_header[14]>=0)
+					{
+
+						DXF_code_tables[sw_header[14]].dxf_14=line2;
+						sw_header[14]++;
+
+						if (sw_header[14]>max3)
+						{
+							max3=sw_header[14];
+						}
+					}
+
+				break;
+
+				case 15:
+					if (sw_header[15]>=0)
+					{
+
+						DXF_code_tables[sw_header[15]].dxf_15=line2;
+						sw_header[15]++;
+
+						if (sw_header[15]>max)
+						{
+							max=sw_header[15];
+						}
+					}
+
+				break;
+
+				case 16:
+					if (sw_header[16]>=0)
+					{
+
+						DXF_code_tables[sw_header[16]].dxf_16=line2;
+						sw_header[16]++;
+
+						if (sw_header[16]>max3)
+						{
+							max3=sw_header[16];
+						}
+					}
+
+				break;
+
+				case 17:
+					if (sw_header[17]>=0)
+					{
+
+						DXF_code_tables[sw_header[17]].dxf_17=line2;
+						sw_header[17]++;
+
+						if (sw_header[17]>max3)
+						{
+							max3=sw_header[17];
+						}
+					}
+
+				break;
+
+				case 20:
+					if (sw_header[20]>=0)
+					{
+
+						DXF_code_tables[sw_header[20]].dxf_20=line2;
+						sw_header[20]++;
+
+						if (sw_header[20]>max3)
+						{
+							max3=sw_header[20];
+						}
+					}
+
+				break;
+
+				case 21:
+					if (sw_header[21]>=0)
+					{
+
+						DXF_code_tables[sw_header[21]].dxf_21=line2;
+						sw_header[21]++;
+
+						if (sw_header[21]>max3)
+						{
+							max3=sw_header[21];
+						}
+					}
+
+				break;
+
+				case 22:
+					if (sw_header[22]>=0)
+					{
+
+						DXF_code_tables[sw_header[22]].dxf_22=line2;
+						sw_header[22]++;
+
+						if (sw_header[22]>max3)
+						{
+							max3=sw_header[22];
+						}
+					}
+
+				break;
+
+				case 23:
+					if (sw_header[23]>=0)
+					{
+
+						DXF_code_tables[sw_header[23]].dxf_23=line2;
+						sw_header[23]++;
+
+						if (sw_header[23]>max3)
+						{
+							max3=sw_header[23];
+						}
+					}
+
+				break;
+
+				case 24:
+					if (sw_header[24]>=0)
+					{
+
+						DXF_code_tables[sw_header[24]].dxf_24=line2;
+						sw_header[24]++;
+
+						if (sw_header[24]>max3)
+						{
+							max3=sw_header[24];
+						}
+					}
+
+				break;
+
+				case 25:
+					if (sw_header[25]>=0)
+					{
+
+						DXF_code_tables[sw_header[25]].dxf_25=line2;
+						sw_header[25]++;
+
+						if (sw_header[25]>max3)
+						{
+							max3=sw_header[25];
+						}
+					}
+
+				break;
+
+
+				case 26:
+					if (sw_header[26]>=0)
+					{
+
+						DXF_code_tables[sw_header[26]].dxf_26=line2;
+						sw_header[26]++;
+
+						if (sw_header[26]>max3)
+						{
+							max3=sw_header[26];
+						}
+					}
+
+				break;
+
+				case 27:
+					if (sw_header[27]>=0)
+					{
+
+						DXF_code_tables[sw_header[27]].dxf_27=line2;
+						sw_header[27]++;
+
+						if (sw_header[27]>max3)
+						{
+							max3=sw_header[27];
+						}
+					}
+
+				break;
+
+				case 28:
+					if (sw_header[28]>=0)
+					{
+
+						DXF_code_tables[sw_header[28]].dxf_28=line2;
+						sw_header[28]++;
+
+						if (sw_header[28]>max3)
+						{
+							max3=sw_header[28];
+						}
+					}
+
+				break;
+
+				case 29:
+					if (sw_header[29]>=0)
+					{
+
+						DXF_code_tables[sw_header[29]].dxf_29=line2;
+						sw_header[29]++;
+
+						if (sw_header[29]>max3)
+						{
+							max3=sw_header[29];
+						}
+					}
+
+				break;
+
+
+
+				case 30:
+					if (sw_header[30]>=0)
+					{
+
+						DXF_code_tables[sw_header[30]].dxf_30=line2;
+						sw_header[30]++;
+
+						if (sw_header[30]>max3)
+						{
+							max3=sw_header[30];
+						}
+					}
+
+				break;
+
+				case 31:
+					if (sw_header[31]>=0)
+					{
+
+						DXF_code_tables[sw_header[31]].dxf_31=line2;
+						sw_header[31]++;
+
+						if (sw_header[31]>max3)
+						{
+							max3=sw_header[31];
+						}
+					}
+
+				break;
+
+				case 32:
+					if (sw_header[32]>=0)
+					{
+
+						DXF_code_tables[sw_header[32]].dxf_32=line2;
+						sw_header[32]++;
+
+						if (sw_header[32]>max3)
+						{
+							max3=sw_header[32];
+						}
+					}
+
+				break;
+
+				case 33:
+					if (sw_header[33]>=0)
+					{
+
+						DXF_code_tables[sw_header[33]].dxf_33=line2;
+						sw_header[33]++;
+
+						if (sw_header[33]>max3)
+						{
+							max3=sw_header[33];
+						}
+					}
+
+				break;
+
+				case 34:
+					if (sw_header[34]>=0)
+					{
+
+						DXF_code_tables[sw_header[34]].dxf_34=line2;
+						sw_header[34]++;
+
+						if (sw_header[34]>max3)
+						{
+							max3=sw_header[34];
+						}
+					}
+
+				break;
+
+				case 35:
+					if (sw_header[35]>=0)
+					{
+
+						DXF_code_tables[sw_header[35]].dxf_35=line2;
+						sw_header[35]++;
+
+						if (sw_header[35]>max3)
+						{
+							max3=sw_header[35];
+						}
+					}
+
+				break;
+
+				case 36:
+					if (sw_header[36]>=0)
+					{
+
+						DXF_code_tables[sw_header[36]].dxf_36=line2;
+						sw_header[36]++;
+
+						if (sw_header[36]>max3)
+						{
+							max3=sw_header[36];
+						}
+					}
+
+				break;
+
+				case 37:
+					if (sw_header[37]>=0)
+					{
+
+						DXF_code_tables[sw_header[37]].dxf_37=line2;
+						sw_header[37]++;
+
+						if (sw_header[37]>max3)
+						{
+							max3=sw_header[37];
+						}
+					}
+
+				break;
+
+				case 38:
+					if (sw_header[38]>=0)
+					{
+
+						DXF_code_tables[sw_header[38]].dxf_38=line2;
+						sw_header[38]++;
+
+						if (sw_header[38]>max3)
+						{
+							max3=sw_header[38];
+						}
+					}
+
+				break;
+
+				case 39:
+					if (sw_header[39]>=0)
+					{
+
+						DXF_code_tables[sw_header[39]].dxf_39=line2;
+						sw_header[39]++;
+
+						if (sw_header[39]>max3)
+						{
+							max3=sw_header[39];
+						}
+					}
+
+				break;
+
+
+				case 40:
+					if (sw_header[40]>=0)
+					{
+
+						DXF_code_tables[sw_header[40]].dxf_40=line2;
+						sw_header[40]++;
+
+						if (sw_header[40]>max3)
+						{
+							max3=sw_header[40];
+						}
+					}
+
+				break;
+
+
+				case 41:
+					if (sw_header[41]>=0)
+					{
+
+						DXF_code_tables[sw_header[41]].dxf_41=line2;
+						sw_header[41]++;
+
+						if (sw_header[41]>max3)
+						{
+							max3=sw_header[41];
+						}
+					}
+
+				break;
+
+
+				case 42:
+					if (sw_header[42]>=0)
+					{
+
+						DXF_code_tables[sw_header[42]].dxf_42=line2;
+						sw_header[42]++;
+
+						if (sw_header[42]>max3)
+						{
+							max3=sw_header[42];
+						}
+					}
+
+				break;
+
+				case 43:
+					if (sw_header[43]>=0)
+					{
+
+						DXF_code_tables[sw_header[43]].dxf_43=line2;
+						sw_header[43]++;
+
+						if (sw_header[43]>max3)
+						{
+							max3=sw_header[43];
+						}
+					}
+
+				break;
+
+				case 44:
+					if (sw_header[44]>=0)
+					{
+
+						DXF_code_tables[sw_header[44]].dxf_44=line2;
+						sw_header[44]++;
+
+						if (sw_header[44]>max3)
+						{
+							max3=sw_header[44];
+						}
+					}
+
+				break;
+
+				case 45:
+					if (sw_header[45]>=0)
+					{
+
+						DXF_code_tables[sw_header[45]].dxf_45=line2;
+						sw_header[45]++;
+
+						if (sw_header[45]>max3)
+						{
+							max3=sw_header[45];
+						}
+					}
+
+				break;
+
+				case 46:
+					if (sw_header[46]>=0)
+					{
+
+						DXF_code_tables[sw_header[46]].dxf_46=line2;
+						sw_header[46]++;
+
+						if (sw_header[46]>max3)
+						{
+							max3=sw_header[46];
+						}
+					}
+
+				break;
+
+				case 47:
+					if (sw_header[47]>=0)
+					{
+
+						DXF_code_tables[sw_header[47]].dxf_47=line2;
+						sw_header[47]++;
+
+						if (sw_header[47]>max3)
+						{
+							max3=sw_header[47];
+						}
+					}
+
+				break;
+
+				case 48:
+					if (sw_header[48]>=0)
+					{
+
+						DXF_code_tables[sw_header[48]].dxf_48=line2;
+						sw_header[48]++;
+
+						if (sw_header[48]>max3)
+						{
+							max3=sw_header[48];
+						}
+					}
+
+				break;
+
+				case 49:
+					if (sw_header[49]>=0)
+					{
+
+						DXF_code_tables[sw_header[49]].dxf_49=line2;
+						sw_header[49]++;
+
+						if (sw_header[49]>max3)
+						{
+							max3=sw_header[49];
+						}
+					}
+
+				break;
+
+				case 50:
+					if (sw_header[50]>=0)
+					{
+
+						DXF_code_tables[sw_header[50]].dxf_50=line2;
+						sw_header[50]++;
+
+						if (sw_header[50]>max3)
+						{
+							max3=sw_header[50];
+						}
+					}
+
+				break;
+
+
+				case 51:
+					if (sw_header[51]>=0)
+					{
+
+						DXF_code_tables[sw_header[51]].dxf_51=line2;
+						sw_header[51]++;
+
+						if (sw_header[51]>max3)
+						{
+							max3=sw_header[51];
+						}
+					}
+
+				break;
+
+				case 52:
+					if (sw_header[52]>=0)
+					{
+
+						DXF_code_tables[sw_header[52]].dxf_52=line2;
+						sw_header[52]++;
+
+						if (sw_header[52]>max3)
+						{
+							max3=sw_header[52];
+						}
+					}
+
+				break;
+
+				case 53:
+					if (sw_header[53]>=0)
+					{
+
+						DXF_code_tables[sw_header[53]].dxf_53=line2;
+						sw_header[53]++;
+
+						if (sw_header[53]>max3)
+						{
+							max3=sw_header[53];
+						}
+					}
+
+				break;
+
+				case 60:
+					if (sw_header[60]>=0)
+					{
+
+						DXF_code_tables[sw_header[60]].dxf_60=line2;
+						sw_header[60]++;
+
+						if (sw_header[60]>max3)
+						{
+							max3=sw_header[60];
+						}
+					}
+
+				break;
+
+				case 61:
+					if (sw_header[61]>=0)
+					{
+
+						DXF_code_tables[sw_header[61]].dxf_61=line2;
+						sw_header[61]++;
+
+						if (sw_header[61]>max3)
+						{
+							max3=sw_header[61];
+						}
+					}
+
+				break;
+
+				case 62:
+					if (sw_header[62]>=0)
+					{
+
+						DXF_code_tables[sw_header[62]].dxf_62=line2;
+						sw_header[62]++;
+
+						if (sw_header[62]>max3)
+						{
+							max3=sw_header[62];
+						}
+					}
+
+				break;
+
+				case 63:
+					if (sw_header[63]>=0)
+					{
+
+						DXF_code_tables[sw_header[63]].dxf_63=line2;
+						sw_header[63]++;
+
+						if (sw_header[63]>max3)
+						{
+							max3=sw_header[63];
+						}
+					}
+
+				break;
+
+				case 64:
+					if (sw_header[64]>=0)
+					{
+
+						DXF_code_tables[sw_header[64]].dxf_64=line2;
+						sw_header[64]++;
+
+						if (sw_header[64]>max3)
+						{
+							max3=sw_header[64];
+						}
+					}
+
+				break;
+
+
+				case 65:
+					if (sw_header[65]>=0)
+					{
+
+						DXF_code_tables[sw_header[65]].dxf_65=line2;
+						sw_header[65]++;
+
+						if (sw_header[65]>max3)
+						{
+							max3=sw_header[65];
+						}
+					}
+
+				break;
+
+				case 66:
+					if (sw_header[66]>=0)
+					{
+
+						DXF_code_tables[sw_header[66]].dxf_66=line2;
+						sw_header[66]++;
+
+						if (sw_header[66]>max3)
+						{
+							max3=sw_header[66];
+						}
+					}
+
+				break;
+
+				case 67:
+					if (sw_header[67]>=0)
+					{
+
+						DXF_code_tables[sw_header[67]].dxf_67=line2;
+						sw_header[67]++;
+
+						if (sw_header[67]>max3)
+						{
+							max3=sw_header[67];
+						}
+					}
+
+				break;
+
+				case 68:
+					if (sw_header[68]>=0)
+					{
+
+						DXF_code_tables[sw_header[68]].dxf_68=line2;
+						sw_header[68]++;
+
+						if (sw_header[68]>max3)
+						{
+							max3=sw_header[68];
+						}
+					}
+
+				break;
+
+				case 69:
+					if (sw_header[69]>=0)
+					{
+
+						DXF_code_tables[sw_header[69]].dxf_69=line2;
+						sw_header[69]++;
+
+						if (sw_header[69]>max3)
+						{
+							max3=sw_header[69];
+						}
+					}
+
+				break;
+
+				case 70:
+					if (sw_header[70]>=0)
+					{
+
+						DXF_code_tables[sw_header[70]].dxf_70=line2;
+						sw_header[70]++;
+
+						if (sw_header[70]>max3)
+						{
+							max3=sw_header[70];
+						}
+					}
+
+				break;
+
+				case 71:
+					if (sw_header[71]>=0)
+					{
+
+						DXF_code_tables[sw_header[71]].dxf_71=line2;
+						sw_header[71]++;
+
+						if (sw_header[71]>max3)
+						{
+							max3=sw_header[71];
+						}
+					}
+
+				break;
+
+				case 72:
+					if (sw_header[72]>=0)
+					{
+
+						DXF_code_tables[sw_header[72]].dxf_72=line2;
+						sw_header[72]++;
+
+						if (sw_header[72]>max3)
+						{
+							max3=sw_header[72];
+						}
+					}
+
+				break;
+
+				case 73:
+					if (sw_header[73]>=0)
+					{
+
+						DXF_code_tables[sw_header[73]].dxf_73=line2;
+						sw_header[73]++;
+
+						if (sw_header[73]>max3)
+						{
+							max3=sw_header[73];
+						}
+					}
+
+				break;
+
+				case 74:
+					if (sw_header[74]>=0)
+					{
+
+						DXF_code_tables[sw_header[74]].dxf_74=line2;
+						sw_header[74]++;
+
+						if (sw_header[74]>max3)
+						{
+							max3=sw_header[74];
+						}
+					}
+
+				break;
+
+				case 75:
+					if (sw_header[75]>=0)
+					{
+
+						DXF_code_tables[sw_header[75]].dxf_75=line2;
+						sw_header[75]++;
+
+						if (sw_header[75]>max3)
+						{
+							max3=sw_header[75];
+						}
+					}
+
+				break;
+
+				case 76:
+					if (sw_header[76]>=0)
+					{
+
+						DXF_code_tables[sw_header[76]].dxf_76=line2;
+						sw_header[76]++;
+
+						if (sw_header[76]>max3)
+						{
+							max3=sw_header[76];
+						}
+					}
+
+				break;
+
+				case 77:
+					if (sw_header[77]>=0)
+					{
+
+						DXF_code_tables[sw_header[77]].dxf_77=line2;
+						sw_header[77]++;
+
+						if (sw_header[77]>max3)
+						{
+							max3=sw_header[77];
+						}
+					}
+
+				break;
+
+				case 78:
+					if (sw_header[78]>=0)
+					{
+
+						DXF_code_tables[sw_header[78]].dxf_78=line2;
+						sw_header[78]++;
+
+						if (sw_header[78]>max3)
+						{
+							max3=sw_header[78];
+						}
+					}
+
+				break;
+
+				case 79:
+					if (sw_header[79]>=0)
+					{
+
+						DXF_code_tables[sw_header[79]].dxf_79=line2;
+						sw_header[79]++;
+
+						if (sw_header[79]>max3)
+						{
+							max3=sw_header[79];
+						}
+					}
+
+				break;
+
+				case 90:
+					if (sw_header[90]>=0)
+					{
+
+						DXF_code_tables[sw_header[90]].dxf_90=line2;
+						sw_header[90]++;
+
+						if (sw_header[90]>max3)
+						{
+							max3=sw_header[90];
+						}
+					}
+
+				break;
+
+
+				case 91:
+					if (sw_header[91]>=0)
+					{
+
+						DXF_code_tables[sw_header[91]].dxf_91=line2;
+						sw_header[91]++;
+
+						if (sw_header[91]>max3)
+						{
+							max3=sw_header[91];
+						}
+					}
+
+				break;
+
+
+				case 92:
+					if (sw_header[92]>=0)
+					{
+
+						DXF_code_tables[sw_header[92]].dxf_92=line2;
+						sw_header[92]++;
+
+						if (sw_header[92]>max3)
+						{
+							max3=sw_header[92];
+						}
+					}
+
+				break;
+
+				case 93:
+					if (sw_header[93]>=0)
+					{
+
+						DXF_code_tables[sw_header[93]].dxf_93=line2;
+						sw_header[93]++;
+
+						if (sw_header[93]>max3)
+						{
+							max3=sw_header[93];
+						}
+					}
+
+				break;
+
+				case 94:
+					if (sw_header[94]>=0)
+					{
+
+						DXF_code_tables[sw_header[94]].dxf_94=line2;
+						sw_header[94]++;
+
+						if (sw_header[94]>max3)
+						{
+							max3=sw_header[94];
+						}
+					}
+
+				break;
+
+				case 95:
+					if (sw_header[95]>=0)
+					{
+
+						DXF_code_tables[sw_header[95]].dxf_95=line2;
+						sw_header[95]++;
+
+						if (sw_header[95]>max3)
+						{
+							max3=sw_header[95];
+						}
+					}
+
+				break;
+
+				case 96:
+					if (sw_header[96]>=0)
+					{
+
+						DXF_code_tables[sw_header[96]].dxf_96=line2;
+						sw_header[96]++;
+
+						if (sw_header[96]>max3)
+						{
+							max3=sw_header[96];
+						}
+					}
+
+				break;
+
+				case 97:
+					if (sw_header[97]>=0)
+					{
+
+						DXF_code_tables[sw_header[97]].dxf_97=line2;
+						sw_header[97]++;
+
+						if (sw_header[97]>max3)
+						{
+							max3=sw_header[97];
+						}
+					}
+
+				break;
+
+				case 98:
+					if (sw_header[98]>=0)
+					{
+
+						DXF_code_tables[sw_header[98]].dxf_98=line2;
+						sw_header[98]++;
+
+						if (sw_header[98]>max3)
+						{
+							max3=sw_header[98];
+						}
+					}
+
+				break;
+
+				case 99:
+					if (sw_header[99]>=0)
+					{
+
+						DXF_code_tables[sw_header[99]].dxf_99=line2;
+						sw_header[99]++;
+
+						if (sw_header[99]>max3)
+						{
+							max3=sw_header[99];
+						}
+					}
+
+				break;
+
+				case 100:
+					if (sw_header[100]>=0)
+					{
+
+						DXF_code_tables[sw_header[100]].dxf_100=line2;
+						sw_header[100]++;
+
+						if (sw_header[100]>max3)
+						{
+							max3=sw_header[100];
+						}
+					}
+
+				break;
+
+				//code 101 dont exist
+
+				case 102:
+					if (sw_header[102]>=0)
+					{
+
+						DXF_code_tables[sw_header[102]].dxf_102=line2;
+						sw_header[102]++;
+
+						if (sw_header[102]>max3)
+						{
+							max3=sw_header[102];
+						}
+					}
+
+				break;
+
+				case 105:
+					if (sw_header[105]>=0)
+					{
+
+						DXF_code_tables[sw_header[105]].dxf_105=line2;
+						sw_header[105]++;
+
+						if (sw_header[105]>max3)
+						{
+							max3=sw_header[105];
+						}
+					}
+
+				break;
+
+				case 110:
+					if (sw_header[110]>=0)
+					{
+
+						DXF_code_tables[sw_header[110]].dxf_110=line2;
+						sw_header[110]++;
+
+						if (sw_header[110]>max3)
+						{
+							max3=sw_header[110];
+						}
+					}
+
+				break;
+
+				case 111:
+					if (sw_header[111]>=0)
+					{
+
+						DXF_code_tables[sw_header[111]].dxf_111=line2;
+						sw_header[111]++;
+
+						if (sw_header[111]>max3)
+						{
+							max3=sw_header[111];
+						}
+					}
+
+				break;
+
+				case 112:
+					if (sw_header[112]>=0)
+					{
+
+						DXF_code_tables[sw_header[112]].dxf_112=line2;
+						sw_header[112]++;
+
+						if (sw_header[112]>max3)
+						{
+							max3=sw_header[112];
+						}
+					}
+
+				break;
+
+				case 120:
+					if (sw_header[120]>=0)
+					{
+
+						DXF_code_tables[sw_header[120]].dxf_120=line2;
+						sw_header[120]++;
+
+						if (sw_header[120]>max3)
+						{
+							max3=sw_header[120];
+						}
+					}
+
+				break;
+
+				case 121:
+					if (sw_header[121]>=0)
+					{
+
+						DXF_code_tables[sw_header[121]].dxf_121=line2;
+						sw_header[121]++;
+
+						if (sw_header[121]>max3)
+						{
+							max3=sw_header[121];
+						}
+					}
+
+				break;
+
+				case 122:
+					if (sw_header[122]>=0)
+					{
+
+						DXF_code_tables[sw_header[122]].dxf_122=line2;
+						sw_header[122]++;
+
+						if (sw_header[122]>max3)
+						{
+							max3=sw_header[122];
+						}
+					}
+
+				break;
+
+				case 130:
+					if (sw_header[130]>=0)
+					{
+
+						DXF_code_tables[sw_header[130]].dxf_130=line2;
+						sw_header[130]++;
+
+						if (sw_header[130]>max3)
+						{
+							max3=sw_header[130];
+						}
+					}
+
+				break;
+
+				case 131:
+					if (sw_header[131]>=0)
+					{
+
+						DXF_code_tables[sw_header[131]].dxf_131=line2;
+						sw_header[131]++;
+
+						if (sw_header[131]>max3)
+						{
+							max3=sw_header[131];
+						}
+					}
+
+				break;
+
+				case 132:
+					if (sw_header[132]>=0)
+					{
+
+						DXF_code_tables[sw_header[132]].dxf_132=line2;
+						sw_header[132]++;
+
+						if (sw_header[132]>max3)
+						{
+							max3=sw_header[132];
+						}
+					}
+
+				break;
+
+				case 140:
+					if (sw_header[140]>=0)
+					{
+
+						DXF_code_tables[sw_header[140]].dxf_140=line2;
+						sw_header[140]++;
+
+						if (sw_header[140]>max3)
+						{
+							max3=sw_header[140];
+						}
+					}
+
+				break;
+
+				case 141:
+					if (sw_header[141]>=0)
+					{
+
+						DXF_code_tables[sw_header[141]].dxf_141=line2;
+						sw_header[141]++;
+
+						if (sw_header[141]>max3)
+						{
+							max3=sw_header[141];
+						}
+					}
+
+				break;
+
+				case 142:
+					if (sw_header[142]>=0)
+					{
+
+						DXF_code_tables[sw_header[142]].dxf_142=line2;
+						sw_header[142]++;
+
+						if (sw_header[142]>max3)
+						{
+							max3=sw_header[142];
+						}
+					}
+
+				break;
+
+				case 143:
+					if (sw_header[143]>=0)
+					{
+
+						DXF_code_tables[sw_header[143]].dxf_143=line2;
+						sw_header[143]++;
+
+						if (sw_header[143]>max3)
+						{
+							max3=sw_header[143];
+						}
+					}
+
+				break;
+
+				case 144:
+					if (sw_header[144]>=0)
+					{
+
+						DXF_code_tables[sw_header[144]].dxf_144=line2;
+						sw_header[144]++;
+
+						if (sw_header[144]>max3)
+						{
+							max3=sw_header[144];
+						}
+					}
+
+				break;
+
+				case 145:
+					if (sw_header[145]>=0)
+					{
+
+						DXF_code_tables[sw_header[145]].dxf_145=line2;
+						sw_header[145]++;
+
+						if (sw_header[145]>max3)
+						{
+							max3=sw_header[145];
+						}
+					}
+
+				break;
+
+				case 146:
+					if (sw_header[146]>=0)
+					{
+
+						DXF_code_tables[sw_header[146]].dxf_146=line2;
+						sw_header[146]++;
+
+						if (sw_header[146]>max3)
+						{
+							max3=sw_header[146];
+						}
+					}
+
+				break;
+
+				case 147:
+					if (sw_header[147]>=0)
+					{
+
+						DXF_code_tables[sw_header[147]].dxf_147=line2;
+						sw_header[147]++;
+
+						if (sw_header[147]>max3)
+						{
+							max3=sw_header[147];
+						}
+					}
+
+				break;
+
+				case 148:
+					if (sw_header[148]>=0)
+					{
+
+						DXF_code_tables[sw_header[148]].dxf_148=line2;
+						sw_header[148]++;
+
+						if (sw_header[148]>max3)
+						{
+							max3=sw_header[148];
+						}
+					}
+
+				break;
+
+				case 149:
+					if (sw_header[149]>=0)
+					{
+
+						DXF_code_tables[sw_header[149]].dxf_149=line2;
+						sw_header[149]++;
+
+						if (sw_header[149]>max3)
+						{
+							max3=sw_header[149];
+						}
+					}
+
+				break;
+
+				case 160:
+					if (sw_header[160]>=0)
+					{
+
+						DXF_code_tables[sw_header[160]].dxf_160=line2;
+						sw_header[160]++;
+
+						if (sw_header[160]>max3)
+						{
+							max3=sw_header[160];
+						}
+					}
+
+				break;
+
+				case 170:
+					if (sw_header[170]>=0)
+					{
+
+						DXF_code_tables[sw_header[170]].dxf_170=line2;
+						sw_header[170]++;
+
+						if (sw_header[170]>max3)
+						{
+							max3=sw_header[170];
+						}
+					}
+
+				break;
+
+				case 171:
+					if (sw_header[171]>=0)
+					{
+
+						DXF_code_tables[sw_header[171]].dxf_171=line2;
+						sw_header[171]++;
+
+						if (sw_header[171]>max3)
+						{
+							max3=sw_header[171];
+						}
+					}
+
+				break;
+
+				case 172:
+					if (sw_header[172]>=0)
+					{
+
+						DXF_code_tables[sw_header[172]].dxf_172=line2;
+						sw_header[172]++;
+
+						if (sw_header[172]>max3)
+						{
+							max3=sw_header[172];
+						}
+					}
+
+				break;
+
+				case 173:
+					if (sw_header[173]>=0)
+					{
+
+						DXF_code_tables[sw_header[173]].dxf_173=line2;
+						sw_header[173]++;
+
+						if (sw_header[173]>max3)
+						{
+							max3=sw_header[173];
+						}
+					}
+
+				break;
+
+				case 174:
+					if (sw_header[174]>=0)
+					{
+
+						DXF_code_tables[sw_header[174]].dxf_174=line2;
+						sw_header[174]++;
+
+						if (sw_header[174]>max3)
+						{
+							max3=sw_header[174];
+						}
+					}
+
+				break;
+
+				case 175:
+					if (sw_header[175]>=0)
+					{
+
+						DXF_code_tables[sw_header[175]].dxf_175=line2;
+						sw_header[175]++;
+
+						if (sw_header[175]>max3)
+						{
+							max3=sw_header[175];
+						}
+					}
+
+				break;
+
+				case 176:
+					if (sw_header[176]>=0)
+					{
+
+						DXF_code_tables[sw_header[176]].dxf_176=line2;
+						sw_header[176]++;
+
+						if (sw_header[176]>max3)
+						{
+							max3=sw_header[176];
+						}
+					}
+
+				break;
+
+				case 177:
+					if (sw_header[177]>=0)
+					{
+
+						DXF_code_tables[sw_header[177]].dxf_177=line2;
+						sw_header[177]++;
+
+						if (sw_header[177]>max3)
+						{
+							max3=sw_header[177];
+						}
+					}
+
+				break;
+
+				case 178:
+					if (sw_header[178]>=0)
+					{
+
+						DXF_code_tables[sw_header[178]].dxf_178=line2;
+						sw_header[178]++;
+
+						if (sw_header[178]>max3)
+						{
+							max3=sw_header[178];
+						}
+					}
+
+				break;
+
+
+				case 179:
+					if (sw_header[179]>=0)
+					{
+
+						DXF_code_tables[sw_header[179]].dxf_179=line2;
+						sw_header[179]++;
+
+						if (sw_header[179]>max3)
+						{
+							max3=sw_header[179];
+						}
+					}
+
+				break;
+
+				case 210:
+					if (sw_header[210]>=0)
+					{
+
+						DXF_code_tables[sw_header[210]].dxf_210=line2;
+						sw_header[210]++;
+
+						if (sw_header[210]>max3)
+						{
+							max3=sw_header[210];
+						}
+					}
+
+				break;
+
+				case 220:
+					if (sw_header[220]>=0)
+					{
+
+						DXF_code_tables[sw_header[220]].dxf_220=line2;
+						sw_header[220]++;
+
+						if (sw_header[220]>max3)
+						{
+							max3=sw_header[220];
+						}
+					}
+
+				break;
+
+				case 230:
+					if (sw_header[230]>=0)
+					{
+
+						DXF_code_tables[sw_header[230]].dxf_230=line2;
+						sw_header[230]++;
+
+						if (sw_header[230]>max3)
+						{
+							max3=sw_header[230];
+						}
+					}
+
+				break;
+
+				case 270:
+					if (sw_header[270]>=0)
+					{
+
+						DXF_code_tables[sw_header[270]].dxf_270=line2;
+						sw_header[270]++;
+
+						if (sw_header[270]>max3)
+						{
+							max3=sw_header[270];
+						}
+					}
+
+				break;
+
+				case 271:
+					if (sw_header[271]>=0)
+					{
+
+						DXF_code_tables[sw_header[271]].dxf_271=line2;
+						sw_header[271]++;
+
+						if (sw_header[271]>max3)
+						{
+							max3=sw_header[271];
+						}
+					}
+
+				break;
+
+				case 272:
+					if (sw_header[272]>=0)
+					{
+
+						DXF_code_tables[sw_header[272]].dxf_272=line2;
+						sw_header[272]++;
+
+						if (sw_header[272]>max3)
+						{
+							max3=sw_header[272];
+						}
+					}
+
+				break;
+
+				case 273:
+					if (sw_header[273]>=0)
+					{
+
+						DXF_code_tables[sw_header[273]].dxf_273=line2;
+						sw_header[273]++;
+
+						if (sw_header[273]>max3)
+						{
+							max3=sw_header[273];
+						}
+					}
+
+				break;
+
+				case 274:
+					if (sw_header[274]>=0)
+					{
+
+						DXF_code_tables[sw_header[274]].dxf_274=line2;
+						sw_header[274]++;
+
+						if (sw_header[274]>max3)
+						{
+							max3=sw_header[274];
+						}
+					}
+
+				break;
+
+				case 275:
+					if (sw_header[275]>=0)
+					{
+
+						DXF_code_tables[sw_header[275]].dxf_275=line2;
+						sw_header[275]++;
+
+						if (sw_header[275]>max3)
+						{
+							max3=sw_header[275];
+						}
+					}
+
+				break;
+
+				case 276:
+					if (sw_header[276]>=0)
+					{
+
+						DXF_code_tables[sw_header[276]].dxf_276=line2;
+						sw_header[276]++;
+
+						if (sw_header[276]>max3)
+						{
+							max3=sw_header[276];
+						}
+					}
+
+				break;
+
+
+				case 277:
+					if (sw_header[277]>=0)
+					{
+
+						DXF_code_tables[sw_header[277]].dxf_277=line2;
+						sw_header[277]++;
+
+						if (sw_header[277]>max3)
+						{
+							max3=sw_header[277];
+						}
+					}
+
+				break;
+
+				case 278:
+					if (sw_header[278]>=0)
+					{
+
+						DXF_code_tables[sw_header[278]].dxf_278=line2;
+						sw_header[278]++;
+
+						if (sw_header[278]>max3)
+						{
+							max3=sw_header[278];
+						}
+					}
+
+				break;
+
+				case 279:
+					if (sw_header[279]>=0)
+					{
+
+						DXF_code_tables[sw_header[279]].dxf_279=line2;
+						sw_header[279]++;
+
+						if (sw_header[279]>max3)
+						{
+							max3=sw_header[279];
+						}
+					}
+
+				break;
+
+				case 280:
+					if (sw_header[280]>=0)
+					{
+
+						DXF_code_tables[sw_header[280]].dxf_280=line2;
+						sw_header[280]++;
+
+						if (sw_header[280]>max3)
+						{
+							max3=sw_header[280];
+						}
+					}
+
+				break;
+
+				case 281:
+					if (sw_header[281]>=0)
+					{
+
+						DXF_code_tables[sw_header[281]].dxf_281=line2;
+						sw_header[281]++;
+
+						if (sw_header[281]>max3)
+						{
+							max3=sw_header[281];
+						}
+					}
+
+				break;
+
+				case 282:
+					if (sw_header[282]>=0)
+					{
+
+						DXF_code_tables[sw_header[282]].dxf_282=line2;
+						sw_header[282]++;
+
+						if (sw_header[282]>max3)
+						{
+							max3=sw_header[282];
+						}
+					}
+
+				break;
+
+				case 283:
+					if (sw_header[283]>=0)
+					{
+
+						DXF_code_tables[sw_header[283]].dxf_283=line2;
+						sw_header[283]++;
+
+						if (sw_header[283]>max3)
+						{
+							max3=sw_header[283];
+						}
+					}
+
+				break;
+
+				case 284:
+					if (sw_header[284]>=0)
+					{
+
+						DXF_code_tables[sw_header[284]].dxf_284=line2;
+						sw_header[284]++;
+
+						if (sw_header[284]>max3)
+						{
+							max3=sw_header[284];
+						}
+					}
+
+				break;
+
+				case 285:
+					if (sw_header[285]>=0)
+					{
+
+						DXF_code_tables[sw_header[285]].dxf_285=line2;
+						sw_header[285]++;
+
+						if (sw_header[285]>max3)
+						{
+							max3=sw_header[285];
+						}
+					}
+
+				break;
+
+				case 286:
+					if (sw_header[286]>=0)
+					{
+
+						DXF_code_tables[sw_header[286]].dxf_286=line2;
+						sw_header[286]++;
+
+						if (sw_header[286]>max3)
+						{
+							max3=sw_header[286];
+						}
+					}
+
+				break;
+
+				case 287:
+					if (sw_header[287]>=0)
+					{
+
+						DXF_code_tables[sw_header[287]].dxf_287=line2;
+						sw_header[287]++;
+
+						if (sw_header[287]>max3)
+						{
+							max3=sw_header[287];
+						}
+					}
+
+				break;
+
+				case 288:
+					if (sw_header[288]>=0)
+					{
+
+						DXF_code_tables[sw_header[288]].dxf_288=line2;
+						sw_header[288]++;
+
+						if (sw_header[288]>max3)
+						{
+							max3=sw_header[288];
+						}
+					}
+
+				break;
+
+				case 289:
+					if (sw_header[289]>=0)
+					{
+
+						DXF_code_tables[sw_header[289]].dxf_289=line2;
+						sw_header[289]++;
+
+						if (sw_header[289]>max3)
+						{
+							max3=sw_header[289];
+						}
+					}
+
+				break;
+
+				case 290:
+					if (sw_header[290]>=0)
+					{
+
+						DXF_code_tables[sw_header[290]].dxf_290=line2;
+						sw_header[290]++;
+
+						if (sw_header[290]>max3)
+						{
+							max3=sw_header[290];
+						}
+					}
+
+				break;
+
+				case 291:
+					if (sw_header[291]>=0)
+					{
+
+						DXF_code_tables[sw_header[291]].dxf_291=line2;
+						sw_header[291]++;
+
+						if (sw_header[291]>max3)
+						{
+							max3=sw_header[291];
+						}
+					}
+
+				break;
+
+				case 292:
+					if (sw_header[292]>=0)
+					{
+
+						DXF_code_tables[sw_header[292]].dxf_292=line2;
+						sw_header[292]++;
+
+						if (sw_header[292]>max3)
+						{
+							max3=sw_header[292];
+						}
+					}
+
+				break;
+
+				case 293:
+					if (sw_header[293]>=0)
+					{
+
+						DXF_code_tables[sw_header[293]].dxf_293=line2;
+						sw_header[293]++;
+
+						if (sw_header[293]>max3)
+						{
+							max3=sw_header[293];
+						}
+					}
+
+				break;
+
+				case 294:
+					if (sw_header[294]>=0)
+					{
+
+						DXF_code_tables[sw_header[294]].dxf_294=line2;
+						sw_header[294]++;
+
+						if (sw_header[294]>max3)
+						{
+							max3=sw_header[294];
+						}
+					}
+
+				break;
+
+				case 295:
+					if (sw_header[295]>=0)
+					{
+
+						DXF_code_tables[sw_header[295]].dxf_295=line2;
+						sw_header[295]++;
+
+						if (sw_header[295]>max3)
+						{
+							max3=sw_header[295];
+						}
+					}
+
+				break;
+
+				case 296:
+					if (sw_header[296]>=0)
+					{
+
+						DXF_code_tables[sw_header[296]].dxf_296=line2;
+						sw_header[296]++;
+
+						if (sw_header[296]>max3)
+						{
+							max3=sw_header[296];
+						}
+					}
+
+				break;
+
+				case 297:
+					if (sw_header[297]>=0)
+					{
+
+						DXF_code_tables[sw_header[297]].dxf_297=line2;
+						sw_header[297]++;
+
+						if (sw_header[297]>max3)
+						{
+							max3=sw_header[297];
+						}
+					}
+
+				break;
+
+				case 298:
+					if (sw_header[298]>=0)
+					{
+
+						DXF_code_tables[sw_header[298]].dxf_298=line2;
+						sw_header[298]++;
+
+						if (sw_header[298]>max3)
+						{
+							max3=sw_header[298];
+						}
+					}
+
+				break;
+
+				case 299:
+					if (sw_header[299]>=0)
+					{
+
+						DXF_code_tables[sw_header[299]].dxf_299=line2;
+						sw_header[299]++;
+
+						if (sw_header[299]>max3)
+						{
+							max3=sw_header[299];
+						}
+					}
+
+				break;
+
+				case 300:
+					if (sw_header[300]>=0)
+					{
+
+						DXF_code_tables[sw_header[300]].dxf_300=line2;
+						sw_header[300]++;
+
+						if (sw_header[300]>max3)
+						{
+							max3=sw_header[300];
+						}
+					}
+
+				break;
+
+				case 301:
+					if (sw_header[301]>=0)
+					{
+
+						DXF_code_tables[sw_header[301]].dxf_301=line2;
+						sw_header[301]++;
+
+						if (sw_header[301]>max3)
+						{
+							max3=sw_header[301];
+						}
+					}
+
+				break;
+
+				case 302:
+					if (sw_header[302]>=0)
+					{
+
+						DXF_code_tables[sw_header[302]].dxf_302=line2;
+						sw_header[302]++;
+
+						if (sw_header[302]>max3)
+						{
+							max3=sw_header[302];
+						}
+					}
+
+				break;
+
+				case 303:
+					if (sw_header[303]>=0)
+					{
+
+						DXF_code_tables[sw_header[303]].dxf_303=line2;
+						sw_header[303]++;
+
+						if (sw_header[303]>max3)
+						{
+							max3=sw_header[303];
+						}
+					}
+
+				break;
+
+				case 304:
+					if (sw_header[304]>=0)
+					{
+
+						DXF_code_tables[sw_header[304]].dxf_304=line2;
+						sw_header[304]++;
+
+						if (sw_header[304]>max3)
+						{
+							max3=sw_header[304];
+						}
+					}
+
+				break;
+
+				case 305:
+					if (sw_header[305]>=0)
+					{
+
+						DXF_code_tables[sw_header[305]].dxf_305=line2;
+						sw_header[305]++;
+
+						if (sw_header[305]>max3)
+						{
+							max3=sw_header[305];
+						}
+					}
+
+				break;
+
+				case 306:
+					if (sw_header[306]>=0)
+					{
+
+						DXF_code_tables[sw_header[306]].dxf_306=line2;
+						sw_header[306]++;
+
+						if (sw_header[306]>max3)
+						{
+							max3=sw_header[306];
+						}
+					}
+
+				break;
+
+				case 307:
+					if (sw_header[307]>=0)
+					{
+
+						DXF_code_tables[sw_header[307]].dxf_307=line2;
+						sw_header[307]++;
+
+						if (sw_header[307]>max3)
+						{
+							max3=sw_header[307];
+						}
+					}
+
+				break;
+
+				case 308:
+					if (sw_header[308]>=0)
+					{
+
+						DXF_code_tables[sw_header[308]].dxf_308=line2;
+						sw_header[308]++;
+
+						if (sw_header[308]>max3)
+						{
+							max3=sw_header[308];
+						}
+					}
+
+				break;
+
+				case 309:
+					if (sw_header[309]>=0)
+					{
+
+						DXF_code_tables[sw_header[309]].dxf_309=line2;
+						sw_header[309]++;
+
+						if (sw_header[309]>max3)
+						{
+							max3=sw_header[309];
+						}
+					}
+
+				break;
+
+				case 310:
+					if (sw_header[310]>=0)
+					{
+
+						DXF_code_tables[sw_header[310]].dxf_310=line2;
+						sw_header[310]++;
+
+						if (sw_header[310]>max3)
+						{
+							max3=sw_header[310];
+						}
+					}
+
+				break;
+
+				case 330:
+					if (sw_header[330]>=0)
+					{
+
+						DXF_code_tables[sw_header[330]].dxf_330=line2;
+						sw_header[330]++;
+
+						if (sw_header[330]>max3)
+						{
+							max3=sw_header[330];
+						}
+					}
+
+				break;
+
+
+
+				case 331:
+					if (sw_header[331]>=0)
+					{
+
+						DXF_code_tables[sw_header[331]].dxf_331=line2;
+						sw_header[331]++;
+
+						if (sw_header[331]>max3)
+						{
+							max3=sw_header[331];
+						}
+					}
+
+				break;
+
+				case 332:
+					if (sw_header[332]>=0)
+					{
+
+						DXF_code_tables[sw_header[332]].dxf_332=line2;
+						sw_header[332]++;
+
+						if (sw_header[332]>max3)
+						{
+							max3=sw_header[332];
+						}
+					}
+
+				break;
+
+				case 338:
+					if (sw_header[338]>=0)
+					{
+
+						DXF_code_tables[sw_header[338]].dxf_342=line2;
+						sw_header[338]++;
+
+						if (sw_header[338]>max3)
+						{
+							max3=sw_header[338];
+						}
+					}
+
+				break;
+
+				case 340:
+					if (sw_header[340]>=0)
+					{
+
+						DXF_code_tables[sw_header[340]].dxf_340=line2;
+						sw_header[340]++;
+
+						if (sw_header[340]>max3)
+						{
+							max3=sw_header[340];
+						}
+					}
+
+				break;
+
+				case 341:
+					if (sw_header[341]>=0)
+					{
+
+						DXF_code_tables[sw_header[341]].dxf_341=line2;
+						sw_header[341]++;
+
+						if (sw_header[341]>max3)
+						{
+							max3=sw_header[341];
+						}
+					}
+
+				break;
+
+				case 342:
+					if (sw_header[342]>=0)
+					{
+
+						DXF_code_tables[sw_header[342]].dxf_342=line2;
+						sw_header[342]++;
+
+						if (sw_header[342]>max3)
+						{
+							max3=sw_header[342];
+						}
+					}
+
+				break;
+
+				case 343:
+					if (sw_header[343]>=0)
+					{
+
+						DXF_code_tables[sw_header[343]].dxf_343=line2;
+						sw_header[343]++;
+
+						if (sw_header[343]>max3)
+						{
+							max3=sw_header[343];
+						}
+					}
+
+				break;
+
+				case 347:
+					if (sw_header[347]>=0)
+					{
+
+						DXF_code_tables[sw_header[347]].dxf_347=line2;
+						sw_header[347]++;
+
+						if (sw_header[347]>max3)
+						{
+							max3=sw_header[347];
+						}
+					}
+
+				break;
+
+				case 348:
+					if (sw_header[348]>=0)
+					{
+
+						DXF_code_tables[sw_header[348]].dxf_348=line2;
+						sw_header[348]++;
+
+						if (sw_header[348]>max3)
+						{
+							max3=sw_header[348];
+						}
+					}
+
+				break;
+
+				case 350:
+					if (sw_header[350]>=0)
+					{
+
+						DXF_code_tables[sw_header[350]].dxf_350=line2;
+						sw_header[350]++;
+
+						if (sw_header[350]>max3)
+						{
+							max3=sw_header[350];
+						}
+					}
+
+				break;
+
+				case 360:
+					if (sw_header[360]>=0)
+					{
+
+						DXF_code_tables[sw_header[360]].dxf_360=line2;
+						sw_header[360]++;
+
+						if (sw_header[360]>max3)
+						{
+							max3=sw_header[360];
+						}
+					}
+
+				break;
+
+				case 361:
+					if (sw_header[361]>=0)
+					{
+
+						DXF_code_tables[sw_header[361]].dxf_361=line2;
+						sw_header[361]++;
+
+						if (sw_header[361]>max3)
+						{
+							max3=sw_header[361];
+						}
+					}
+
+				break;
+
+				case 370:
+					if (sw_header[370]>=0)
+					{
+
+						DXF_code_tables[sw_header[370]].dxf_370=line2;
+						sw_header[370]++;
+
+						if (sw_header[370]>max3)
+						{
+							max3=sw_header[370];
+						}
+					}
+
+				break;
+
+				case 371:
+					if (sw_header[371]>=0)
+					{
+
+						DXF_code_tables[sw_header[371]].dxf_371=line2;
+						sw_header[371]++;
+
+						if (sw_header[371]>max3)
+						{
+							max3=sw_header[371];
+						}
+					}
+
+				break;
+
+				case 372:
+					if (sw_header[372]>=0)
+					{
+
+						DXF_code_tables[sw_header[372]].dxf_372=line2;
+						sw_header[372]++;
+
+						if (sw_header[372]>max3)
+						{
+							max3=sw_header[372];
+						}
+					}
+
+				break;
+
+				case 373:
+					if (sw_header[373]>=0)
+					{
+
+						DXF_code_tables[sw_header[373]].dxf_373=line2;
+						sw_header[373]++;
+
+						if (sw_header[373]>max3)
+						{
+							max3=sw_header[373];
+						}
+					}
+
+				break;
+
+				case 380:
+					if (sw_header[380]>=0)
+					{
+
+						DXF_code_tables[sw_header[380]].dxf_380=line2;
+						sw_header[380]++;
+
+						if (sw_header[380]>max3)
+						{
+							max3=sw_header[380];
+						}
+					}
+
+				break;
+
+				case 390:
+					if (sw_header[390]>=0)
+					{
+
+						DXF_code_tables[sw_header[390]].dxf_390=line2;
+						sw_header[390]++;
+
+						if (sw_header[390]>max3)
+						{
+							max3=sw_header[390];
+						}
+					}
+
+				break;
+
+				case 420:
+					if (sw_header[420]>=0)
+					{
+
+						DXF_code_tables[sw_header[420]].dxf_420=line2;
+						sw_header[420]++;
+
+						if (sw_header[420]>max3)
+						{
+							max3=sw_header[420];
+						}
+					}
+
+				break;
+
+
+				case 421:
+					if (sw_header[421]>=0)
+					{
+
+						DXF_code_tables[sw_header[421]].dxf_421=line2;
+						sw_header[421]++;
+
+						if (sw_header[421]>max3)
+						{
+							max3=sw_header[421];
+						}
+					}
+
+				break;
+
+				case 424:
+					if (sw_header[424]>=0)
+					{
+
+						DXF_code_tables[sw_header[424]].dxf_424=line2;
+						sw_header[424]++;
+
+						if (sw_header[424]>max3)
+						{
+							max3=sw_header[424];
+						}
+					}
+
+
+				case 425:
+					if (sw_header[425]>=0)
+					{
+
+						DXF_code_tables[sw_header[425]].dxf_425=line2;
+						sw_header[425]++;
+
+						if (sw_header[425]>max3)
+						{
+							max3=sw_header[425];
+						}
+					}
+
+				break;
+
+				break;
+
+				case 1000:
+					if (sw_header[1000]>=0)
+					{
+
+						DXF_code_tables[sw_header[1000]].dxf_1000=line2;
+						sw_header[1000]++;
+
+						if (sw_header[1000]>max3)
+						{
+							max3=sw_header[1000];
+						}
+					}
+
+				break;
+
+				case 1001:
+					if (sw_header[1001]>=0)
+					{
+
+						DXF_code_tables[sw_header[1001]].dxf_1001=line2;
+						sw_header[1001]++;
+
+						if (sw_header[1001]>max3)
+						{
+							max3=sw_header[1001];
+						}
+					}
+
+				break;
+
+				case 1002:
+					if (sw_header[1002]>=0)
+					{
+
+						DXF_code_tables[sw_header[1002]].dxf_1002=line2;
+						sw_header[1002]++;
+
+						if (sw_header[1002]>max3)
+						{
+							max3=sw_header[1002];
+						}
+					}
+
+				break;
+
+				case 1005:
+					if (sw_header[1005]>=0)
+					{
+
+						DXF_code_tables[sw_header[1005]].dxf_1005=line2;
+						sw_header[1005]++;
+
+						if (sw_header[1005]>max3)
+						{
+							max3=sw_header[1005];
+						}
+					}
+
+				break;
+
+				case 1010:
+					if (sw_header[1010]>=0)
+					{
+
+						DXF_code_tables[sw_header[1010]].dxf_1010=line2;
+						sw_header[1010]++;
+
+						if (sw_header[1010]>max3)
+						{
+							max3=sw_header[1010];
+						}
+					}
+
+				break;
+
+				case 1011:
+					if (sw_header[1011]>=0)
+					{
+
+						DXF_code_tables[sw_header[1011]].dxf_1011=line2;
+						sw_header[1011]++;
+
+						if (sw_header[1011]>max3)
+						{
+							max3=sw_header[1011];
+						}
+					}
+
+				break;
+
+				case 1012:
+					if (sw_header[1012]>=0)
+					{
+
+						DXF_code_tables[sw_header[1012]].dxf_1012=line2;
+						sw_header[1012]++;
+
+						if (sw_header[1012]>max3)
+						{
+							max3=sw_header[1012];
+						}
+					}
+
+				break;
+
+				case 1013:
+					if (sw_header[1013]>=0)
+					{
+
+						DXF_code_tables[sw_header[1013]].dxf_1013=line2;
+						sw_header[1013]++;
+
+						if (sw_header[1013]>max3)
+						{
+							max3=sw_header[1013];
+						}
+					}
+
+				break;
+
+
+				case 1020:
+					if (sw_header[1020]>=0)
+					{
+
+						DXF_code_tables[sw_header[1020]].dxf_1020=line2;
+						sw_header[1020]++;
+
+						if (sw_header[1020]>max3)
+						{
+							max3=sw_header[1020];
+						}
+					}
+
+				break;
+
+				case 1021:
+					if (sw_header[1021]>=0)
+					{
+
+						DXF_code_tables[sw_header[1021]].dxf_1021=line2;
+						sw_header[1021]++;
+
+						if (sw_header[1021]>max3)
+						{
+							max3=sw_header[1021];
+						}
+					}
+
+				break;
+
+				case 1022:
+					if (sw_header[1022]>=0)
+					{
+
+						DXF_code_tables[sw_header[1022]].dxf_1022=line2;
+						sw_header[1022]++;
+
+						if (sw_header[1022]>max3)
+						{
+							max3=sw_header[1022];
+						}
+					}
+
+				break;
+
+				case 1023:
+					if (sw_header[1023]>=0)
+					{
+
+						DXF_code_tables[sw_header[1023]].dxf_1023=line2;
+						sw_header[1023]++;
+
+						if (sw_header[1023]>max3)
+						{
+							max3=sw_header[1023];
+						}
+					}
+
+				break;
+
+				case 1030:
+					if (sw_header[1030]>=0)
+					{
+
+						DXF_code_tables[sw_header[1030]].dxf_1030=line2;
+						sw_header[1030]++;
+
+						if (sw_header[1030]>max3)
+						{
+							max3=sw_header[1030];
+						}
+					}
+
+				break;
+
+				case 1031:
+					if (sw_header[1031]>=0)
+					{
+
+						DXF_code_tables[sw_header[1031]].dxf_1031=line2;
+						sw_header[1031]++;
+
+						if (sw_header[1031]>max3)
+						{
+							max3=sw_header[1031];
+						}
+					}
+
+				break;
+
+				case 1032:
+					if (sw_header[1032]>=0)
+					{
+
+						DXF_code_tables[sw_header[1032]].dxf_1032=line2;
+						sw_header[1032]++;
+
+						if (sw_header[1032]>max3)
+						{
+							max3=sw_header[1032];
+						}
+					}
+
+				break;
+
+				case 1033:
+					if (sw_header[1033]>=0)
+					{
+
+						DXF_code_tables[sw_header[1033]].dxf_1033=line2;
+						sw_header[1033]++;
+
+						if (sw_header[1033]>max3)
+						{
+							max3=sw_header[1033];
+						}
+					}
+
+				break;
+
+				case 1040:
+					if (sw_header[1040]>=0)
+					{
+
+						DXF_code_tables[sw_header[1040]].dxf_1040=line2;
+						sw_header[1040]++;
+
+						if (sw_header[1040]>max3)
+						{
+							max3=sw_header[1040];
+						}
+					}
+
+				break;
+
+				case 1070:
+					if (sw_header[1070]>=0)
+					{
+
+						DXF_code_tables[sw_header[1070]].dxf_1070=line2;
+						sw_header[1070]++;
+
+						if (sw_header[1070]>max3)
+						{
+							max3=sw_header[1070];
+						}
+					}
+
+				break;
+
+
+				case 1071:
+					if (sw_header[1071]>=0)
+					{
+
+						DXF_code_tables[sw_header[1071]].dxf_1071=line2;
+						sw_header[1071]++;
+
+						if (sw_header[1071]>max3)
+						{
+							max3=sw_header[1071];
+						}
+					}
+
+				break;
+
+				default:
+
+					ui->dxf_log->insertPlainText("Found code : ");
+					ui->dxf_log->insertPlainText(split_tables_list[count_tables_list][count_list_item]);
+					ui->dxf_log->insertPlainText(" | ");
+					ui->dxf_log->insertPlainText(split_tables_list[count_tables_list][count_list_item+1]);
+					ui->dxf_log->insertPlainText("\n");
+
+					ui->dxf_log->moveCursor(QTextCursor::End);
+					ui->dxf_log->repaint();
+
+			}
+
+
+		count_list_item=count_list_item+2;
+	}
+
+
+
+
+	return max3;
+}
+
+void DXFtoQET3DB::clear_split_tables()
+{
+	for (xclear = 0;xclear < DXF_item_split;xclear++)
+	{
+		split_tables_list[xclear].clear();
+	}
+
+}
+
+void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
+{
+	ui->ELMT_Result->clear();
+	DXF_Entities_List.DXF_Result.clear();
+
+	ui->MainTab->setCurrentIndex(1);
+	ui->MainTab->repaint();
+
+
+	DXF_main_base[0].QDXF_arc_color="black";
+	DXF_main_base[0].QDXF_circle_color="black";
+	DXF_main_base[0].QDXF_ellipse_color="black";
+	DXF_main_base[0].QDXF_input_color="black";
+	DXF_main_base[0].QDXF_line_color="black";
+	DXF_main_base[0].QDXF_lwpolyline_color="black";
+	DXF_main_base[0].QDXF_polyline_color="black";
+	DXF_main_base[0].QDXF_rectangel_color="black";
+	DXF_main_base[0].QDXF_terminal_color="black";
+	DXF_main_base[0].QDXF_text_color="black";
+	DXF_main_base[0].QDXF_solid_color="black";
+
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
+	ui->dxf_log->insertPlainText("=> Start creating converting to ELMT \n");
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	Filename_db=DXF_main_base[0].dxf_savepath + "/" +DXF_main_base[0].dxf_openfile;
+	Filename_db.append(".db3");
+
+	ui->dxf_log->insertPlainText("Open : ");
+	ui->dxf_log->insertPlainText(Filename_db);
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+
+	ui->dxf_log->insertPlainText("Get dxf Header information\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+	ELMT_header_steps NewHeader;
+
+	NewHeader.Open_SQL_DB(Filename_db);
+
+	NewHeader.GetHeader_info(Filename_db);
+
+	NewHeader.Close_SQL_DB(Filename_db);
+
+	elmt_tables NewLayerTable;
+
+	ui->dxf_log->insertPlainText("Get dxf Layer information\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	NewLayerTable.Open_SQL_DB(Filename_db);
+
+	ui->dxf_log->insertPlainText(NewLayerTable.Get_Tables_Layers(Filename_db));
+
+	NewLayerTable.Close_SQL_DB(Filename_db);
+
+	ui->dxf_log->insertPlainText(NewLayerTable.Get_Tables_Layers(Filename_db));
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+
+
+	ResultELMT="";
+	BaseELMT NewBase;
+
+	ui->dxf_log->insertPlainText("Creating header of ELMT file \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	NewBase.ELMT_definition_width=NewHeader.Calc_Width();
+	NewBase.ELMT_definition_height=NewHeader.Calc_Height();
+	NewBase.ELMT_definition_version="0.51";
+	NewBase.ELMT_definition_hotspot_x=DXF_variable.DXF_INSBASE_X;
+	NewBase.ELMT_definition_hotspot_y=DXF_variable.DXF_INSBASE_Y;
+	NewBase.ELMT_definition_link_type="simple";
+	NewBase.ELMT_definition_orientation="dyyy";
+	NewBase.ELMT_definition_type="element";
+
+	NewBase.ELMT_Name_en="en";
+	NewBase.ELMT_Name_fr="fr";
+
+	NewBase.ELMT_Name_text_en=DXF_main_base[0].dxf_openfile;
+	NewBase.ELMT_Name_text_fr=DXF_main_base[0].dxf_openfile;
+
+	//NewBase.ELMT_kind_name="";
+	//NewBase.ELMT_kind_show="";
+	//NewBase.ELMT_kind_type="";
+
+	NewBase.ELMT_informations_Author="DXF converter";
+	NewBase.ELMT_informations_License="see http://qelectrotech.org/wiki/doc/elements_license";
+	NewBase.ELMT_converter_version="V3.0 DB";
+	NewBase.ELMT_converter_by="Ronny Desmedt";
+
+	ui->dxf_log->insertPlainText("Add UUID names, kindinformation, information ... ELMT file \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	//ResultELMT.append(NewBase.DefinitionStart());
+	DXF_Entities_List.DXF_Result.append(NewBase.DefinitionStart());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	//ResultELMT.append(NewBase.Uuid());
+	DXF_Entities_List.DXF_Result.append(NewBase.Uuid());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	//ResultELMT.append(NewBase.Names());
+	DXF_Entities_List.DXF_Result.append(NewBase.Names());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	//ResultELMT.append(NewBase.KindInformation());
+	DXF_Entities_List.DXF_Result.append(NewBase.KindInformation());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	//ResultELMT.append(NewBase.Informations());
+	DXF_Entities_List.DXF_Result.append(NewBase.Informations());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	//ResultELMT.append(NewBase.DescriptionStart());
+	DXF_Entities_List.DXF_Result.append(NewBase.DescriptionStart());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	ui->ELMT_Result->clear();
+
+	elmt_entities NewEntity;
+
+	ui->dxf_log->insertPlainText("Add DXF entities to ELMT file \n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	NewEntity.Open_SQL_DB(Filename_db);
+
+	ui->ELMT_Result->clear();
+
+	//create entities
+	ui->dxf_log->insertPlainText(NewEntity.Get_Entities(Filename_db));
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	NewEntity.Close_SQL_DB(Filename_db);
+
+
+
+	//ResultELMT.append(DXF_Entities_List.DXF_Result);
+	//DXF_Entities_List.DXF_Result;
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+
+
+	//ResultELMT.append(NewBase.DescriptionEnd());
+	DXF_Entities_List.DXF_Result.append(NewBase.DescriptionEnd());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	//ResultELMT.append(NewBase.DefinitionEnd());
+	DXF_Entities_List.DXF_Result.append(NewBase.DefinitionEnd());
+	ResultELMT=DXF_Entities_List.DXF_Result;
+
+	ui->ELMT_Result->clear();
+
+	ui->ELMT_Result->insertPlainText(ResultELMT);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+
+	ui->dxf_log->insertPlainText("DXF file converted to ELMT file\n");
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
+	ui->dxf_log->insertPlainText("=> End of converting DXF to ELMT \n");
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+
+}
+
+void DXFtoQET3DB::on_Choose_DB_clicked()
+{
+	ui->dxf_log->clear();
+
+	ui->MainTab->setCurrentIndex(0);
+	ui->MainTab->repaint();
+
+	QFileDialog dialog(this);
+	dialog.setNameFilter(tr("DB files (*.*)"));
+	dialog.setFileMode(QFileDialog::ExistingFile);
+	dialog.setViewMode(QFileDialog::Detail);
+
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		DXF_main_base[0].dxf_filepath = dialog.selectedFiles().first();
+		DXF_main_base[0].dxf_dir = dialog.directory().absolutePath();
+		DXF_main_base[0].dxf_openfile=DXF_main_base[0].dxf_filepath.split("/").last();
+		ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
+
+		Filename_db_temp=dialog.selectedFiles().first();
+		Filename_db=Filename_db_temp.split("/").last();
+		DXF_main_base[0].dxf_openfile=Filename_db.split(".").first();
+		Filename_db=DXF_main_base[0].dxf_openfile;
+		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
+	}
+
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
+	ui->dxf_log->insertPlainText("=> Opening DB3 file (dxf converted table file) \n");
+	ui->dxf_log->insertPlainText(Filename_db);
+	ui->dxf_log->insertPlainText("\n");
+	ui->dxf_log->insertPlainText("============================================================================\n");
+
+	return;
+}
+
+void DXFtoQET3DB::on_SavetoELMT_clicked()
+{
+	QFile file(DXF_main_base[0].dxf_savepath + "/" + DXF_main_base[0].dxf_openfile + ".elmt");
+
+	if (!file.open(QFile::WriteOnly | QFile::Text)) {
+		QMessageBox::warning(this, tr("Application"),
+							 tr("Cannot write file %1:\n%2.")
+							 .arg(DXF_main_base[0].dxf_dir)
+							 .arg(file.errorString()));
+		return;
+	}
+
+	QTextStream out(&file);
+	//out << ui->ELMT_Result->toPlainText();
+	out << DXF_Entities_List.DXF_Result;
+
+	file.close();
+	QMessageBox::information(this, tr("Export as elmt file"), tr("L'element %1 a bien ete enregistre").arg(ui->dxf_open_file->text()));
+}
+
+void DXFtoQET3DB::on_Convert_dxf_blocks_clicked()
+{
+
+
+
+}
+
+
+
+void DXFtoQET3DB::on_Convert_dxf_entities_clicked()
+{
+
+}
