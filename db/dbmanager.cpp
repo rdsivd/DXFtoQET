@@ -25,6 +25,12 @@ void dbManager::dbManager1(const QString &pathname)
 		/*QMessageBox::warning(this, tr("Application"),
 				  tr("Connection with database ok"));*/
 	}
+		m_db.exec("PRAGMA temp_store = MEMORY");
+		m_db.exec("PRAGMA journal_mode = MEMORY");
+		m_db.exec("PRAGMA page_size = 4096");
+		m_db.exec("PRAGMA cache_size = 16384");
+		m_db.exec("PRAGMA locking_mode = EXCLUSIVE");
+		m_db.exec("PRAGMA synchronous = OFF");
 
 
 
