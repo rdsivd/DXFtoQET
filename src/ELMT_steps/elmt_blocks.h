@@ -48,6 +48,11 @@ class elmt_blocks : public QWidget
 	QString Rec_Command;
 	QString Rec_Blocknaam;
 
+	QString QET_layer;	//8
+	QString QET_ltype;	//6
+	QString QET_handle;	//5
+	QString QET_softID;	//330
+
 	QString filename1;
 
 	QString FromBlock;

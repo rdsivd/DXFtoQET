@@ -21,6 +21,11 @@ QString dxf_base_text::Create_text()
 	Result_text.append("     ");
 	Result_text.append("<text");
 
+	Result_text.append(" dxfid=");
+	Result_text.append(QChar(34));
+	Result_text.append(QET_handle);
+	Result_text.append(QChar(34));
+
 	Result_text.append(" x=");
 	Result_text.append(QChar(34));
 	Result_text.append(QString::number(QET_x,'f',2));

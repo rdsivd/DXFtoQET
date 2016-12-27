@@ -45,6 +45,7 @@ class dxf_base_arc : public QWidget // QMainWindow
 
 
 
+
 	QString Create_arc();
 
 

@@ -26,6 +26,10 @@ class dxf_base_text : public QWidget // QMainWindow
 	QString QET_color;
 	QString QET_text_style;	//7
 
+	QString QET_layer;			//8
+	QString QET_ltype;			//6
+	QString QET_handle;			//5
+	QString QET_softID;			//330
 
 	QString Result_text;
 

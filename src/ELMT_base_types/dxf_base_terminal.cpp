@@ -16,6 +16,12 @@ QString dxf_base_terminal::Create_terminal()
 
 	Result.append("     ");
 	Result.append("<terminal");
+
+	Result.append(" dxfid=");
+	Result.append(QChar(34));
+	Result.append(QET_handle);
+	Result.append(QChar(34));
+
 	Result.append(" x=");
 	Result.append(QChar(34));
 	Result.append(QString::number(QET_x,'f',2));

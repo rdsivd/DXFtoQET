@@ -42,6 +42,11 @@ QString dxf_base_arc::Create_arc()
 	Result_arc.append("     ");
 	Result_arc.append("<arc");
 
+	Result_arc.append(" dxfid=");
+	Result_arc.append(QChar(34));
+	Result_arc.append(QET_handle);
+	Result_arc.append(QChar(34));
+
 	Result_arc.append(" width=");
 	Result_arc.append(QChar(34));
 	Result_arc.append(QString::number(QET_width,'f',2));

@@ -52,6 +52,11 @@ class elmt_block_level2 : public QWidget
 
 	QString FromBlock;
 
+	QString QET_layer;	//8
+	QString QET_ltype;	//6
+	QString QET_handle;	//5
+	QString QET_softID;	//330
+
 
 
 	double Block_X;				//10

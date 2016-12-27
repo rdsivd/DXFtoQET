@@ -21,6 +21,10 @@ class dxf_base_terminal : public QWidget // QMainWindow
 	QString QET_orientation;
 
 
+	QString QET_layer;			//8
+	QString QET_ltype;			//6
+	QString QET_handle;			//5
+	QString QET_softID;			//330
 
 	QString Create_terminal();
 

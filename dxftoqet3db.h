@@ -199,6 +199,8 @@ class DXFtoQET3DB : public QWidget
 		QStringList dxf_thumbnailimage_items[DXF_item_split];
 		QStringList split_tables_list[DXF_item_split];
 
+		int count_tables_list;
+
 		QString Copy_list_item;
 
 		QString ResultELMT;
@@ -343,6 +345,8 @@ class DXFtoQET3DB : public QWidget
 
 
 		void on_Convert_dxf_entities_clicked();
+
+		void on_progressBar_valueChanged(int value);
 
 		private:
 		Ui::DXFtoQET3DB *ui;

@@ -36,6 +36,7 @@ class elmt_entities : public QWidget
 
 
 	int32_t count_vertex;
+	int32_t comand_count2;
 	int32_t max_vertex;
 
 	QString Logtext;

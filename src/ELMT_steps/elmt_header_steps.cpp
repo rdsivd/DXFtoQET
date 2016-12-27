@@ -56,6 +56,16 @@ QString ELMT_header_steps::GetHeader_info (QString ELMT_filename)
 		{
 			DXF_variable.DXF_INSBASE_X=record.value("dxf_10").toString();
 			DXF_variable.DXF_INSBASE_Y=record.value("dxf_20").toString();
+
+			if (DXF_variable.DXF_INSBASE_X=="")
+			{
+				DXF_variable.DXF_INSBASE_X=5;
+			}
+
+			if (DXF_variable.DXF_INSBASE_Y=="")
+			{
+				DXF_variable.DXF_INSBASE_Y=5;
+			}
 		}
 
 		if(record.value("Command").toString()=="$EXTMIN")
@@ -93,6 +103,8 @@ QString ELMT_header_steps::GetHeader_info (QString ELMT_filename)
 		}
 
 	}
+
+
 
 	return Logtext;
 

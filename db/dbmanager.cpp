@@ -1366,4 +1366,6 @@ QString dbManager::db_split_header(const QString &pathname)
 
 
 	m_db.commit();*/
+
+	return "false";
 }

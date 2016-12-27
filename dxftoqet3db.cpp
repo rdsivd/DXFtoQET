@@ -1247,6 +1247,15 @@ void DXFtoQET3DB::copy_list()
 void DXFtoQET3DB::split_header()
 {
 	header_max_items=dxf_header.count("  9");
+	if (header_max_items==0)
+	{
+		header_max_items=dxf_header.count(" 9");
+	}
+	if (header_max_items==0)
+	{
+		header_max_items=dxf_header.count("9");
+	}
+
 	header_max_count=dxf_header.count();
 
 	ui->dxf_log->insertPlainText("============================================================================\n");
@@ -1273,14 +1282,18 @@ void DXFtoQET3DB::split_header()
 	for (x2=0;x2<header_max_count and header_max_items<DXF_item_split;x2++)
 	{
 
-		if (dxf_header[x2]=="  9")
+		if (QString(dxf_header[x2]).toInt()==9)
 		{
 			x1=x1+1;
 			split_tables_list[x1].append(dxf_header[x2]); //??
+			x2++;
+			split_tables_list[x1].append(dxf_header[x2]);
 		}
 		else
 		{
 			split_tables_list[x1].append(dxf_header[x2]); //??
+			x2++;
+			split_tables_list[x1].append(dxf_header[x2]);
 		}
 	}
 
@@ -1297,6 +1310,7 @@ void DXFtoQET3DB::split_header()
 
 
 	clear_dxf_code_tables();
+
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Header");
 	ui->dxf_log->repaint();
@@ -1356,6 +1370,15 @@ void DXFtoQET3DB::split_header()
 void DXFtoQET3DB::split_classes()
 {
 	classes_max_items=dxf_classes.count("  0");
+	if (classes_max_items==0)
+	{
+		classes_max_items=dxf_classes.count(" 0");
+	}
+	if (classes_max_items==0)
+	{
+		classes_max_items=dxf_classes.count("0");
+	}
+
 	classes_max_count=dxf_classes.count();
 
 	ui->dxf_log->insertPlainText("============================================================================\n");
@@ -1382,14 +1405,18 @@ void DXFtoQET3DB::split_classes()
 	for (x2=0;x2<classes_max_count and classes_max_items<DXF_item_split;x2++)
 	{
 
-		if (dxf_classes[x2]=="  0")
+		if (QString( dxf_classes[x2]).toInt()==0)
 		{
 			x1=x1+1;
 			split_tables_list[x1].append(dxf_classes[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_header[x2]);
 		}
 		else
 		{
 			split_tables_list[x1].append(dxf_classes[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_header[x2]);
 		}
 	}
 
@@ -1471,6 +1498,15 @@ void DXFtoQET3DB::split_classes()
 void DXFtoQET3DB::split_tables()
 {
 	tables_max_items=dxf_tables.count("  0");
+	if (tables_max_items==0)
+	{
+		tables_max_items=dxf_tables.count(" 0");
+	}
+	if (tables_max_items==0)
+	{
+		tables_max_items=dxf_tables.count("0");
+	}
+
 	tables_max_count=dxf_tables.count();
 
 	ui->dxf_log->insertPlainText("============================================================================\n");
@@ -1496,13 +1532,17 @@ void DXFtoQET3DB::split_tables()
 	for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
 	{
 
-		if (dxf_tables[x2]=="  0")
+		if (QString(dxf_tables[x2]).toInt()==0)
 		{
 			x1=x1+1;
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_tables[x2]);
 		}
 		else
 		{
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_tables[x2]);
 		}
 	}
@@ -1581,6 +1621,14 @@ void DXFtoQET3DB::split_tables()
 void DXFtoQET3DB::split_blocks()
 {
 	blocks_max_items=dxf_blocks.count("  0");
+	if (blocks_max_items==0)
+	{
+		blocks_max_items=dxf_blocks.count(" 0");
+	}
+	{
+		blocks_max_items=dxf_blocks.count("0");
+	}
+
 	blocks_max_count=dxf_blocks.count();
 
 	ui->dxf_log->insertPlainText("============================================================================\n");
@@ -1609,13 +1657,17 @@ void DXFtoQET3DB::split_blocks()
 	for (x2=0;x2<blocks_max_count and blocks_max_items<DXF_item_split;x2++)
 	{
 
-		if (dxf_blocks[x2]=="  0")
+		if (QString(dxf_blocks[x2]).toInt()==0)
 		{
 			x1=x1+1;
+			split_tables_list[x1].append(dxf_blocks[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_blocks[x2]);
 		}
 		else
 		{
+			split_tables_list[x1].append(dxf_blocks[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_blocks[x2]);
 		}
 	}
@@ -1696,6 +1748,15 @@ void DXFtoQET3DB::split_blocks()
 void DXFtoQET3DB::split_entities()
 {
 	entities_max_items=dxf_entities.count("  0");
+	if (entities_max_items==0)
+	{
+		entities_max_items=dxf_entities.count(" 0");
+	}
+	if (entities_max_items==0)
+	{
+		entities_max_items=dxf_entities.count("0");
+	}
+
 	entities_max_count=dxf_entities.count();
 	count_entities=0;
 	count_entities_record_id=1;
@@ -1726,13 +1787,17 @@ void DXFtoQET3DB::split_entities()
 	for (x2=0;x2<entities_max_count and entities_max_items<DXF_item_split;x2++)
 	{
 
-		if (dxf_entities[x2]=="  0")
+		if (QString( dxf_entities[x2]).toInt()==0)
 		{
 			x1=x1+1;
+			split_tables_list[x1].append(dxf_entities[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_entities[x2]);
 		}
 		else
 		{
+			split_tables_list[x1].append(dxf_entities[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_entities[x2]);
 		}
 	}
@@ -1813,6 +1878,15 @@ void DXFtoQET3DB::split_entities()
 void DXFtoQET3DB::split_objects()
 {
 	objects_max_items=dxf_objects.count("  0");
+	if (objects_max_items==0)
+	{
+		objects_max_items=dxf_objects.count(" 0");
+	}
+	if (objects_max_items==0)
+	{
+		objects_max_items=dxf_objects.count("0");
+	}
+
 	objects_max_count=dxf_objects.count();
 	count_objects=0;
 	count_objects_record_id=1;
@@ -1841,13 +1915,17 @@ void DXFtoQET3DB::split_objects()
 	for (x2=0;x2<objects_max_count and objects_max_items<DXF_item_split;x2++)
 	{
 
-		if (dxf_objects[x2]=="  0")
+		if ( QString( dxf_objects[x2]).toInt()==0)
 		{
 			x1=x1+1;
+			split_tables_list[x1].append(dxf_objects[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_objects[x2]);
 		}
 		else
 		{
+			split_tables_list[x1].append(dxf_objects[x2]);
+			x2++;
 			split_tables_list[x1].append(dxf_objects[x2]);
 		}
 	}
@@ -3858,6 +3936,21 @@ int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, in
 
 				break;
 
+				case 213:
+					if (sw_header[213]>=0)
+					{
+
+						DXF_code_tables[sw_header[213]].dxf_213=line2;
+						sw_header[213]++;
+
+						if (sw_header[213]>max3)
+						{
+							max3=sw_header[213];
+						}
+					}
+
+				break;
+
 				case 220:
 					if (sw_header[220]>=0)
 					{
@@ -3873,6 +3966,21 @@ int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, in
 
 				break;
 
+				case 223:
+					if (sw_header[223]>=0)
+					{
+
+						DXF_code_tables[sw_header[223]].dxf_223=line2;
+						sw_header[223]++;
+
+						if (sw_header[223]>max3)
+						{
+							max3=sw_header[223];
+						}
+					}
+
+				break;
+
 				case 230:
 					if (sw_header[230]>=0)
 					{
@@ -3883,6 +3991,21 @@ int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, in
 						if (sw_header[230]>max3)
 						{
 							max3=sw_header[230];
+						}
+					}
+
+				break;
+
+				case 233:
+					if (sw_header[233]>=0)
+					{
+
+						DXF_code_tables[sw_header[233]].dxf_233=line2;
+						sw_header[233]++;
+
+						if (sw_header[233]>max3)
+						{
+							max3=sw_header[233];
 						}
 					}
 
@@ -4621,6 +4744,51 @@ int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, in
 						if (sw_header[343]>max3)
 						{
 							max3=sw_header[343];
+						}
+					}
+
+				break;
+
+				case 344:
+					if (sw_header[344]>=0)
+					{
+
+						DXF_code_tables[sw_header[344]].dxf_344=line2;
+						sw_header[344]++;
+
+						if (sw_header[344]>max3)
+						{
+							max3=sw_header[344];
+						}
+					}
+
+				break;
+
+				case 345:
+					if (sw_header[345]>=0)
+					{
+
+						DXF_code_tables[sw_header[345]].dxf_345=line2;
+						sw_header[345]++;
+
+						if (sw_header[345]>max3)
+						{
+							max3=sw_header[345];
+						}
+					}
+
+				break;
+
+				case 346:
+					if (sw_header[346]>=0)
+					{
+
+						DXF_code_tables[sw_header[346]].dxf_346=line2;
+						sw_header[346]++;
+
+						if (sw_header[346]>max3)
+						{
+							max3=sw_header[346];
 						}
 					}
 
@@ -5471,9 +5639,12 @@ void DXFtoQET3DB::on_Convert_dxf_blocks_clicked()
 
 }
 
-
-
 void DXFtoQET3DB::on_Convert_dxf_entities_clicked()
+{
+
+}
+
+void DXFtoQET3DB::on_progressBar_valueChanged(int value)
 {
 
 }

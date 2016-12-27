@@ -29,6 +29,12 @@ QString dxf_base_line::CreateElmt()
 
 	Result.append("     ");
 	Result.append("<line");
+
+	Result.append(" dxfid=");
+	Result.append(QChar(34));
+	Result.append(QET_handle);
+	Result.append(QChar(34));
+
 	Result.append(" lenght1=");
 	Result.append(QChar(34));
 	Result.append(QString::number(QET_lenght1,'f',2));

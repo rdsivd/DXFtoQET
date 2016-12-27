@@ -29,7 +29,7 @@ class dxf_base_input : public QWidget // QMainWindow
 	//QString QET_rotate;
 
 	QString QET_text;		//1
-	QString QET_tag;		//2
+	QString QET_dxf_tag;	//2
 	QString QET_color;
 	QString QET_text_style;	//7
 	QString QET_rotate;
@@ -40,7 +40,7 @@ class dxf_base_input : public QWidget // QMainWindow
 	QString QET_softID;			//330
 
 
-
+	QString QET_tag;
 
 	QString Create_input();
 

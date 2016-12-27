@@ -41,6 +41,12 @@ QString dxf_base_polyline::Create_polyline()
 
 	Result_polyline.append("     ");
 	Result_polyline.append("<polygon");
+
+	Result_polyline.append(" dxfid=");
+	Result_polyline.append(QChar(34));
+	Result_polyline.append(QET_handle);
+	Result_polyline.append(QChar(34));
+
 	Result_polyline.append(" style=");
 
 	Result_polyline.append(QChar(34));
