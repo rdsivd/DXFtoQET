@@ -422,7 +422,7 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
      </spacer>
     </item>
     <item>
-     <widget class="QProgressBar" name="progressBar">
+     <widget class="QProgressBar" name="progressBar1">
       <property name="value">
        <number>24</number>
       </property>

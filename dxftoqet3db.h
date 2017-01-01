@@ -271,6 +271,11 @@ class DXFtoQET3DB : public QWidget
 
 	signals:
 
+		void send_text (const QString &text2);
+		void send_min(const int &valuemin);
+		void send_max(const int &valuemax);
+		void send_actual(const int &valueactual);
+
 
 	protected:
 		void changeEvent(QEvent *e);
@@ -330,23 +335,14 @@ class DXFtoQET3DB : public QWidget
 
 
 		void on_Create_QET_ELMT_clicked();
-
-
-
 		void on_Choose_DB_clicked();
-
 		void on_SavetoELMT_clicked();
-
-
-
-
 		void on_Convert_dxf_blocks_clicked();
-
-
-
 		void on_Convert_dxf_entities_clicked();
-
-		void on_progressBar_valueChanged(int value);
+		void on_progressBar_valueChanged(int value1);
+		void on_progressBar_valueMin(int value1);
+		void on_progressBar_valueMax(int value1);
+		void on_progressBar_text(QString text1);
 
 		private:
 		Ui::DXFtoQET3DB *ui;
