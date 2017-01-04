@@ -65,3 +65,7 @@ HEADERS  += dxftoqet3db.h \
     src/ELMT_steps/elmt_block_level2.h
 
 FORMS    += dxftoqet3db.ui
+
+DISTFILES += \
+    Convertion prestations.ods \
+    Introductie dxftoqet converter V3

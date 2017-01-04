@@ -1335,12 +1335,17 @@ void DXFtoQET3DB::split_header()
 	ui->progressBar1->setMaximum(header_max_items);
 	ui->progressBar1->repaint();
 
+	text1=QString::number(header_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+	ui->dxf_log->repaint();
+
 	while (count_header< header_max_items)
 	{
-		text1=QString::number(count_header);
+		/*text1=QString::number(count_header);
 		ui->dxf_section_count->clear();
 		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();
+		ui->dxf_log->repaint();*/
 
 		count_header_item=0;
 		x3=split_tables_list[count_header].count();
@@ -1469,16 +1474,20 @@ void DXFtoQET3DB::split_classes()
 	ui->progressBar1->setMaximum(classes_max_items);
 	ui->progressBar1->repaint();
 
+	text1=QString::number(classes_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+	ui->dxf_log->repaint();
+
+
 	while (count_classes< classes_max_items)
 	{
-		text1=QString::number(count_classes);
+		/*text1=QString::number(count_classes);
 		ui->dxf_section_count->clear();
 		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();
+		ui->dxf_log->repaint();*/
 
 		count_classes_item=0;
-
-		//Record_Count_Tables=1;
 
 		x3=split_tables_list[count_classes].count();
 
@@ -1599,12 +1608,17 @@ void DXFtoQET3DB::split_tables()
 	ui->progressBar1->setMaximum(tables_max_items);
 	ui->progressBar1->repaint();
 
+	text1=QString::number(tables_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+	ui->dxf_log->repaint();
+
 	while (count_tables< tables_max_items)			
 	{
-		text1=QString::number(count_tables);
+		/*text1=QString::number(count_tables);
 		ui->dxf_section_count->clear();
 		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();
+		ui->dxf_log->repaint();*/
 
 		count_tables_item=0;
 
@@ -1735,12 +1749,17 @@ void DXFtoQET3DB::split_blocks()
 	ui->progressBar1->setMaximum(blocks_max_items);
 	ui->progressBar1->repaint();
 
+	text1=QString::number(blocks_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+	ui->dxf_log->repaint();
+
 	while (count_blocks< blocks_max_items)
 	{
-		text1=QString::number(count_blocks);
+		/*text1=QString::number(count_blocks);
 		ui->dxf_section_count->clear();
 		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();
+		ui->dxf_log->repaint();*/
 
 		count_blocks_item=0;
 
@@ -1875,12 +1894,17 @@ void DXFtoQET3DB::split_entities()
 	ui->progressBar1->setMaximum(entities_max_items);
 	ui->progressBar1->repaint();
 
+	text1=QString::number(entities_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+	ui->dxf_log->repaint();
+
 	while (count_entities< entities_max_items)
 	{
-		text1=QString::number(count_entities);
+		/*text1=QString::number(count_entities);
 		ui->dxf_section_count->clear();
 		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();
+		ui->dxf_log->repaint();*/
 
 		count_entities_item=0;
 
@@ -2008,12 +2032,17 @@ void DXFtoQET3DB::split_objects()
 	ui->progressBar1->setMaximum(objects_max_items);
 	ui->progressBar1->repaint();
 
+	text1=QString::number(objects_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+	ui->dxf_log->repaint();
+
 	while (count_objects< objects_max_items)
 	{
-		text1=QString::number(count_objects);
+		/*text1=QString::number(count_objects);
 		ui->dxf_section_count->clear();
 		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();
+		ui->dxf_log->repaint();*/
 
 		count_object_item=0;
 
