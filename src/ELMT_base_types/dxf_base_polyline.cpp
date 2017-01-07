@@ -26,7 +26,7 @@ QString dxf_base_polyline::Create_polyline()
 	 * x1="107" y1="-179" x2="107" y2="-179"
 	 * x3="107" y3="-179" x4="107" y4="-179" /> */
 
-	Result_polyline="";
+	Result_polyline.clear();
 
 	DXF_layer_control New_Layer_Control;
 	DXF_Ltype_control New_LType_Control;
@@ -77,20 +77,20 @@ QString dxf_base_polyline::Create_polyline()
 	Result_polyline.append(QET_antialias);
 	Result_polyline.append(QChar(34));
 
-	for (count_segments=1; (count_segments<segments+1) and (count_segments<QET_L_POLYLINE);count_segments++)
+	for (count_segments=0; (count_segments<segments-1) and (count_segments<QET_L_POLYLINE);count_segments++)
 	{
 		Result_polyline.append(" x");
-		Result_polyline.append(QString::number(count_segments));
+		Result_polyline.append(QString::number(count_segments+1));
 		Result_polyline.append("=");
 		Result_polyline.append(QChar(34));
-		Result_polyline.append(QString::number(QET_x[count_segments-1],'f',0));
+		Result_polyline.append(QString::number(QET_x[count_segments],'f',2));
 		Result_polyline.append(QChar(34));
 
 		Result_polyline.append(" y");
-		Result_polyline.append(QString::number(count_segments));
+		Result_polyline.append(QString::number(count_segments+1));
 		Result_polyline.append("=");
 		Result_polyline.append(QChar(34));
-		Result_polyline.append(QString::number(-QET_y[count_segments-1],'f',0));
+		Result_polyline.append(QString::number(-QET_y[count_segments],'f',2));
 		Result_polyline.append(QChar(34));
 	}
 

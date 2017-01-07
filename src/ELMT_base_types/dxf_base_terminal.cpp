@@ -14,6 +14,8 @@ QString dxf_base_terminal::Create_terminal()
 
 	 /* <terminal x="-10" y="-20" orientation="n"/> */
 
+	Result.clear();
+
 	Result.append("     ");
 	Result.append("<terminal");
 

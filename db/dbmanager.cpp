@@ -1311,7 +1311,6 @@ void dbManager::dbManager_create_elmt_block (const QString &pathname, int32_t In
 	Query_block.exec();
 }
 
-
 void dbManager::dbManager_load_dxf_list(const QString &pathname)
 {
 	QSqlQuery Query_List;

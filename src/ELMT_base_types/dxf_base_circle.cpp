@@ -11,7 +11,7 @@ QString dxf_base_circle::Create_circle()
 	 * style="line-style:normal;line-weight:thin;filling:none;color:black"
 	 * diameter="22"/> */
 
-	Result_circle="";
+	Result_circle.clear();
 
 	DXF_layer_control New_Layer_Control;
 	DXF_Ltype_control New_LType_Control;

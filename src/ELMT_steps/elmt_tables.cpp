@@ -89,7 +89,7 @@ void elmt_tables::Open_SQL_DB (QString ELMT_filename)
 void elmt_tables::Close_SQL_DB (QString ELMT_filename)
 {
 	dbManager mydb2;
-	mydb2.dbManager1(ELMT_filename);
+	mydb2.dbManager_close(ELMT_filename);
 }
 
 void elmt_tables::GetTable_info (QString ELMT_filename)

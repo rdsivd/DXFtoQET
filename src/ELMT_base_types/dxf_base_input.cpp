@@ -18,6 +18,7 @@ QString dxf_base_input::Create_input()
 
 	DXF_Text_control New_Text_control;
 
+	Result.clear();
 
 	/* <input x="3" y="1" size="9" rotate="true" text="_" tagg="label"/>
 	   <input text="_" rotation="90" tagg="label" x="-20" y="-5" size="9" rotate="true"/>*/

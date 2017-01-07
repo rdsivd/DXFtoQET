@@ -25,6 +25,7 @@
 class elmt_entities : public QWidget
 {
 	Q_OBJECT
+
 	public:
 	explicit elmt_entities(QWidget *parent = 0);
 
@@ -43,6 +44,8 @@ class elmt_entities : public QWidget
 	QString Recordvalue;
 	QString Recordvalue2;
 
+	QString Signal_waarde1;
+
 	QString ELMT_ID_instruction;
 
 
@@ -52,6 +55,8 @@ class elmt_entities : public QWidget
 	QString Get_Entities (QString ELMT_filename);
 
 	signals:
+
+	void Signal1 (QString &Waarde1);
 
 	public slots:
 };

@@ -12,7 +12,7 @@ QString dxf_base_ellipse::Create_ellipse()
 	 * antialias="true"
 	 * height="13"
 	 * style="line-style:normal;line-weight:normal;filling:none;color:black"/>*/
-	Result_ellipse="";
+	Result_ellipse.clear();
 
 	DXF_layer_control New_Layer_Control;
 	DXF_Ltype_control New_LType_Control;

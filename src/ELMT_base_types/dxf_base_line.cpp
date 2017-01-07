@@ -8,7 +8,7 @@ dxf_base_line::dxf_base_line(QWidget *parent) :
 QString dxf_base_line::CreateElmt()
 {
 
-	Result="";
+	Result.clear();
 
 	DXF_layer_control New_Layer_Control;
 	DXF_Ltype_control New_LType_Control;

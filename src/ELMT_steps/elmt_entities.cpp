@@ -12,6 +12,7 @@ extern struct DXF_Entities DXF_Entities_List;
 elmt_entities::elmt_entities(QWidget *parent) : QWidget(parent)
 {
 
+	//connect (this ,SIGNAL (Signal1(const QString &)),DXFtoQET3DB,SLOT(update_proces(const QString &)));
 }
 
 void elmt_entities::Open_SQL_DB (QString ELMT_filename)
@@ -27,7 +28,7 @@ void elmt_entities::Close_SQL_DB (QString ELMT_filename)
 {
 
 	dbManager mydb2;
-	mydb2.dbManager1(ELMT_filename);
+	mydb2.dbManager_close(ELMT_filename);
 
 
 }
@@ -40,22 +41,18 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	DXF_main_base[0].QDXF_entitie_ellipse_color="black";
 	DXF_main_base[0].QDXF_entitie_input_color="black";
 	DXF_main_base[0].QDXF_entitie_line_color="black";
-	DXF_main_base[0].QDXF_entitie_lwpolyline_color="black";
-	DXF_main_base[0].QDXF_entitie_polyline_color="black";
+	DXF_main_base[0].QDXF_entitie_lwpolyline_color="red";
+	DXF_main_base[0].QDXF_entitie_polyline_color="blue";
 	DXF_main_base[0].QDXF_entitie_rectangel_color="black";
 	DXF_main_base[0].QDXF_entitie_terminal_color="black";
 	DXF_main_base[0].QDXF_entitie_text_color="black";
-	DXF_main_base[0].QDXF_entitie_solid_color="black";
+	DXF_main_base[0].QDXF_entitie_solid_color="green";
 
 	xcount=0;
 	Logtext="";
 	rowcount=0;
 
 	QSqlQuery NewQuery("SELECT * FROM dxf_entities");
-
-
-
-
 
 	dxf_base_line New_DXF_Line;
 	dxf_base_circle New_DXF_Circle;
@@ -74,6 +71,10 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	//DXF_Entities_List.DXF_Result.clear();
 
 	Logtext.append("Insert basic ELMT items\n");
+
+	Signal_waarde1="Insert basic ELMT items\n";
+
+	emit Signal1(Signal_waarde1);
 
 	/*  <text x="-11" y="3" size="6" rotation="90" text="Vcc"/>
 		<text x="-7" y="-8" size="3" text="HC-SR04"/>
@@ -108,6 +109,8 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 
 	Logtext.append("Converting DXF entities\n");
+
+	//QSqlRecord Record2=NewQuery.record();
 
 
 	while (NewQuery.next())
@@ -419,7 +422,12 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 				}
 				else
 				{
-					count_vertex++;
+					if (Record3.value("Command").toString()=="SEQEND" and Record3.value("Command_count").toInt()==0)
+					{
+						end_seqend=1;
+					}
+
+					//count_vertex++;
 				}
 				if (Record3.value("Command").toString()=="SEQEND" and Record3.value("Command_count").toInt()==0)
 				{
@@ -434,7 +442,6 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 
 		}
-
 
 		if (Record2.value("Command").toString()=="INSERT" and Record2.value("Command_count").toInt()==0)
 		{
@@ -526,7 +533,12 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 				}
 				else
 				{
-					count_vertex++;
+					if (count_vertex>max_vertex)
+					{
+						end_lwpoly=1;
+					}
+
+					//count_vertex++;
 				}
 
 				if (count_vertex>max_vertex)

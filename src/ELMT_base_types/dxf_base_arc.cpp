@@ -13,7 +13,7 @@ QString dxf_base_arc::Create_arc()
  *  line-weight:normal;filling:none;color:black"
  *  start="-30" angle="-299"/> */
 
-	Result_arc="";
+	Result_arc.clear();
 
 	DXF_layer_control New_Layer_Control;
 	DXF_Ltype_control New_LType_Control;

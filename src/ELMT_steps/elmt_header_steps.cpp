@@ -25,7 +25,7 @@ void ELMT_header_steps::Close_SQL_DB (QString ELMT_filename)
 {
 
 	dbManager mydb2;
-	mydb2.dbManager1(ELMT_filename);
+	mydb2.dbManager_close (ELMT_filename);
 
 
 }

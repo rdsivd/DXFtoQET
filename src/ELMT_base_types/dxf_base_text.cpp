@@ -12,7 +12,7 @@ QString dxf_base_text::Create_text()
 		<text x="-7" y="-8" size="3" text="HC-SR04"/>
 		<text x="-50" y="-45" text="Test" color="white" size="9"/>*/
 
-	Result_text="";
+	Result_text.clear();
 
 	DXF_Text_control New_Text_control;
 

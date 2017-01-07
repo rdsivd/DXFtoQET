@@ -63,6 +63,8 @@ QString elmt_blocks::Insert_Block()
 	//while (NewQuery.next() and end_block==0)
 	//while (NewQuery.next())
 
+	//QSqlRecord Record2=NewQuery.record();
+
 	while (NewQuery.next() and end_block==0)
 	{
 
@@ -420,7 +422,12 @@ QString elmt_blocks::Insert_Block()
 						}
 						else
 						{
-							count_vertex++;
+							if (Record4.value("Command").toString()=="SEQEND" and Record4.value("Command_count").toInt()==0)
+							{
+								end_seqend=1;
+							}
+
+							//count_vertex++;
 						}
 						if (Record4.value("Command").toString()=="SEQEND" and Record4.value("Command_count").toInt()==0)
 						{
@@ -541,7 +548,12 @@ QString elmt_blocks::Insert_Block()
 						}
 						else
 						{
-							count_vertex++;
+							if (count_vertex>max_vertex)
+							{
+								end_lwpoly=1;
+							}
+
+							//count_vertex++;
 						}
 
 						if (count_vertex>max_vertex)

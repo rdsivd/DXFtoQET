@@ -14,7 +14,7 @@ QString dxf_base_rectangel::Create_rectangel()
 
 
 
-	Result_rect="";
+	Result_rect.clear();
 
 	DXF_layer_control New_Layer_Control;
 	DXF_Ltype_control New_LType_Control;

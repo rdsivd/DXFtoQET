@@ -34,7 +34,8 @@
 #include "src/ELMT_steps/elmt_entities.h"
 
 
-namespace Ui {
+namespace Ui
+{
 	class DXFtoQET3DB;
 }
 
@@ -269,19 +270,6 @@ class DXFtoQET3DB : public QWidget
 		QStringList thumbnailimage_split;
 		//QStringList split_tables_list;
 
-	signals:
-
-		void send_text (const QString &text2);
-		void send_min(const int &valuemin);
-		void send_max(const int &valuemax);
-		void send_actual(const int &valueactual);
-
-
-	protected:
-		void changeEvent(QEvent *e);
-
-		private slots:
-
 		void on_OpenFile_clicked();
 
 		void on_savepath_2_clicked();
@@ -339,10 +327,27 @@ class DXFtoQET3DB : public QWidget
 		void on_SavetoELMT_clicked();
 		void on_Convert_dxf_blocks_clicked();
 		void on_Convert_dxf_entities_clicked();
+
+	signals:
+
+		void send_text (const QString &text2);
+		void send_min(const int &valuemin);
+		void send_max(const int &valuemax);
+		void send_actual(const int &valueactual);
+
+
+	public slots:
+
+
 		void on_progressBar_valueChanged(int value1);
 		void on_progressBar_valueMin(int value1);
 		void on_progressBar_valueMax(int value1);
 		void on_progressBar_text(QString text1);
+
+		void update_proces(QString &waarde1);
+
+	protected:
+		void changeEvent(QEvent *e);
 
 		private:
 		Ui::DXFtoQET3DB *ui;
