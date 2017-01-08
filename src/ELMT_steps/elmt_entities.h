@@ -56,7 +56,7 @@ class elmt_entities : public QWidget
 
 	signals:
 
-	void Signal1 (QString &Waarde1);
+	void Signal1 (const QString &Waarde1);
 
 	public slots:
 };

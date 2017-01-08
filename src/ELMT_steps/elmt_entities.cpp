@@ -12,7 +12,7 @@ extern struct DXF_Entities DXF_Entities_List;
 elmt_entities::elmt_entities(QWidget *parent) : QWidget(parent)
 {
 
-	//connect (this ,SIGNAL (Signal1(const QString &)),DXFtoQET3DB,SLOT(update_proces(const QString &)));
+	//connect (this ,SIGNAL (Signal1(const QString &)),DXF_main_base,SLOT(update_proces(const QString &)));
 }
 
 void elmt_entities::Open_SQL_DB (QString ELMT_filename)

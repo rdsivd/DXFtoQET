@@ -270,13 +270,8 @@ class DXFtoQET3DB : public QWidget
 		QStringList thumbnailimage_split;
 		//QStringList split_tables_list;
 
-		void on_OpenFile_clicked();
 
-		void on_savepath_2_clicked();
-
-		void on_Load_dxf_into_tables_clicked();
-
-		void on_Delete_DB_clicked();
+	public:
 
 		void split_header();
 
@@ -321,13 +316,6 @@ class DXFtoQET3DB : public QWidget
 		//QString Calc_Width();
 		//QString Calc_Height();
 
-
-		void on_Create_QET_ELMT_clicked();
-		void on_Choose_DB_clicked();
-		void on_SavetoELMT_clicked();
-		void on_Convert_dxf_blocks_clicked();
-		void on_Convert_dxf_entities_clicked();
-
 	signals:
 
 		void send_text (const QString &text2);
@@ -338,13 +326,27 @@ class DXFtoQET3DB : public QWidget
 
 	public slots:
 
+		void on_OpenFile_clicked();
+
+		void on_savepath_2_clicked();
+
+		void on_Load_dxf_into_tables_clicked();
+
+		void on_Delete_DB_clicked();
+
+		void on_Create_QET_ELMT_clicked();
+		void on_Choose_DB_clicked();
+		void on_SavetoELMT_clicked();
+		void on_Convert_dxf_blocks_clicked();
+		void on_Convert_dxf_entities_clicked();
+
 
 		void on_progressBar_valueChanged(int value1);
 		void on_progressBar_valueMin(int value1);
 		void on_progressBar_valueMax(int value1);
 		void on_progressBar_text(QString text1);
 
-		void update_proces(QString &waarde1);
+		void update_proces(const QString &Waarde_receve1);
 
 	protected:
 		void changeEvent(QEvent *e);

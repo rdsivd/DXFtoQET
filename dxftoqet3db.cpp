@@ -36,10 +36,7 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 
 	settings.sync();
 
-
-
 	DXF_main_base[0].dxf_filepath = settings.value("dxf_path").toString();
-
 
 	DXF_main_base[0].dxf_savepath = settings.value("qet_element_path").toString();
 
@@ -54,7 +51,7 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 	ui->progressBar1->setValue(0);
 	ui->progressBar1->repaint();
 
-	connect (elmt_entities::elmt_entities ,SIGNAL (Signal1(const QString &Waarde1 )),this,SLOT(update_proces(const QString &waarde1)));
+	//connect (elmt_entities::elmt_entities ,SIGNAL (Signal1(&)),this,SLOT(update_proces(&)));
 
 
 }
@@ -5605,9 +5602,9 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 
 	ui->ELMT_Result->clear();
 
-	elmt_entities NewEntity;
+	elmt_entities NewEntity(this);
 
-	//connect(NewEntity ,SIGNAL (Signal1(const QString &)),this ,SLOT(update_proces(const QString &)));
+	connect(&NewEntity ,SIGNAL (Signal1(const QString &)),this ,SLOT(update_proces(const QString &)));
 
 	ui->dxf_log->insertPlainText("Add DXF entities to ELMT file \n");
 	ui->dxf_log->moveCursor(QTextCursor::End);
@@ -5761,8 +5758,8 @@ void DXFtoQET3DB::on_progressBar_text(QString text1)
 	ui->progressBar1->repaint();
 }
 
-void DXFtoQET3DB::update_proces(QString &waarde1)
+void DXFtoQET3DB::update_proces(const QString &Waarde_receve1)
 {
-	ui->Procesing_dxf->setPlainText(waarde1);
+	ui->Procesing_dxf->setPlainText(Waarde_receve1);
 	ui->Procesing_dxf->repaint();
 }
