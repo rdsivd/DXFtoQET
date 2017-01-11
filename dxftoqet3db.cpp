@@ -3,10 +3,7 @@
 
 extern struct DXF_base DXF_main_base[DXF_base_set];
 extern struct DXF_codes DXF_code_tables[DXF_codes_set];
-
 extern struct DXF_codes DXF_codes_tables_empty;
-//static const struct x EmptyStruct[DXF_codes_set][DXF_codeset_copies];
-
 extern struct DXF_var DXF_variable;
 extern struct DXF_Layers DXF_Layer_list[DXF_layers_set];
 extern struct DXF_Entities DXF_Entities_List;
@@ -51,8 +48,12 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 	ui->progressBar1->setValue(0);
 	ui->progressBar1->repaint();
 
-	//connect (elmt_entities::elmt_entities ,SIGNAL (Signal1(&)),this,SLOT(update_proces(&)));
+	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
 
+	connect (this,SIGNAL(send_text(const QString &)),this,SLOT(on_progressBar_text(const QString &)));
+	connect (this,SIGNAL(send_min(const int &)),this,SLOT(on_progressBar_valueMin(const int &)));
+	connect (this,SIGNAL(send_max(const int &)),this,SLOT(on_progressBar_valueMax(const int &)));
+	connect (this,SIGNAL(send_actual(const int &)),this,SLOT(on_progressBar_valueChanged(const int &)));
 
 }
 
@@ -92,13 +93,12 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 
 	ui->dxf_log->clear();
 
-	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
-	ui->dxf_log->insertPlainText(" -> Open file \n");
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" -> Open file \n");
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	QFileDialog dialog(this);
 	dialog.setNameFilter(tr("DXF files (*.dxf *.DXF *.csv *.CSV)"));
@@ -125,11 +125,12 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 		DXF_main_base[0].dxf_openfile=Filename2.toLower();
 		DXF_main_base[0].dxf_filetype=FileType;
 
-		ui->dxf_log->insertPlainText(DXF_main_base[0].dxf_openfile);
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append(DXF_main_base[0].dxf_openfile);
+		Signal_log1.append(" \n");
+		Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 
 		//DXF_main_base[0].DXF_ELMT_Name_text_en=FileName;
 		//DXF_main_base[0].DXF_ELMT_Name_text_fr=FileName;
@@ -148,14 +149,12 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 		ui->dxf_file_path->setPlaceholderText(DXF_main_base[0].dxf_dir);
 		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
 
-		status1="read file ";
-		status1.append(FileName);
-		status1.append(" into program \n");
+		Signal_log1.clear();
+		Signal_log1.append("read file ");
+		Signal_log1.append(FileName);
+		Signal_log1.append(" into program ");
 
-		ui->dxf_log->insertPlainText(status1);
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 
 		QTextStream in(&file);
 		DXF_main_base[0].dxf_text_all = in.readAll();
@@ -169,10 +168,11 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 
 		ui->dxf_line_count1->setText(QString::number(dxf_line_count1,'f',0));
 
-		ui->dxf_log->insertPlainText("check file for correct type of file \n");
+		Signal_log1.clear();
+		Signal_log1.append("check file for correct type of file ");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
+
 
 		dxf_load dxf_lf(this);
 
@@ -187,10 +187,10 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 			main_sw2=1;
 			main_sw3=0;
 
-			ui->dxf_log->insertPlainText("file of type CSV \n");
+			Signal_log1.clear();
+			Signal_log1.append("file of type CSV ");
 
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			emit send_log(Signal_log1);
 
 			//dxf_lf.dxf_csv_split();
 
@@ -208,10 +208,11 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 			main_sw3=1;
 			main_sw2=0;
 
-			ui->dxf_log->insertPlainText("file of type DXF \n");
+			Signal_log1.clear();
+			Signal_log1.append("file of type DXF ");
 
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			emit send_log(Signal_log1);
+
 		}
 		else
 		{
@@ -220,29 +221,33 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 
 		if (main_sw1==1 and main_sw2==0)
 		{
-			ui->dxf_log->insertPlainText("file of type ASCII DXF \n");
 
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			Signal_log1.clear();
+			Signal_log1.append("file of type ASCII DXF ");
+
+			emit send_log(Signal_log1);
+
 		}
 
 		if (main_sw1==0 and main_sw2==0)
 		{
 
-			ui->dxf_log->insertPlainText("file of type BINARY DXF \n");
+			Signal_log1.clear();
+			Signal_log1.append("file of type BINARY DXF ");
 
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			emit send_log(Signal_log1);
+
 		}
 
 
 
 	}
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
 
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
 
 	return;
 }
@@ -268,6 +273,8 @@ void DXFtoQET3DB::on_savepath_2_clicked()
 	settings.sync();
 
 	DXF_main_base[0].dxf_savepath=Config_QET_User_Symbols;
+
+
 }
 
 void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
@@ -281,64 +288,49 @@ void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
 	on_Delete_DB_clicked();
 
 	ui->dxf_log->activateWindow();
-	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
-	ui->dxf_log->insertPlainText("=> Start loading dxf file into tables \n");
 
-	ui->dxf_log->insertPlainText("Creating DB : ");
-	ui->dxf_log->insertPlainText(FileName);
-	ui->dxf_log->insertPlainText(" \n");
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("=> Start loading dxf");
+	Signal_log1.append(FileName);
+	Signal_log1.append(" file into DB tables \n");
+	Signal_log1.append("Creating DB : ");
+	Signal_log1.append(FileName);
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
+	emit send_log(Signal_log1);
 
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("create : ");
+	Signal_log1.append(Filename_db);
 
-	//dbManager mydb;
-
-	//Filename_db=FileName;
-	//Filename_db.append(".db3");
-
-	ui->dxf_log->insertPlainText("created : ");
-	ui->dxf_log->insertPlainText("Filename_db");
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	mydb.dbManager1(Filename_db);
 
-	ui->dxf_log->insertPlainText("creating tables \n");
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("creating tables \n");
+	Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
 
 	mydb.dbManager_create_tables(FileName);
-
-
-	//mydb.dbManager_load_dxf(FileName);
-	//mydb.dbManager_load_dxf_list(FileName);
-
-	/*ui->dxf_log->insertPlainText("load dxf file into database \n");
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();*/
 
 	dxf_split_count1=DXF_main_base[0].dxf_input.count();
 
 	counter1=0;
 
-	ui->dxf_log->insertPlainText("total characters : ");
-	ui->dxf_log->insertPlainText(QString::number(dxf_line_count1));
-	ui->dxf_log->insertPlainText("\n");
+	Signal_log1.clear();
+	Signal_log1.append("total characters : ");
+	Signal_log1.append(QString::number(dxf_line_count1));
+	Signal_log1.append("\n");
+	Signal_log1.append("total lines : ");
+	Signal_log1.append(QString::number(dxf_line_count2));
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("total lines : ");
-	ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	index_header= DXF_main_base[0].dxf_input.indexOf("HEADER");
 	index_classes= DXF_main_base[0].dxf_input.indexOf("CLASSES");
@@ -348,163 +340,203 @@ void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
 	index_objects= DXF_main_base[0].dxf_input.indexOf("OBJECTS");
 	index_thumbnailimage= DXF_main_base[0].dxf_input.indexOf("THUMBNAILIMAGE");
 
-	ui->dxf_log->insertPlainText("index header : ");
-	ui->dxf_log->insertPlainText(QString::number(index_header));
-	ui->dxf_log->insertPlainText("\n");
+	Signal_log1.clear();
+	Signal_log1.append("index header : ");
+	Signal_log1.append(QString::number(index_header));
+	Signal_log1.append("\n");
+	Signal_log1.append("index classes : ");
+	Signal_log1.append(QString::number(index_classes));
+	Signal_log1.append("\n");
+	Signal_log1.append("index tables : ");
+	Signal_log1.append(QString::number(index_tables));
+	Signal_log1.append("\n");
+	Signal_log1.append("index blocks : ");
+	Signal_log1.append(QString::number(index_blocks));
+	Signal_log1.append("\n");
+	Signal_log1.append("index entities : ");
+	Signal_log1.append(QString::number(index_entities));
+	Signal_log1.append("\n");
+	Signal_log1.append("index objects : ");
+	Signal_log1.append(QString::number(index_objects));
+	Signal_log1.append("\n");
+	Signal_log1.append("index thumbnailimage : ");
+	Signal_log1.append(QString::number(index_thumbnailimage));
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
 
-	ui->dxf_log->insertPlainText("index classes : ");
-	ui->dxf_log->insertPlainText(QString::number(index_classes));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("index tables : ");
-	ui->dxf_log->insertPlainText(QString::number(index_tables));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("index blocks : ");
-	ui->dxf_log->insertPlainText(QString::number(index_blocks));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("index entities : ");
-	ui->dxf_log->insertPlainText(QString::number(index_entities));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("index objects : ");
-	ui->dxf_log->insertPlainText(QString::number(index_objects));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("index thumbnailimage : ");
-	ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-	ui->dxf_log->insertPlainText("\n");
-
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	section_lengts();
+
 	copy_list();
+
+	Signal_log1.clear();
+	Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
+
+	emit send_log(Signal_log1);
 
 	if (index_header!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting HEADER list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		split_header();
 
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no HEADER list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no HEADER list to split ");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 	if (index_classes!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting CLASSES list ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		//split_classes();
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no CLASSES list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no CLASSES list to split ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 	if (index_tables!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting TABLES list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		split_tables();
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no TABLES list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no TABLES list to split ");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 
 	if (index_blocks!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting BLOCKS list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		split_blocks();
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no BLOCKS list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no BLOCKS list to split ");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 
 	if (index_entities!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting ENTITIES list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		split_entities();
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no ENTITIES list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no ENTITIES list to split ");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 	if (index_objects!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting OBJECTS list ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		//split_objects();
-		//ui->dxf_log->insertPlainText("OBJECTS split disabled ");
 
-		//ui->dxf_log->insertPlainText("\n");
-
-		//ui->dxf_log->moveCursor(QTextCursor::End);
-		//ui->dxf_log->repaint();
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no OBJECTS list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no OBJECTS list to split ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 	if (index_thumbnailimage!=-1)
 	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting THUMBNAILIMAGE list ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
 		//split_thumbnailimage();
-		ui->dxf_log->insertPlainText("THUMBNAILIMAGE split disabled ");
 
-		ui->dxf_log->insertPlainText("\n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
 	}
 	else
 	{
-		ui->dxf_log->insertPlainText("no THUMBNAILIMAGE list to split ");
 
-		ui->dxf_log->insertPlainText("\n");
+		Signal_log1.clear();
+		Signal_log1.append("no THUMBNAILIMAGE list to split ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		emit send_log(Signal_log1);
 	}
 
 	mydb.dbManager_close(FileName);
 
-	ui->dxf_log->insertPlainText("End loading into db ");
-	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
-	ui->dxf_log->insertPlainText("\n");
+	Signal_log1.clear();
+	Signal_log1.append("End loading into db ");
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	return;
 }
@@ -512,14 +544,14 @@ void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
 void DXFtoQET3DB::on_Delete_DB_clicked()
 {
 
-	ui->dxf_log->insertPlainText("deleting ");
-	ui->dxf_log->insertPlainText(Filename_db);
-	ui->dxf_log->insertPlainText("\n");
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("=> Start deleting ");
+	Signal_log1.append(Filename_db);
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 
 	QFile::remove(Filename_db);
@@ -527,564 +559,274 @@ void DXFtoQET3DB::on_Delete_DB_clicked()
 
 void DXFtoQET3DB::section_lengts()
 {
-	ui->dxf_log->insertPlainText("calculating section lengths \n");
-	ui->dxf_log->insertPlainText("\n");
 
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("calculating section lengths ");
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
 
-	if (index_header==-1)
+	emit send_log(Signal_log1);
+
+	// header
+
+	lenght_header=index_classes-index_header;
+
+	if(lenght_header<0)
 	{
-		ui->dxf_log->insertPlainText("no section HEADER found \n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
-	}
-	else
-	{
-		if ((index_classes-index_header)<index_header)
-		{
-			if ((index_tables-index_header)<index_header)
-			{
-				if((index_blocks-index_header)<index_header)
-				{
-					if((index_entities-index_header)<index_header)
-					{
-						if((index_objects-index_header)<index_header)
-						{
-							if((index_thumbnailimage-index_header)<index_header)
-							{
-								lenght_header=dxf_line_count2-index_header;
-								ui->dxf_log->insertPlainText("header lenght : ");
-								ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-								ui->dxf_log->insertPlainText(" - ");
-								ui->dxf_log->insertPlainText(QString::number(index_header));
-								ui->dxf_log->insertPlainText(" = ");
-								ui->dxf_log->insertPlainText(QString::number(lenght_header));
-								ui->dxf_log->insertPlainText("\n");
-
-								ui->dxf_log->moveCursor(QTextCursor::End);
-								ui->dxf_log->repaint();
-							}
-							else
-							{
-								lenght_header=index_thumbnailimage-index_header;
-								ui->dxf_log->insertPlainText("header lenght : ");
-								ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-								ui->dxf_log->insertPlainText(" - ");
-								ui->dxf_log->insertPlainText(QString::number(index_header));
-								ui->dxf_log->insertPlainText(" = ");
-								ui->dxf_log->insertPlainText(QString::number(lenght_header));
-								ui->dxf_log->insertPlainText("\n");
-
-								ui->dxf_log->moveCursor(QTextCursor::End);
-								ui->dxf_log->repaint();
-							}
-						}
-						else
-						{
-							lenght_header=index_objects-index_header;
-							ui->dxf_log->insertPlainText("header lenght : ");
-							ui->dxf_log->insertPlainText(QString::number(index_objects));
-							ui->dxf_log->insertPlainText(" - ");
-							ui->dxf_log->insertPlainText(QString::number(index_header));
-							ui->dxf_log->insertPlainText(" = ");
-							ui->dxf_log->insertPlainText(QString::number(lenght_header));
-							ui->dxf_log->insertPlainText("\n");
-
-							ui->dxf_log->moveCursor(QTextCursor::End);
-							ui->dxf_log->repaint();
-
-						}
-					}
-					else
-					{
-						lenght_header=index_entities-index_header;
-						ui->dxf_log->insertPlainText("header lenght : ");
-						ui->dxf_log->insertPlainText(QString::number(index_entities));
-						ui->dxf_log->insertPlainText(" - ");
-						ui->dxf_log->insertPlainText(QString::number(index_header));
-						ui->dxf_log->insertPlainText(" = ");
-						ui->dxf_log->insertPlainText(QString::number(lenght_header));
-						ui->dxf_log->insertPlainText("\n");
-
-						ui->dxf_log->moveCursor(QTextCursor::End);
-						ui->dxf_log->repaint();
-
-					}
-				}
-				else
-				{
-					lenght_header=index_blocks-index_header;
-					ui->dxf_log->insertPlainText("header lenght : ");
-					ui->dxf_log->insertPlainText(QString::number(index_blocks));
-					ui->dxf_log->insertPlainText(" - ");
-					ui->dxf_log->insertPlainText(QString::number(index_header));
-					ui->dxf_log->insertPlainText(" = ");
-					ui->dxf_log->insertPlainText(QString::number(lenght_header));
-					ui->dxf_log->insertPlainText("\n");
-
-					ui->dxf_log->moveCursor(QTextCursor::End);
-					ui->dxf_log->repaint();
-
-				}
-
-			}
-			else
-			{
-				lenght_header=index_tables-index_header;
-				ui->dxf_log->insertPlainText("header lenght : ");
-				ui->dxf_log->insertPlainText(QString::number(index_tables));
-				ui->dxf_log->insertPlainText(" - ");
-				ui->dxf_log->insertPlainText(QString::number(index_header));
-				ui->dxf_log->insertPlainText(" = ");
-				ui->dxf_log->insertPlainText(QString::number(lenght_header));
-				ui->dxf_log->insertPlainText("\n");
-
-				ui->dxf_log->moveCursor(QTextCursor::End);
-				ui->dxf_log->repaint();
-			}
-		}
-		else
-		{
-			lenght_header=index_classes-index_header;
-			ui->dxf_log->insertPlainText("header lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(index_classes));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_header));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_header));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-		}
+		lenght_header=index_tables-index_header;
 	}
 
-	if (index_classes==-1)
+	if(lenght_header<0)
 	{
-		ui->dxf_log->insertPlainText("no section CLASSES found \n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
+		lenght_header=index_blocks-index_header;
 	}
-	else
+
+	if(lenght_header<0)
 	{
+		lenght_header=index_entities-index_header;
+	}
 
-			if ((index_tables-index_classes)<index_classes)
-			{
-				if((index_blocks-index_classes)<index_classes)
-				{
-					if((index_entities-index_classes)<index_classes)
-					{
-						if((index_objects-index_classes)<index_classes)
-						{
-							if((index_thumbnailimage-index_classes)<index_classes)
-							{
-								lenght_classes=dxf_line_count2-index_classes;
-								ui->dxf_log->insertPlainText("classes lenght : ");
-								ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-								ui->dxf_log->insertPlainText(" - ");
-								ui->dxf_log->insertPlainText(QString::number(index_classes));
-								ui->dxf_log->insertPlainText(" = ");
-								ui->dxf_log->insertPlainText(QString::number(lenght_classes));
-								ui->dxf_log->insertPlainText("\n");
+	if(lenght_header<0)
+	{
+		lenght_header=index_objects-index_header;
+	}
 
-								ui->dxf_log->moveCursor(QTextCursor::End);
-								ui->dxf_log->repaint();
-							}
-							else
-							{
-								lenght_classes=index_thumbnailimage-index_classes;
-								ui->dxf_log->insertPlainText("classes lenght : ");
-								ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-								ui->dxf_log->insertPlainText(" - ");
-								ui->dxf_log->insertPlainText(QString::number(index_classes));
-								ui->dxf_log->insertPlainText(" = ");
-								ui->dxf_log->insertPlainText(QString::number(lenght_classes));
-								ui->dxf_log->insertPlainText("\n");
+	if(lenght_header<0)
+	{
+		lenght_header=index_thumbnailimage-index_header;
+	}
 
-								ui->dxf_log->moveCursor(QTextCursor::End);
-								ui->dxf_log->repaint();
-							}
-						}
-						else
-						{
-							lenght_classes=index_objects-index_classes;
-							ui->dxf_log->insertPlainText("classes lenght : ");
-							ui->dxf_log->insertPlainText(QString::number(index_objects));
-							ui->dxf_log->insertPlainText(" - ");
-							ui->dxf_log->insertPlainText(QString::number(index_classes));
-							ui->dxf_log->insertPlainText(" = ");
-							ui->dxf_log->insertPlainText(QString::number(lenght_classes));
-							ui->dxf_log->insertPlainText("\n");
+	if(lenght_header<0)
+	{
+		lenght_header=dxf_line_count2-index_header;
+	}
 
-							ui->dxf_log->moveCursor(QTextCursor::End);
-							ui->dxf_log->repaint();
+	if(lenght_header<0)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("no section HEADER found  ");
 
-						}
-					}
-					else
-					{
-						lenght_classes=index_entities-index_classes;
-						ui->dxf_log->insertPlainText("classes lenght : ");
-						ui->dxf_log->insertPlainText(QString::number(index_entities));
-						ui->dxf_log->insertPlainText(" - ");
-						ui->dxf_log->insertPlainText(QString::number(index_classes));
-						ui->dxf_log->insertPlainText(" = ");
-						ui->dxf_log->insertPlainText(QString::number(lenght_classes));
-						ui->dxf_log->insertPlainText("\n");
+		emit send_log(Signal_log1);
 
-						ui->dxf_log->moveCursor(QTextCursor::End);
-						ui->dxf_log->repaint();
+		lenght_header=0;
+	}
 
-					}
-				}
-				else
-				{
-					lenght_classes=index_blocks-index_classes;
-					ui->dxf_log->insertPlainText("classes lenght : ");
-					ui->dxf_log->insertPlainText(QString::number(index_blocks));
-					ui->dxf_log->insertPlainText(" - ");
-					ui->dxf_log->insertPlainText(QString::number(index_classes));
-					ui->dxf_log->insertPlainText(" = ");
-					ui->dxf_log->insertPlainText(QString::number(lenght_classes));
-					ui->dxf_log->insertPlainText("\n");
+	Signal_log1.clear();
+	Signal_log1.append("header lenght : ");
 
-					ui->dxf_log->moveCursor(QTextCursor::End);
-					ui->dxf_log->repaint();
+	Signal_log1.append(QString::number(lenght_header));
 
-				}
+	emit send_log(Signal_log1);
 
-			}
-			else
-			{
-				lenght_header=index_tables-index_header;
-				ui->dxf_log->insertPlainText("header lenght : ");
-				ui->dxf_log->insertPlainText(QString::number(index_tables));
-				ui->dxf_log->insertPlainText(" - ");
-				ui->dxf_log->insertPlainText(QString::number(index_header));
-				ui->dxf_log->insertPlainText(" = ");
-				ui->dxf_log->insertPlainText(QString::number(lenght_header));
-				ui->dxf_log->insertPlainText("\n");
+	// classes
 
-				ui->dxf_log->moveCursor(QTextCursor::End);
-				ui->dxf_log->repaint();
-			}
+	lenght_classes=index_tables-index_classes;
 
+	if(lenght_classes<0)
+	{
+		lenght_classes=index_blocks-index_classes;
+	}
+
+	if(lenght_classes<0)
+	{
+		lenght_classes=index_entities-index_classes;
+	}
+
+	if(lenght_classes<0)
+	{
+		lenght_classes=index_objects-index_classes;
+	}
+
+	if(lenght_classes<0)
+	{
+		lenght_header=index_thumbnailimage-index_classes;
+	}
+
+	if(lenght_classes<0)
+	{
+		lenght_header=dxf_line_count2-index_classes;
+	}
+
+	if(lenght_classes<0)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("no section CLASSES found  ");
+
+		emit send_log(Signal_log1);
+
+		lenght_classes=0;
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append("classes lenght : ");
+
+	Signal_log1.append(QString::number(lenght_classes));
+
+	emit send_log(Signal_log1);
+
+	// tables
+
+
+	lenght_tables=index_blocks-index_tables;
+
+	if(lenght_tables<0)
+	{
+		lenght_tables=index_entities-index_tables;
+	}
+
+	if(lenght_tables<0)
+	{
+		lenght_tables=index_objects-index_tables;
+	}
+
+	if(lenght_tables<0)
+	{
+		lenght_tables=index_thumbnailimage-index_tables;
+	}
+
+	if(lenght_tables<0)
+	{
+		lenght_tables=dxf_line_count2-index_tables;
+	}
+
+	if(lenght_tables<0)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("no section TABLES found  ");
+
+		emit send_log(Signal_log1);
+
+		lenght_tables=0;
 
 	}
 
-	if (index_tables==-1)
+	Signal_log1.clear();
+	Signal_log1.append("tables lenght : ");
+
+	Signal_log1.append(QString::number(lenght_tables));
+
+	emit send_log(Signal_log1);
+
+	// blocks
+
+	lenght_blocks=index_entities-index_blocks;
+
+	if(lenght_blocks<0)
 	{
-		ui->dxf_log->insertPlainText("no section TABLES found \n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
-	}
-	else
-	{
-
-		if((index_blocks-index_tables)<index_tables)
-		{
-			if((index_entities-index_tables)<index_tables)
-			{
-				if((index_objects-index_tables)<index_tables)
-				{
-					if((index_thumbnailimage-index_tables)<index_tables)
-					{
-						lenght_tables=dxf_line_count2-index_tables;
-						ui->dxf_log->insertPlainText("tables lenght : ");
-						ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-						ui->dxf_log->insertPlainText(" - ");
-						ui->dxf_log->insertPlainText(QString::number(index_tables));
-						ui->dxf_log->insertPlainText(" = ");
-						ui->dxf_log->insertPlainText(QString::number(lenght_tables));
-
-						ui->dxf_log->moveCursor(QTextCursor::End);
-						ui->dxf_log->repaint();
-					}
-					else
-					{
-						lenght_tables=index_thumbnailimage-index_tables;
-						ui->dxf_log->insertPlainText("tables lenght : ");
-						ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-						ui->dxf_log->insertPlainText(" - ");
-						ui->dxf_log->insertPlainText(QString::number(index_tables));
-						ui->dxf_log->insertPlainText(" = ");
-						ui->dxf_log->insertPlainText(QString::number(lenght_tables));
-						ui->dxf_log->insertPlainText("\n");
-
-						ui->dxf_log->moveCursor(QTextCursor::End);
-						ui->dxf_log->repaint();
-					}
-				}
-				else
-				{
-					lenght_tables=index_objects-index_tables;
-					ui->dxf_log->insertPlainText("tables lenght : ");
-					ui->dxf_log->insertPlainText(QString::number(index_objects));
-					ui->dxf_log->insertPlainText(" - ");
-					ui->dxf_log->insertPlainText(QString::number(index_tables));
-					ui->dxf_log->insertPlainText(" = ");
-					ui->dxf_log->insertPlainText(QString::number(lenght_tables));
-					ui->dxf_log->insertPlainText("\n");
-
-					ui->dxf_log->moveCursor(QTextCursor::End);
-					ui->dxf_log->repaint();
-
-				}
-			}
-			else
-			{
-				lenght_tables=index_entities-index_tables;
-				ui->dxf_log->insertPlainText("tables lenght : ");
-				ui->dxf_log->insertPlainText(QString::number(index_entities));
-				ui->dxf_log->insertPlainText(" - ");
-				ui->dxf_log->insertPlainText(QString::number(index_tables));
-				ui->dxf_log->insertPlainText(" = ");
-				ui->dxf_log->insertPlainText(QString::number(lenght_tables));
-				ui->dxf_log->insertPlainText("\n");
-
-				ui->dxf_log->moveCursor(QTextCursor::End);
-				ui->dxf_log->repaint();
-
-			}
-		}
-		else
-		{
-			lenght_tables=index_blocks-index_tables;
-			ui->dxf_log->insertPlainText("tables lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(index_blocks));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_tables));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_tables));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-
-		}
-
+		lenght_blocks=index_objects-index_blocks;
 	}
 
-	if (index_blocks==-1)
+	if(lenght_blocks<0)
 	{
-		ui->dxf_log->insertPlainText("no section BLOCKS found \n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
-	}
-	else
-	{
-
-		if((index_entities-index_blocks)<index_blocks)
-		{
-			if((index_objects-index_blocks)<index_blocks)
-			{
-				if((index_thumbnailimage-index_blocks)<index_blocks)
-				{
-					lenght_blocks=dxf_line_count2-index_blocks;
-					ui->dxf_log->insertPlainText("blocks lenght : ");
-					ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-					ui->dxf_log->insertPlainText(" - ");
-					ui->dxf_log->insertPlainText(QString::number(index_blocks));
-					ui->dxf_log->insertPlainText(" = ");
-					ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
-					ui->dxf_log->insertPlainText("\n");
-
-					ui->dxf_log->moveCursor(QTextCursor::End);
-					ui->dxf_log->repaint();
-				}
-				else
-				{
-					lenght_blocks=index_thumbnailimage-index_blocks;
-					ui->dxf_log->insertPlainText("blocks lenght : ");
-					ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-					ui->dxf_log->insertPlainText(" - ");
-					ui->dxf_log->insertPlainText(QString::number(index_blocks));
-					ui->dxf_log->insertPlainText(" = ");
-					ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
-					ui->dxf_log->insertPlainText("\n");
-
-					ui->dxf_log->moveCursor(QTextCursor::End);
-					ui->dxf_log->repaint();
-				}
-			}
-			else
-			{
-				lenght_blocks=index_objects-index_blocks;
-				ui->dxf_log->insertPlainText("blocks lenght : ");
-				ui->dxf_log->insertPlainText(QString::number(index_objects));
-				ui->dxf_log->insertPlainText(" - ");
-				ui->dxf_log->insertPlainText(QString::number(index_blocks));
-				ui->dxf_log->insertPlainText(" = ");
-				ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
-				ui->dxf_log->insertPlainText("\n");
-
-				ui->dxf_log->moveCursor(QTextCursor::End);
-				ui->dxf_log->repaint();
-
-			}
-		}
-		else
-		{
-			lenght_blocks=index_entities-index_blocks;
-			ui->dxf_log->insertPlainText("blocks lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(index_entities));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_blocks));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_blocks));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-
-		}
-
+		lenght_blocks=index_thumbnailimage-index_blocks;
 	}
 
-
-	if (index_entities==-1)
+	if(lenght_blocks<0)
 	{
-		ui->dxf_log->insertPlainText("no section ENTITIES found \n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
-	}
-	else
-	{
-
-
-		if((index_objects-index_entities)<index_entities)
-		{
-			if((index_thumbnailimage-index_entities)<index_entities)
-			{
-				lenght_entities=dxf_line_count2-index_entities;
-				ui->dxf_log->insertPlainText("entities lenght : ");
-				ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-				ui->dxf_log->insertPlainText(" - ");
-				ui->dxf_log->insertPlainText(QString::number(index_entities));
-				ui->dxf_log->insertPlainText(" = ");
-				ui->dxf_log->insertPlainText(QString::number(lenght_entities));
-				ui->dxf_log->insertPlainText("\n");
-
-				ui->dxf_log->moveCursor(QTextCursor::End);
-				ui->dxf_log->repaint();
-			}
-			else
-			{
-				lenght_entities=index_thumbnailimage-index_entities;
-				ui->dxf_log->insertPlainText("entities lenght : ");
-				ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-				ui->dxf_log->insertPlainText(" - ");
-				ui->dxf_log->insertPlainText(QString::number(index_entities));
-				ui->dxf_log->insertPlainText(" = ");
-				ui->dxf_log->insertPlainText(QString::number(lenght_entities));
-				ui->dxf_log->insertPlainText("\n");
-
-				ui->dxf_log->moveCursor(QTextCursor::End);
-				ui->dxf_log->repaint();
-			}
-		}
-		else
-		{
-			lenght_entities=index_objects-index_entities;
-			ui->dxf_log->insertPlainText("entities lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(index_objects));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_entities));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_entities));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-
-		}
-
+		lenght_blocks=dxf_line_count2-index_blocks;
 	}
 
-	if (index_objects==-1)
+	if(lenght_blocks<0)
 	{
-		ui->dxf_log->insertPlainText("no section OBJECTS found \n");
+		Signal_log1.clear();
+		Signal_log1.append("no section BLOCKS found  ");
 
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
-	}
-	else
-	{
+		emit send_log(Signal_log1);
 
-		if((index_thumbnailimage-index_objects)<index_objects)
-		{
-			lenght_objects=dxf_line_count2-index_objects;
-			ui->dxf_log->insertPlainText("objects lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_objects));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_objects));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-		}
-		else
-		{
-			lenght_objects=index_thumbnailimage-index_objects;
-			ui->dxf_log->insertPlainText("objects lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_objects));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_objects));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-		}
-
+		lenght_blocks=0;
 	}
 
-	if (index_thumbnailimage==-1)
+	Signal_log1.clear();
+	Signal_log1.append("blocks lenght : ");
+
+	Signal_log1.append(QString::number(lenght_blocks));
+
+	emit send_log(Signal_log1);
+
+	// entities
+
+	lenght_entities=index_objects-index_entities;
+
+	if(lenght_entities<0)
 	{
-		ui->dxf_log->insertPlainText("no section THUMBNAILIMAGE found \n");
-
-		ui->dxf_log->moveCursor(QTextCursor::End);
-		ui->dxf_log->repaint();
-	}
-	else
-	{
-
-
-		if((dxf_line_count2-index_thumbnailimage)<index_thumbnailimage)
-		{
-			ui->dxf_log->insertPlainText("no header lenght found\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-		}
-		else
-		{
-			lenght_thumbnailimage=dxf_line_count2-index_thumbnailimage;
-			ui->dxf_log->insertPlainText("thumbnailimage lenght : ");
-			ui->dxf_log->insertPlainText(QString::number(dxf_line_count2));
-			ui->dxf_log->insertPlainText(" - ");
-			ui->dxf_log->insertPlainText(QString::number(index_thumbnailimage));
-			ui->dxf_log->insertPlainText(" = ");
-			ui->dxf_log->insertPlainText(QString::number(lenght_thumbnailimage));
-			ui->dxf_log->insertPlainText("\n");
-
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
-		}
-
+		lenght_entities=index_thumbnailimage-index_entities;
 	}
 
+	if(lenght_entities<0)
+	{
+		lenght_entities=dxf_line_count2-index_entities;
+	}
 
+	if(lenght_entities<0)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("no section ENTITIES found  ");
 
+		emit send_log(Signal_log1);
+
+		lenght_entities=0;
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append("entities lenght : ");
+
+	Signal_log1.append(QString::number(lenght_entities));
+
+	emit send_log(Signal_log1);
+
+	// objects
+
+	lenght_objects=index_thumbnailimage-index_objects;
+
+	if(lenght_objects<0)
+	{
+		lenght_objects=index_thumbnailimage-index_objects;
+	}
+
+	if(lenght_objects<0)
+	{
+		lenght_objects=dxf_line_count2-index_objects;
+	}
+
+	if(lenght_objects<0)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("no section OBJECTS found  ");
+
+		emit send_log(Signal_log1);
+
+		lenght_objects=0;
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append("objects lenght : ");
+
+	Signal_log1.append(QString::number(lenght_objects));
+
+	emit send_log(Signal_log1);
+
+	// thumbnailimage
+
+	lenght_thumbnailimage=dxf_line_count2-index_thumbnailimage;
+
+	if(lenght_thumbnailimage<0)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("no section THUMBNAILIMAGE found  ");
+
+		emit send_log(Signal_log1);
+
+		lenght_thumbnailimage=0;
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append("thumbnailimage lenght : ");
+
+	Signal_log1.append(QString::number(lenght_thumbnailimage));
+
+	emit send_log(Signal_log1);
+
+	return;
 
 }
 
@@ -1115,45 +857,6 @@ void DXFtoQET3DB::copy_list()
 	max_entities=index_entities+lenght_entities-5;
 	max_objects=index_objects+lenght_objects-5;
 	max_thumbnailimage=index_thumbnailimage+lenght_thumbnailimage-5;
-
-	/*if (max_header>max_length)
-	{
-		max_header=max_length-1;
-	}
-
-	if (max_classes>max_length)
-	{
-		max_classes=max_length-1;
-	}
-
-	if (max_tables>max_length)
-	{
-		max_tables=max_length-1;
-	}
-
-	if (max_blocks>max_length)
-	{
-		max_blocks=max_length-1;
-	}
-
-	if (max_entities>max_length)
-	{
-		max_entities=max_length-1;
-	}
-
-	if (max_objects>max_length)
-	{
-		max_objects=max_length-1;
-	}
-
-	if (max_thumbnailimage>max_length)
-	{
-		max_thumbnailimage=max_length-1;
-	}*/
-
-
-
-
 
 
 	if (index_header != -1)
@@ -1241,8 +944,6 @@ void DXFtoQET3DB::copy_list()
 		list_thumbnailimage=dxf_thumbnailimage.count();
 	}
 
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
 
 	return;
 
@@ -1262,15 +963,12 @@ void DXFtoQET3DB::split_header()
 
 	header_max_count=dxf_header.count();
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("header items : ");
+	Signal_log1.append(QString::number(header_max_items));
+	//Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("header items :");
-	ui->dxf_log->insertPlainText(QString::number(header_max_items));
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	count_header=0;
 	count_header_record_id=1;
@@ -1304,9 +1002,10 @@ void DXFtoQET3DB::split_header()
 
 	clear_sw_header();
 
-	ui->dxf_log->insertPlainText("Splitting HEADER \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Splitting HEADER  ");
+
+	emit send_log(Signal_log1);
 
 	max=0;
 	Record_Count_Header=1;
@@ -1317,26 +1016,20 @@ void DXFtoQET3DB::split_header()
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Header");
-	ui->dxf_log->repaint();
 
-	//connect (this,SIGNAL(send_text(QString &)),this,SLOT(on_progressBar_text(QString &)));
-	//connect (this,SIGNAL(send_min(int &)),this,SLOT(on_progressBar_valueMin(int &)));
-	//connect (this,SIGNAL(send_max(int &)),this,SLOT(on_progressBar_valueMax(int &)));
-	//connect (this,SIGNAL(send_actual(int &)),this,SLOT(on_progressBar_valueChanged(int &)));
 
-	//emit send_text("dxf_header");
-	//emit send_min(0);
-	//emit send_max(header_max_items);
 
-	ui->progressBar1->text()="dxf_header";
-	ui->progressBar1->setMinimum(0);
-	ui->progressBar1->setMaximum(header_max_items);
-	ui->progressBar1->repaint();
+
+	emit send_text("dxf_header");
+	emit send_min(0);
+	emit send_max(header_max_items);
+
+
 
 	text1=QString::number(header_max_items);
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
-	ui->dxf_log->repaint();
+
 
 	while (count_header< header_max_items)
 	{
@@ -1350,24 +1043,23 @@ void DXFtoQET3DB::split_header()
 
 		if (x3>DXF_codeset_copies)
 		{
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->insertPlainText("Splitting header : out of range subitems acad command \n");
-			ui->dxf_log->insertPlainText(QString::number(x3));
-			ui->dxf_log->insertPlainText(" > ");
-			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
-			ui->dxf_log->insertPlainText("\n");
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting header : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
 
 		}
 
 		clear_dxf_code_tables();
 
-		//emit(send_actual(count_header));
-
-		ui->progressBar1->setValue(count_header);
-		ui->progressBar1->repaint();
+		emit send_actual(count_header);
 
 		// record of temp table split to dxf table
 		max=Split_list("dxf_header", x3, count_header_item, count_header, id_header );
@@ -1408,15 +1100,12 @@ void DXFtoQET3DB::split_classes()
 
 	classes_max_count=dxf_classes.count();
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("classes items : ");
+	Signal_log1.append(QString::number(classes_max_items));
+	//Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("classes items :");
-	ui->dxf_log->insertPlainText(QString::number(classes_max_items));
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	count_classes=0;
 	count_classes_record_id=1;
@@ -1465,48 +1154,44 @@ void DXFtoQET3DB::split_classes()
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Classes");
-	ui->dxf_log->repaint();
 
-	ui->progressBar1->text()="dxf_classes";
-	ui->progressBar1->setMinimum(0);
-	ui->progressBar1->setMaximum(classes_max_items);
-	ui->progressBar1->repaint();
+
+	emit send_text("dxf_classes");
+	emit send_min(0);
+	emit send_max(classes_max_items);
 
 	text1=QString::number(classes_max_items);
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
-	ui->dxf_log->repaint();
+
 
 
 	while (count_classes< classes_max_items)
 	{
-		/*text1=QString::number(count_classes);
-		ui->dxf_section_count->clear();
-		ui->dxf_section_count->insert(text1);
-		ui->dxf_log->repaint();*/
-
 		count_classes_item=0;
 
 		x3=split_tables_list[count_classes].count();
 
 		if (x3>DXF_codeset_copies)
 		{
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->insertPlainText("Splitting classes : out of range subitems acad command \n");
-			ui->dxf_log->insertPlainText(QString::number(x3));
-			ui->dxf_log->insertPlainText(" > ");
-			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
-			ui->dxf_log->insertPlainText("\n");
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting classes : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
 
 		}
 
 		clear_dxf_code_tables();
 
-		ui->progressBar1->setValue(count_classes);
-		ui->progressBar1->repaint();
+		emit send_actual(count_classes);
 
 		max=Split_list("dxf_classes", x3, count_classes_item, count_classes, id_header );
 
@@ -1548,15 +1233,12 @@ void DXFtoQET3DB::split_tables()
 
 	tables_max_count=dxf_tables.count();
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("tables items : ");
+	Signal_log1.append(QString::number(tables_max_items));
+	//Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("tables items :");
-	ui->dxf_log->insertPlainText(QString::number(tables_max_items));
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	count_tables=0;
 	count_tables_record_id=1;
@@ -1588,9 +1270,12 @@ void DXFtoQET3DB::split_tables()
 
 	clear_sw_header();
 
-	ui->dxf_log->insertPlainText("Splitting tables \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Splitting tables ");
+	Signal_log1.append(QString::number(tables_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
 
 	max=0;
 	Record_Count_Tables=1;
@@ -1599,17 +1284,15 @@ void DXFtoQET3DB::split_tables()
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Tables");
-	ui->dxf_log->repaint();
 
-	ui->progressBar1->text()="dxf_tables";
-	ui->progressBar1->setMinimum(0);
-	ui->progressBar1->setMaximum(tables_max_items);
-	ui->progressBar1->repaint();
+	emit send_text("dxf_tables");
+	emit send_min(0);
+	emit send_max(tables_max_items);
 
 	text1=QString::number(tables_max_items);
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
-	ui->dxf_log->repaint();
+
 
 	while (count_tables< tables_max_items)			
 	{
@@ -1626,22 +1309,24 @@ void DXFtoQET3DB::split_tables()
 
 		if (x3>DXF_codeset_copies)
 		{
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->insertPlainText("Splitting tables : out of range subitems acad command \n");
-			ui->dxf_log->insertPlainText(QString::number(x3));
-			ui->dxf_log->insertPlainText(" > ");
-			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
-			ui->dxf_log->insertPlainText("\n");
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting tables  : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
 
 		}
 
 		clear_dxf_code_tables();
 
-		ui->progressBar1->setValue(count_tables);
-		ui->progressBar1->repaint();
+		emit send_actual(count_tables);
 
 		max=Split_list("dxf_tables", x3, count_tables_item, count_tables, id_header  );
 
@@ -1663,9 +1348,6 @@ void DXFtoQET3DB::split_tables()
 
 	}
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
 
 	return;
 }
@@ -5436,6 +5118,8 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	ui->ELMT_Result->clear();
 	DXF_Entities_List.DXF_Result.clear();
 
+	ui->Procesing_dxf->clear();
+
 	ui->MainTab->setCurrentIndex(1);
 	ui->MainTab->repaint();
 
@@ -5742,17 +5426,17 @@ void DXFtoQET3DB::on_progressBar_valueChanged(int value1)
 	ui->progressBar1->setValue(value1);
 	ui->progressBar1->repaint();
 }
-void DXFtoQET3DB::on_progressBar_valueMin(int value1)
+void DXFtoQET3DB::on_progressBar_valueMin(const int value2)
 {
-	ui->progressBar1->setMinimum(value1);
+	ui->progressBar1->setMinimum(value2);
 	ui->progressBar1->repaint();
 }
-void DXFtoQET3DB::on_progressBar_valueMax(int value1)
+void DXFtoQET3DB::on_progressBar_valueMax(const int value1)
 {
 	ui->progressBar1->setMaximum(value1);
 	ui->progressBar1->repaint();
 }
-void DXFtoQET3DB::on_progressBar_text(QString text1)
+void DXFtoQET3DB::on_progressBar_text(const QString text1)
 {
 	ui->progressBar1->text()=text1;
 	ui->progressBar1->repaint();
@@ -5760,6 +5444,22 @@ void DXFtoQET3DB::on_progressBar_text(QString text1)
 
 void DXFtoQET3DB::update_proces(const QString &Waarde_receve1)
 {
-	ui->Procesing_dxf->setPlainText(Waarde_receve1);
+	ui->Procesing_dxf->appendPlainText(Waarde_receve1);
+	ui->Procesing_dxf->moveCursor(QTextCursor::End);
 	ui->Procesing_dxf->repaint();
+}
+
+void DXFtoQET3DB::update_elmt(const QString &Waarde_receve2)
+{
+	ui->ELMT_Result->clear();
+	ui->ELMT_Result->insertPlainText(Waarde_receve2);
+	ui->ELMT_Result->moveCursor(QTextCursor::End);
+	ui->ELMT_Result->repaint();
+}
+
+void DXFtoQET3DB::update_log(const QString &Waarde_receve3)
+{
+	ui->dxf_log->appendPlainText(Waarde_receve3);
+	ui->dxf_log->moveCursor(QTextCursor::End);
+	ui->dxf_log->repaint();
 }

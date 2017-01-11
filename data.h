@@ -59,7 +59,13 @@ struct DXF_base
 	QString QDXF_block_lwpolyline_color;
 	QString QDXF_block_solid_color;
 
-
+	int32_t DXF_Header_count;
+	int32_t DXF_Classes_count;
+	int32_t DXF_Tables_count;
+	int32_t DXF_blocks_count;
+	int32_t DXF_Entities_count;
+	int32_t DXF_Objects_count;
+	int32_t DXF_Thumbnail_count;
 
 	QStringList dxf_input;
 

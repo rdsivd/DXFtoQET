@@ -270,6 +270,8 @@ class DXFtoQET3DB : public QWidget
 		QStringList thumbnailimage_split;
 		//QStringList split_tables_list;
 
+		QString Signal_log1;
+
 
 	public:
 
@@ -323,6 +325,8 @@ class DXFtoQET3DB : public QWidget
 		void send_max(const int &valuemax);
 		void send_actual(const int &valueactual);
 
+		void send_log(const QString &Waarde2);
+
 
 	public slots:
 
@@ -341,12 +345,14 @@ class DXFtoQET3DB : public QWidget
 		void on_Convert_dxf_entities_clicked();
 
 
-		void on_progressBar_valueChanged(int value1);
-		void on_progressBar_valueMin(int value1);
-		void on_progressBar_valueMax(int value1);
-		void on_progressBar_text(QString text1);
+		void on_progressBar_valueChanged(const int value1);
+		void on_progressBar_valueMin(const int value2);
+		void on_progressBar_valueMax(const int value3);
+		void on_progressBar_text(const QString text4);
 
 		void update_proces(const QString &Waarde_receve1);
+		void update_elmt(const QString &Waarde_receve2);
+		void update_log(const QString &Waarde_receve3);
 
 	protected:
 		void changeEvent(QEvent *e);

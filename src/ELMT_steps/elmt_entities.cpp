@@ -72,7 +72,8 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 	Logtext.append("Insert basic ELMT items\n");
 
-	Signal_waarde1="Insert basic ELMT items\n";
+	Signal_waarde1.clear();
+	Signal_waarde1.append("Insert basic ELMT items\n");
 
 	emit Signal1(Signal_waarde1);
 
@@ -110,6 +111,11 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 	Logtext.append("Converting DXF entities\n");
 
+	Signal_waarde1.clear();
+	Signal_waarde1.append("Converting DXF entities\n");
+
+	emit Signal1(Signal_waarde1);
+
 	//QSqlRecord Record2=NewQuery.record();
 
 
@@ -118,6 +124,13 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 		QSqlRecord Record2=NewQuery.record();
 		Recordvalue=Record2.value("Command").toString();
+
+		Signal_waarde1.clear();
+		Signal_waarde1.append(Record2.value("Command").toString());
+		Signal_waarde1.append(" : ");
+		Signal_waarde1.append(Record2.value("dxf_5").toString());
+
+		emit Signal1(Signal_waarde1);
 
 		if (Record2.value("Command_count").toInt()==0)
 		{
@@ -436,6 +449,20 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			}
 
+			Signal_waarde1.clear();
+			Signal_waarde1.append(Record2.value("Command").toString());
+			Signal_waarde1.append(" : ");
+			Signal_waarde1.append(Record2.value("dxf_5").toString());
+			Signal_waarde1.append(" : maxvertex => ");
+			Signal_waarde1.append(Record2.value("dxf_90").toString());
+			Signal_waarde1.append(" : count vertex => ");
+			Signal_waarde1.append(QString::number(count_vertex));
+			//Signal_waarde1.append(" : ");
+			//Signal_waarde1.append();
+
+			emit Signal1(Signal_waarde1);
+
+
 			New_DXF_Polyline.segments=count_vertex;
 
 			DXF_Entities_List.DXF_Result.append(New_DXF_Polyline.Create_polyline());
@@ -517,6 +544,8 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 				Logtext.append(" \n");
 			}
 
+
+
 			while (end_lwpoly==0 and count_vertex<max_vertex+1)
 			{
 				NewQuery.next();
@@ -552,6 +581,18 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			DXF_Entities_List.DXF_Result.append(New_DXF_LWPolyline.Create_polyline());
 
+			Signal_waarde1.clear();
+			Signal_waarde1.append(Record2.value("Command").toString());
+			Signal_waarde1.append(" : ");
+			Signal_waarde1.append(Record2.value("dxf_5").toString());
+			Signal_waarde1.append(" : maxvertex => ");
+			Signal_waarde1.append(Record2.value("dxf_90").toString());
+			Signal_waarde1.append(" : count vertex => ");
+			Signal_waarde1.append(QString::number(count_vertex));
+			//Signal_waarde1.append(" : ");
+			//Signal_waarde1.append();
+
+			emit Signal1(Signal_waarde1);
 
 		}
 
