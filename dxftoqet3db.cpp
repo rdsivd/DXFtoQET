@@ -1022,7 +1022,7 @@ void DXFtoQET3DB::split_header()
 
 	emit send_text("dxf_header");
 	emit send_min(0);
-	emit send_max(header_max_items);
+	emit send_max(header_max_items-1);
 
 
 
@@ -1138,10 +1138,10 @@ void DXFtoQET3DB::split_classes()
 
 	clear_sw_header();
 
+	Signal_log1.clear();
+	Signal_log1.append("Splitting CLASSES  ");
 
-	ui->dxf_log->insertPlainText("Splitting CLASSES \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	clear_dxf_code_tables();
 
@@ -1158,7 +1158,7 @@ void DXFtoQET3DB::split_classes()
 
 	emit send_text("dxf_classes");
 	emit send_min(0);
-	emit send_max(classes_max_items);
+	emit send_max(classes_max_items-1);
 
 	text1=QString::number(classes_max_items);
 	ui->dxf_section_count->clear();
@@ -1287,7 +1287,7 @@ void DXFtoQET3DB::split_tables()
 
 	emit send_text("dxf_tables");
 	emit send_min(0);
-	emit send_max(tables_max_items);
+	emit send_max(tables_max_items-1);
 
 	text1=QString::number(tables_max_items);
 	ui->dxf_section_count->clear();
@@ -1365,18 +1365,12 @@ void DXFtoQET3DB::split_blocks()
 
 	blocks_max_count=dxf_blocks.count();
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("blocks items : ");
+	Signal_log1.append(QString::number(blocks_max_items));
+	//Signal_log1.append("============================================================================");
 
-
-	ui->dxf_log->insertPlainText("blocks items :");
-	ui->dxf_log->insertPlainText(QString::number(blocks_max_items));
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
-
-
+	emit send_log(Signal_log1);
 
 	count_blocks=0;
 	count_blocks_record_id=1;
@@ -1408,31 +1402,28 @@ void DXFtoQET3DB::split_blocks()
 
 	clear_sw_header();
 
+	Signal_log1.clear();
+	Signal_log1.append("Splitting BLOCKS ");
 
-
-	ui->dxf_log->insertPlainText("Splitting BLOCKS \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	max=0;
 	Record_Count_Blocks=1;
-	//Record_Count_Tables=1;
+
 
 	clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Blocks");
-	ui->dxf_log->repaint();
 
-	ui->progressBar1->text()="dxf_blocks";
-	ui->progressBar1->setMinimum(0);
-	ui->progressBar1->setMaximum(blocks_max_items);
-	ui->progressBar1->repaint();
+	emit send_text("dxf_blocks");
+	emit send_min(0);
+	emit send_max(blocks_max_items-1);
 
 	text1=QString::number(blocks_max_items);
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
-	ui->dxf_log->repaint();
+
 
 	while (count_blocks< blocks_max_items)
 	{
@@ -1442,34 +1433,30 @@ void DXFtoQET3DB::split_blocks()
 		ui->dxf_log->repaint();*/
 
 		count_blocks_item=0;
-
-		//Record_Count_Tables=1;
-
 		x3=split_tables_list[count_blocks].count();
 
 		if (x3>DXF_codeset_copies)
 		{
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->insertPlainText("Splitting blocks : out of range subitems acad command \n");
-			ui->dxf_log->insertPlainText(QString::number(x3));
-			ui->dxf_log->insertPlainText(" > ");
-			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
-			ui->dxf_log->insertPlainText("\n");
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting blocks : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
 		}
 
 		clear_dxf_code_tables();
 
-		ui->progressBar1->setValue(count_blocks);
-		ui->progressBar1->repaint();
+		emit send_actual(count_blocks);
 
 		max=Split_list("dxf_blocks", x3, count_blocks_item, count_blocks , id_header );
 
-		//Record_Count_Tables++;
 
-		//Record_Count_Tables=Record_Count_Tables+count_blocks;
 
 		Record_Count_Blocks= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Blocks,"dxf_blocks");
 
@@ -1479,10 +1466,6 @@ void DXFtoQET3DB::split_blocks()
 		id_header++;
 
 		count_blocks++;
-
-		//Record_Count_Tables++;
-
-
 
 
 	}
@@ -1505,20 +1488,13 @@ void DXFtoQET3DB::split_entities()
 	}
 
 	entities_max_count=dxf_entities.count();
-	count_entities=0;
-	count_entities_record_id=1;
-	count_entities_lines=0;
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("entities items : ");
+	Signal_log1.append(QString::number(entities_max_items));
+	//Signal_log1.append("============================================================================");
 
-
-	ui->dxf_log->insertPlainText("entities items :");
-	ui->dxf_log->insertPlainText(QString::number(entities_max_items));
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 
 	count_entities=0;
@@ -1551,33 +1527,37 @@ void DXFtoQET3DB::split_entities()
 
 	clear_sw_header();
 
-	ui->dxf_log->insertPlainText("Splitting entities \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Splitting ENTITIES ");
+
+	emit send_log(Signal_log1);
+
 
 	max=0;
 	Record_Count_Entities=1;
 
-	//Record_Count_Tables=1;
-
 	clear_dxf_code_tables();
 
+	Signal_log1.clear();
+	Signal_log1.append("Splitting ENTITIES ");
+
+	emit send_log(Signal_log1);
 
 	count_entities=0;
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Entities");
-	ui->dxf_log->repaint();
 
-	ui->progressBar1->text()="dxf_entities";
-	ui->progressBar1->setMinimum(0);
-	ui->progressBar1->setMaximum(entities_max_items);
-	ui->progressBar1->repaint();
+
+	emit send_text("dxf_entities");
+	emit send_min(0);
+	emit send_max(entities_max_items-1);
+
 
 	text1=QString::number(entities_max_items);
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
-	ui->dxf_log->repaint();
+
 
 	while (count_entities< entities_max_items)
 	{
@@ -1594,28 +1574,25 @@ void DXFtoQET3DB::split_entities()
 
 		if (x3>DXF_codeset_copies)
 		{
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->insertPlainText("Splitting entities : out of range subitems acad command \n");
-			ui->dxf_log->insertPlainText(QString::number(x3));
-			ui->dxf_log->insertPlainText(" > ");
-			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
-			ui->dxf_log->insertPlainText("\n");
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting entities  : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
 
 		}
 
 		clear_dxf_code_tables();
 
-		ui->progressBar1->setValue(count_entities);
-		ui->progressBar1->repaint();
+		emit send_actual(count_entities);
 
 		max=Split_list("dxf_entities", x3, count_entities_item, count_entities, id_header  );
 
-		//Record_Count_Tables++;
-
-		//Record_Count_Tables=Record_Count_Tables+count_entities;
 
 		Record_Count_Entities= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Entities,"dxf_entities");
 
@@ -1626,7 +1603,7 @@ void DXFtoQET3DB::split_entities()
 
 		count_entities++;
 
-		//Record_Count_Tables++;
+
 
 	}
 
@@ -1648,19 +1625,18 @@ void DXFtoQET3DB::split_objects()
 	}
 
 	objects_max_count=dxf_objects.count();
+
+	Signal_log1.clear();
+	Signal_log1.append("objects items : ");
+	Signal_log1.append(QString::number(entities_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
 	count_objects=0;
 	count_objects_record_id=1;
 	count_objects_lines=0;
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
-
-	ui->dxf_log->insertPlainText("objects items :");
-	ui->dxf_log->insertPlainText(QString::number(objects_max_items));
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
 
 	count_objects=0;
 	count_objects_record_id=1;
@@ -1692,30 +1668,31 @@ void DXFtoQET3DB::split_objects()
 
 	clear_sw_header();
 
-	ui->dxf_log->insertPlainText("Splitting objects \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Splitting OBJECTS ");
+
+	emit send_log(Signal_log1);
+
+
 
 	max=0;
 	Record_Count_Objects=1;
 
-	//Record_Count_Tables=1;
 
 	clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Objects");
-	ui->dxf_log->repaint();
 
-	ui->progressBar1->text()="dxf_objects";
-	ui->progressBar1->setMinimum(0);
-	ui->progressBar1->setMaximum(objects_max_items);
-	ui->progressBar1->repaint();
+	emit send_text("dxf_entities");
+	emit send_min(0);
+	emit send_max(objects_max_items-1);
+
 
 	text1=QString::number(objects_max_items);
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
-	ui->dxf_log->repaint();
+
 
 	while (count_objects< objects_max_items)
 	{
@@ -1732,22 +1709,25 @@ void DXFtoQET3DB::split_objects()
 
 		if (x3>DXF_codeset_copies)
 		{
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->insertPlainText("Splitting objects : out of range subitems acad command \n");
-			ui->dxf_log->insertPlainText(QString::number(x3));
-			ui->dxf_log->insertPlainText(" > ");
-			ui->dxf_log->insertPlainText(QString::number(DXF_codeset_copies));
-			ui->dxf_log->insertPlainText("\n");
-			ui->dxf_log->insertPlainText("============================================================================\n");
-			ui->dxf_log->moveCursor(QTextCursor::End);
-			ui->dxf_log->repaint();
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting objects : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
+
 
 		}
 
 		clear_dxf_code_tables();
 
-		ui->progressBar1->setValue(count_objects);
-		ui->progressBar1->repaint();
+		emit send_actual(count_objects);
+
 
 		max=Split_list("dxf_objects", x3, count_object_item, count_objects, id_header  );
 
@@ -1778,13 +1758,14 @@ void DXFtoQET3DB::split_thumbnailimage()
 	count_thumbnailimage_record_id=1;
 	count_thumbnailimage_lines=0;
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
 
-	ui->dxf_log->insertPlainText("Splitting thumbnailimage \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("thumbnailimage items : ");
+	Signal_log1.append(QString::number(entities_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
 
 	while (count_thumbnailimage< dxf_thumbnailimage.count())
 	{

@@ -77,7 +77,7 @@ QString dxf_base_polyline::Create_polyline()
 	Result_polyline.append(QET_antialias);
 	Result_polyline.append(QChar(34));
 
-	for (count_segments=0; (count_segments<segments-1) and (count_segments<QET_L_POLYLINE);count_segments++)
+	for (count_segments=0; (count_segments<segments) and (count_segments<QET_L_POLYLINE);count_segments++)
 	{
 		Result_polyline.append(" x");
 		Result_polyline.append(QString::number(count_segments+1));

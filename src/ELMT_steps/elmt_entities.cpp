@@ -186,7 +186,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			New_DXF_Circle.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Circle.QET_ltype=Record2.value("dxf_6").toString();
-			New_DXF_Circle.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Circle.QET_handle=Record2.value("dxf_5").toString(); //dxf id
 			New_DXF_Circle.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_Circle.QET_antialias="false";
@@ -215,7 +215,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			New_DXF_Arc.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Arc.QET_ltype=Record2.value("dxf_6").toString();
-			New_DXF_Arc.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Arc.QET_handle=Record2.value("dxf_5").toString(); //dxf id
 			New_DXF_Arc.QET_softID=Record2.value("dxf_330").toString();
 
 
