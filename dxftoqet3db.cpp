@@ -49,6 +49,8 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 	ui->progressBar1->repaint();
 
 	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
+	connect (this, SIGNAL (send_elmt(const QString &)),this,SLOT(update_elmt(const QString &)));
+	connect (this, SIGNAL (send_process(const QString &)),this,SLOT(update_proces(const QString &)));
 
 	connect (this,SIGNAL(send_text(const QString &)),this,SLOT(on_progressBar_text(const QString &)));
 	connect (this,SIGNAL(send_min(const int &)),this,SLOT(on_progressBar_valueMin(const int &)));
@@ -5117,32 +5119,25 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	DXF_main_base[0].QDXF_text_color="black";
 	DXF_main_base[0].QDXF_solid_color="black";
 
+	Signal_log1.clear();
+	Signal_log1.append("============================================================================");
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" - Start creating elmt : ");
+	Signal_log1.append(QString::number(entities_max_items));
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
-	ui->dxf_log->insertPlainText("=> Start creating converting to ELMT \n");
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	emit send_log(Signal_log1);
 
 	Filename_db=DXF_main_base[0].dxf_savepath + "/" +DXF_main_base[0].dxf_openfile;
 	Filename_db.append(".db3");
 
-	ui->dxf_log->insertPlainText("Open : ");
-	ui->dxf_log->insertPlainText(Filename_db);
-	ui->dxf_log->insertPlainText("\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Open : ");
+	Signal_log1.append(Filename_db);
+	Signal_log1.append("\n");
+	Signal_log1.append("Get dxf Header information");
 
-
-
-	ui->dxf_log->insertPlainText("Get dxf Header information\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
-
+	emit send_log(Signal_log1);
 
 	ELMT_header_steps NewHeader;
 
@@ -5154,9 +5149,10 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 
 	elmt_tables NewLayerTable;
 
-	ui->dxf_log->insertPlainText("Get dxf Layer information\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Get dxf Layer information");
+
+	emit send_log(Signal_log1);
 
 	NewLayerTable.Open_SQL_DB(Filename_db);
 
@@ -5168,14 +5164,13 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	ui->dxf_log->moveCursor(QTextCursor::End);
 	ui->dxf_log->repaint();
 
-
-
 	ResultELMT="";
 	BaseELMT NewBase;
 
-	ui->dxf_log->insertPlainText("Creating header of ELMT file \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("Creating header of ELMT file");
+
+	emit send_log(Signal_log1);
 
 	NewBase.ELMT_definition_width=NewHeader.Calc_Width();
 	NewBase.ELMT_definition_height=NewHeader.Calc_Height();
@@ -5207,73 +5202,64 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 
 	//ResultELMT.append(NewBase.DefinitionStart());
 	DXF_Entities_List.DXF_Result.append(NewBase.DefinitionStart());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.Uuid());
 	DXF_Entities_List.DXF_Result.append(NewBase.Uuid());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.Names());
 	DXF_Entities_List.DXF_Result.append(NewBase.Names());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.KindInformation());
 	DXF_Entities_List.DXF_Result.append(NewBase.KindInformation());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.Informations());
 	DXF_Entities_List.DXF_Result.append(NewBase.Informations());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.DescriptionStart());
 	DXF_Entities_List.DXF_Result.append(NewBase.DescriptionStart());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
-
-	ui->ELMT_Result->clear();
+	emit send_elmt(Signal_elmt1);
 
 	elmt_entities NewEntity(this);
 
 	connect(&NewEntity ,SIGNAL (Signal1(const QString &)),this ,SLOT(update_proces(const QString &)));
 
-	ui->dxf_log->insertPlainText("Add DXF entities to ELMT file \n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	connect(&NewEntity ,SIGNAL (send_log(const QString &)),this ,SLOT(update_log(const QString &)));
+	connect(&NewEntity ,SIGNAL (send_elmt(const QString &)),this ,SLOT(update_elmt(const QString &)));
+
+
+	Signal_log1.clear();
+	Signal_log1.append("Add DXF entities to ELMT file");
+
+	emit send_log(Signal_log1);
 
 	NewEntity.Open_SQL_DB(Filename_db);
 
@@ -5286,50 +5272,37 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 
 	NewEntity.Close_SQL_DB(Filename_db);
 
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-
-	//ResultELMT.append(DXF_Entities_List.DXF_Result);
-	//DXF_Entities_List.DXF_Result;
-	ResultELMT=DXF_Entities_List.DXF_Result;
-
-	ui->ELMT_Result->clear();
-
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
-
+	emit send_elmt(Signal_elmt1);
 
 
 	//ResultELMT.append(NewBase.DescriptionEnd());
 	DXF_Entities_List.DXF_Result.append(NewBase.DescriptionEnd());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.DefinitionEnd());
 	DXF_Entities_List.DXF_Result.append(NewBase.DefinitionEnd());
-	ResultELMT=DXF_Entities_List.DXF_Result;
 
-	ui->ELMT_Result->clear();
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	ui->ELMT_Result->insertPlainText(ResultELMT);
-	ui->ELMT_Result->moveCursor(QTextCursor::End);
-	ui->ELMT_Result->repaint();
+	emit send_elmt(Signal_elmt1);
 
-	ui->dxf_log->insertPlainText("DXF file converted to ELMT file\n");
-	ui->dxf_log->moveCursor(QTextCursor::End);
-	ui->dxf_log->repaint();
+	Signal_log1.clear();
+	Signal_log1.append("DXF file converted to ELMT file");
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================\n");
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" => End of converting DXF to ELMT \n");
+	Signal_log1.append("============================================================================");
 
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
-	ui->dxf_log->insertPlainText(QTime::currentTime().toString());
-	ui->dxf_log->insertPlainText("=> End of converting DXF to ELMT \n");
-	ui->dxf_log->insertPlainText("============================================================================\n");
-
+	emit send_log(Signal_log1);
 
 }
 

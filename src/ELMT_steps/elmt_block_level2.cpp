@@ -71,6 +71,15 @@ QString elmt_block_level2::Insert_Block()
 		QSqlRecord Record2=NewQuery.record();
 		Recordvalue=Record2.value("Command").toString();
 
+		Signal_waarde1.clear();
+		Signal_waarde1.append(QET_handle);
+		Signal_waarde1.append(" : ");
+		Signal_waarde1.append(Record2.value("Command").toString());
+		Signal_waarde1.append(" : ");
+		Signal_waarde1.append(Record2.value("dxf_5").toString());
+
+		emit Signal1(Signal_waarde1);
+
 		if (Record2.value("Command_count").toInt()==0 and Record2.value("Command").toString()=="BLOCK")
 		{
 			Block_count++;
@@ -532,7 +541,7 @@ QString elmt_block_level2::Insert_Block()
 						Logtext.append(" \n");
 					}
 
-					while (end_lwpoly==0 and count_vertex<max_vertex+1)
+					while (end_lwpoly==0 and count_vertex<max_vertex-1)
 					{
 						NewQuery.next();
 						QSqlRecord Record4=NewQuery.record();

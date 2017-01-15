@@ -66,11 +66,12 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	dxf_base_polyline New_DXF_SOLID;
 	elmt_blocks New_DXF_blocks;
 
+	connect(&New_DXF_blocks ,SIGNAL (Signal1(const QString &)),parent() ,SLOT(update_proces(const QString &)));
+
+	connect(&New_DXF_blocks ,SIGNAL (send_log(const QString &)),parent() ,SLOT(update_log(const QString &)));
+	connect(&New_DXF_blocks ,SIGNAL (send_elmt(const QString &)),parent() ,SLOT(update_elmt(const QString &)));
+
 	// basic part for creating a correct ELMT file
-
-	//DXF_Entities_List.DXF_Result.clear();
-
-	Logtext.append("Insert basic ELMT items\n");
 
 	Signal_waarde1.clear();
 	Signal_waarde1.append("Insert basic ELMT items\n");
@@ -108,8 +109,11 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 	DXF_Entities_List.DXF_Result.append(New_DXF_Terminal.Create_terminal());
 
+	Signal_elmt1.clear();
+	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
-	Logtext.append("Converting DXF entities\n");
+	emit send_elmt(Signal_elmt1);
+
 
 	Signal_waarde1.clear();
 	Signal_waarde1.append("Converting DXF entities\n");
@@ -131,6 +135,11 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 		Signal_waarde1.append(Record2.value("dxf_5").toString());
 
 		emit Signal1(Signal_waarde1);
+
+		Signal_elmt1.clear();
+		Signal_elmt1.append(DXF_Entities_List.DXF_Result);
+
+		emit send_elmt(Signal_elmt1);
 
 		if (Record2.value("Command_count").toInt()==0)
 		{
@@ -546,7 +555,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 
 
-			while (end_lwpoly==0 and count_vertex<max_vertex+1)
+			while (end_lwpoly==0 and count_vertex<max_vertex-1)
 			{
 				NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
@@ -669,6 +678,18 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			DXF_Entities_List.DXF_Result.append(New_DXF_SOLID.Create_polyline());
 
+			Signal_waarde1.clear();
+			Signal_waarde1.append(Record2.value("Command").toString());
+			Signal_waarde1.append(" : ");
+			Signal_waarde1.append(Record2.value("dxf_5").toString());
+			//Signal_waarde1.append(" : maxvertex => ");
+			//Signal_waarde1.append(Record2.value("dxf_90").toString());
+			//Signal_waarde1.append(" : count vertex => ");
+			//Signal_waarde1.append(QString::number(count_vertex));
+			//Signal_waarde1.append(" : ");
+			//Signal_waarde1.append();
+
+			emit Signal1(Signal_waarde1);
 
 		}
 

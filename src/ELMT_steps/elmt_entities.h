@@ -45,6 +45,9 @@ class elmt_entities : public QWidget
 	QString Recordvalue2;
 
 	QString Signal_waarde1;
+	QString Signal_log1;
+	QString Signal_elmt1;
+
 
 	QString ELMT_ID_instruction;
 
@@ -57,6 +60,9 @@ class elmt_entities : public QWidget
 	signals:
 
 	void Signal1 (const QString &Waarde1);
+	void send_log(const QString &Waarde2);
+	void send_elmt(const QString &Waarde3);
+	void send_process(const QString &Waarde4);
 
 	public slots:
 };

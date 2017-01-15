@@ -55,6 +55,9 @@ QString elmt_blocks::Insert_Block()
 	dxf_base_polyline New_DXF_SOLID;
 	elmt_block_level2 New_DXF_blocks2;
 
+	connect(&New_DXF_blocks2 ,SIGNAL (Signal1(const QString &)),parent() ,SLOT(update_proces(const QString &)));
+
+
 
 	Logtext.append("Converting DXF blocks\n");
 
@@ -71,6 +74,16 @@ QString elmt_blocks::Insert_Block()
 		QSqlRecord Record2=NewQuery.record();
 		Recordvalue=Record2.value("Command").toString();
 
+
+		Signal_waarde1.clear();
+		Signal_waarde1.append(QET_handle);
+		Signal_waarde1.append(" : ");
+		Signal_waarde1.append(Record2.value("Command").toString());
+		Signal_waarde1.append(" : ");
+		Signal_waarde1.append(Record2.value("dxf_5").toString());
+
+		emit Signal1(Signal_waarde1);
+
 		if (Record2.value("Command_count").toInt()==0 and Record2.value("Command").toString()=="BLOCK")
 		{
 			Block_count++;
@@ -84,6 +97,8 @@ QString elmt_blocks::Insert_Block()
 
 		DXF_Block_Name=Record2.value("dxf_2").toString();
 
+
+
 		if (Record2.value("Command").toString()=="BLOCK" and Record2.value("dxf_2").toString()==Block_name)
 		{
 			end_block=0;
@@ -92,6 +107,17 @@ QString elmt_blocks::Insert_Block()
 			{
 				NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
+
+				Signal_waarde1.clear();
+				Signal_waarde1.append(QET_handle);
+				Signal_waarde1.append(" : ");
+				Signal_waarde1.append(Record2.value("Command").toString());
+				Signal_waarde1.append(" : ");
+				Signal_waarde1.append(Record2.value("dxf_5").toString());
+				Signal_waarde1.append(" : ");
+				Signal_waarde1.append(Record3.value("Command_count").toInt());
+
+				emit Signal1(Signal_waarde1);
 
 				if (Record3.value("Command").toString()=="LINE" and Record3.value("Command_count").toInt()==0)
 				{
@@ -471,16 +497,18 @@ QString elmt_blocks::Insert_Block()
 					}
 					New_DXF_blocks2.Block_rotation=Record3.value("dxf_43").toDouble();
 
-					Logtext.append("block : ");
-					Logtext.append(Record3.value("dxf_2").toString());
-					Logtext.append(" inside block :");
-					Logtext.append(FromBlock);
-					Logtext.append(" will be converted as a drawing part");
-					Logtext.append(" \n");
+					Signal_waarde1.clear();
+					Signal_waarde1.append("block : ");
+					Signal_waarde1.append(Record3.value("dxf_2").toString());
+					Signal_waarde1.append(" inside block :");
+					Signal_waarde1.append(FromBlock);
+					Signal_waarde1.append(" will be converted as a part of the elmt");
+
+					emit Signal1(Signal_waarde1);
 
 					New_DXF_blocks2.FromBlock=Record3.value("dxf_2").toString();
 
-					Logtext.append(New_DXF_blocks2.Insert_Block());
+					//Logtext.append(New_DXF_blocks2.Insert_Block());
 					//DXF_Entities_List.DXF_Result.append(New_DXF_blocks2.Insert_Block());
 
 				}
@@ -533,7 +561,7 @@ QString elmt_blocks::Insert_Block()
 						Logtext.append(" \n");
 					}
 
-					while (end_lwpoly==0 and count_vertex<max_vertex+1)
+					while (end_lwpoly==0 and count_vertex<max_vertex-1)
 					{
 						NewQuery.next();
 						QSqlRecord Record4=NewQuery.record();

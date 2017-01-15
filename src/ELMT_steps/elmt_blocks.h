@@ -80,11 +80,16 @@ class elmt_blocks : public QWidget
 	QString DXF_Block_Value;
 	QString DXF_Block_Name;
 
-
+	QString Signal_waarde1;
 
 	QString Insert_Block();
 
 	signals:
+
+	void Signal1 (const QString &Waarde1);
+	void send_log(const QString &Waarde2);
+	void send_elmt(const QString &Waarde3);
+	void send_process(const QString &Waarde4);
 
 	public slots:
 

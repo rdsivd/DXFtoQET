@@ -271,6 +271,7 @@ class DXFtoQET3DB : public QWidget
 		//QStringList split_tables_list;
 
 		QString Signal_log1;
+		QString Signal_elmt1;
 
 
 	public:
@@ -326,6 +327,8 @@ class DXFtoQET3DB : public QWidget
 		void send_actual(const int &valueactual);
 
 		void send_log(const QString &Waarde2);
+		void send_elmt(const QString &Waarde3);
+		void send_process(const QString &Waarde4);
 
 
 	public slots:
