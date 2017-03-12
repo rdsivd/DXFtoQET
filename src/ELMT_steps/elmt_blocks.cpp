@@ -23,13 +23,13 @@ QString elmt_blocks::Insert_Block()
 	DXF_main_base[0].QDXF_block_circle_color="blue";
 	DXF_main_base[0].QDXF_block_ellipse_color="blue";
 	DXF_main_base[0].QDXF_block_input_color="blue";
-	DXF_main_base[0].QDXF_block_line_color="yellow";
-	DXF_main_base[0].QDXF_block_lwpolyline_color="brun";
-	DXF_main_base[0].QDXF_block_polyline_color="cyan";
+	DXF_main_base[0].QDXF_block_line_color="blue";
+	DXF_main_base[0].QDXF_block_lwpolyline_color="blue";
+	DXF_main_base[0].QDXF_block_polyline_color="blue";
 	DXF_main_base[0].QDXF_block_rectangel_color="blue";
 	DXF_main_base[0].QDXF_block_terminal_color="blue";
 	DXF_main_base[0].QDXF_block_text_color="blue";
-	DXF_main_base[0].QDXF_block_solid_color="magenta";
+	DXF_main_base[0].QDXF_block_solid_color="blue";
 
 	xcount=0;
 	Logtext="";
@@ -63,6 +63,8 @@ QString elmt_blocks::Insert_Block()
 
 	end_block=0;
 
+	Block_recod_count=0;
+
 	//while (NewQuery.next() and end_block==0)
 	//while (NewQuery.next())
 
@@ -73,6 +75,8 @@ QString elmt_blocks::Insert_Block()
 
 		QSqlRecord Record2=NewQuery.record();
 		Recordvalue=Record2.value("Command").toString();
+
+		Block_recod_count++;
 
 
 		Signal_waarde1.clear();
@@ -102,11 +106,18 @@ QString elmt_blocks::Insert_Block()
 		if (Record2.value("Command").toString()=="BLOCK" and Record2.value("dxf_2").toString()==Block_name)
 		{
 			end_block=0;
+			read_error1=1;
 
 			while (end_block==0)
 			{
-				NewQuery.next();
+				read_error1= NewQuery.next();
+				if (read_error1==false)
+				{
+					end_block++;
+				}
 				QSqlRecord Record3=NewQuery.record();
+
+				Block_recod_count++;
 
 				Signal_waarde1.clear();
 				Signal_waarde1.append(QET_handle);
@@ -507,6 +518,8 @@ QString elmt_blocks::Insert_Block()
 					emit Signal1(Signal_waarde1);
 
 					New_DXF_blocks2.FromBlock=Record3.value("dxf_2").toString();
+
+					New_DXF_blocks2.Insert_Block();
 
 					//Logtext.append(New_DXF_blocks2.Insert_Block());
 					//DXF_Entities_List.DXF_Result.append(New_DXF_blocks2.Insert_Block());

@@ -8,8 +8,8 @@
 
 #define DXF_base_set 1
 #define DXF_item_split 100000 //dxf split tables
-#define DXF_codes_set 20000
-#define DXF_codeset_copies 20000
+#define DXF_codes_set 50000
+#define DXF_codeset_copies 50000
 #define QET_L_POLYLINE 100
 
 #define DXF_layers_set 500

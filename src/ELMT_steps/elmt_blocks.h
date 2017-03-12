@@ -33,11 +33,15 @@ class elmt_blocks : public QWidget
 	int end_seqend;
 	int end_lwpoly;
 
+	int read_error1;
+
 	int32_t count_vertex;
 	int32_t xcount;
 	int32_t rowcount;
 	int32_t max_vertex;
 	int32_t Block_count;
+
+	int32_t Block_recod_count;
 
 
 	QString Logtext;

@@ -29,6 +29,8 @@ class elmt_block_level2 : public QWidget
 	public:
 	explicit elmt_block_level2(QWidget *parent = 0);
 
+	int read_error2;
+
 	int end_block;
 	int end_seqend;
 	int end_lwpoly;

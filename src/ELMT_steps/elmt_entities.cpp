@@ -12,7 +12,7 @@ extern struct DXF_Entities DXF_Entities_List;
 elmt_entities::elmt_entities(QWidget *parent) : QWidget(parent)
 {
 
-	//connect (this ,SIGNAL (Signal1(const QString &)),DXF_main_base,SLOT(update_proces(const QString &)));
+
 }
 
 void elmt_entities::Open_SQL_DB (QString ELMT_filename)
@@ -41,12 +41,12 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	DXF_main_base[0].QDXF_entitie_ellipse_color="black";
 	DXF_main_base[0].QDXF_entitie_input_color="black";
 	DXF_main_base[0].QDXF_entitie_line_color="black";
-	DXF_main_base[0].QDXF_entitie_lwpolyline_color="red";
-	DXF_main_base[0].QDXF_entitie_polyline_color="blue";
+	DXF_main_base[0].QDXF_entitie_lwpolyline_color="black";
+	DXF_main_base[0].QDXF_entitie_polyline_color="black";
 	DXF_main_base[0].QDXF_entitie_rectangel_color="black";
 	DXF_main_base[0].QDXF_entitie_terminal_color="black";
 	DXF_main_base[0].QDXF_entitie_text_color="black";
-	DXF_main_base[0].QDXF_entitie_solid_color="green";
+	DXF_main_base[0].QDXF_entitie_solid_color="black";
 
 	xcount=0;
 	Logtext="";
@@ -87,7 +87,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 	New_DXF_Input.QET_rotation=90;
 	New_DXF_Input.QET_text="converted";
-	New_DXF_Input.QET_size=1;
+	New_DXF_Input.QET_size=2;
 	New_DXF_Input.QET_text_style="default"	;
 
 
@@ -506,12 +506,17 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			New_DXF_blocks.FromBlock="Inserted from entitie ";
 
-			Logtext.append("Inserted from entitie block : ");
-			Logtext.append(Record2.value("dxf_2").toString());
-			Logtext.append(" will be converted as a drawing part");
-			Logtext.append(" \n");
+			Signal_waarde1.clear();
+			Signal_waarde1.append("Inserted from entitie \n");
+			Signal_waarde1.append("Inserted from entitie block : ");
+			Signal_waarde1.append(Record2.value("dxf_2").toString());
+			Signal_waarde1.append(" will be converted as a drawing part \n");
 
-			Logtext.append(New_DXF_blocks.Insert_Block());
+			emit Signal1(Signal_waarde1);
+
+			New_DXF_blocks.Insert_Block();
+
+			//Logtext.append(New_DXF_blocks.Insert_Block());
 		}
 
 		if (Record2.value("Command").toString()=="LWPOLYLINE" and Record2.value("Command_count").toInt()==0)

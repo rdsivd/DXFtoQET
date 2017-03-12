@@ -93,13 +93,19 @@ QString elmt_block_level2::Insert_Block()
 
 		DXF_Block_Name=Record2.value("dxf_2").toString();
 
+		read_error2=1;
+
 		if (Record2.value("Command").toString()=="BLOCK" and Record2.value("dxf_2").toString()==Block_name)
 		{
 			end_block=0;
 
 			while (end_block==0)
 			{
-				NewQuery.next();
+				read_error2 = NewQuery.next();
+				if (read_error2==false)
+				{
+					end_block++;
+				}
 				QSqlRecord Record3=NewQuery.record();
 
 				if (Record3.value("Command").toString()=="LINE" and Record3.value("Command_count").toInt()==0)
