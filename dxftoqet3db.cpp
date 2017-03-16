@@ -954,14 +954,10 @@ void DXFtoQET3DB::copy_list()
 void DXFtoQET3DB::split_header()
 {
 	header_max_items=dxf_header.count("  9");
-	if (header_max_items==0)
-	{
-		header_max_items=dxf_header.count(" 9");
-	}
-	if (header_max_items==0)
-	{
-		header_max_items=dxf_header.count("9");
-	}
+	header_max_items2=dxf_header.count(" 9");
+	header_max_items3=dxf_header.count("9");
+
+	header_max_items=header_max_items+header_max_items2+header_max_items3;
 
 	header_max_count=dxf_header.count();
 
@@ -1091,14 +1087,10 @@ void DXFtoQET3DB::split_header()
 void DXFtoQET3DB::split_classes()
 {
 	classes_max_items=dxf_classes.count("  0");
-	if (classes_max_items==0)
-	{
-		classes_max_items=dxf_classes.count(" 0");
-	}
-	if (classes_max_items==0)
-	{
-		classes_max_items=dxf_classes.count("0");
-	}
+	classes_max_items2=dxf_classes.count(" 0");
+	classes_max_items3=dxf_classes.count("0");
+
+	classes_max_items=classes_max_items+classes_max_items2+classes_max_items3;
 
 	classes_max_count=dxf_classes.count();
 
@@ -1357,13 +1349,10 @@ void DXFtoQET3DB::split_tables()
 void DXFtoQET3DB::split_blocks()
 {
 	blocks_max_items=dxf_blocks.count("  0");
-	if (blocks_max_items==0)
-	{
-		blocks_max_items=dxf_blocks.count(" 0");
-	}
-	{
-		blocks_max_items=dxf_blocks.count("0");
-	}
+	blocks_max_items2=dxf_blocks.count(" 0");
+	blocks_max_items3=dxf_blocks.count("0");
+
+	blocks_max_items=blocks_max_items+blocks_max_items2+blocks_max_items3;
 
 	blocks_max_count=dxf_blocks.count();
 
@@ -1480,14 +1469,10 @@ void DXFtoQET3DB::split_blocks()
 void DXFtoQET3DB::split_entities()
 {
 	entities_max_items=dxf_entities.count("  0");
-	if (entities_max_items==0)
-	{
-		entities_max_items=dxf_entities.count(" 0");
-	}
-	if (entities_max_items==0)
-	{
-		entities_max_items=dxf_entities.count("0");
-	}
+	entities_max_items2=dxf_entities.count("  0");
+	entities_max_items3=dxf_entities.count("  0");
+
+	entities_max_items=entities_max_items+entities_max_items2+entities_max_items3;
 
 	entities_max_count=dxf_entities.count();
 

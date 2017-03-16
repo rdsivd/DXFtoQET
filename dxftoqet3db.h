@@ -136,10 +136,20 @@ class DXFtoQET3DB : public QWidget
 		int64_t count_thumbnailimage_item;
 
 		int64_t header_max_items;
+		int64_t header_max_items2;
+		int64_t header_max_items3;
 		int64_t classes_max_items;
+		int64_t classes_max_items2;
+		int64_t classes_max_items3;
 		int64_t tables_max_items;
+		int64_t tables_max_items2;
+		int64_t tables_max_items3;
 		int64_t blocks_max_items;
+		int64_t blocks_max_items2;
+		int64_t blocks_max_items3;
 		int64_t entities_max_items;
+		int64_t entities_max_items2;
+		int64_t entities_max_items3;
 		int64_t objects_max_items;
 		int64_t thumbnailimage_max_items;
 

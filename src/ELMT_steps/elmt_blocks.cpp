@@ -23,13 +23,13 @@ QString elmt_blocks::Insert_Block()
 	DXF_main_base[0].QDXF_block_circle_color="blue";
 	DXF_main_base[0].QDXF_block_ellipse_color="blue";
 	DXF_main_base[0].QDXF_block_input_color="blue";
-	DXF_main_base[0].QDXF_block_line_color="blue";
-	DXF_main_base[0].QDXF_block_lwpolyline_color="blue";
-	DXF_main_base[0].QDXF_block_polyline_color="blue";
+	DXF_main_base[0].QDXF_block_line_color="cyan";
+	DXF_main_base[0].QDXF_block_lwpolyline_color="red";
+	DXF_main_base[0].QDXF_block_polyline_color="green";
 	DXF_main_base[0].QDXF_block_rectangel_color="blue";
 	DXF_main_base[0].QDXF_block_terminal_color="blue";
 	DXF_main_base[0].QDXF_block_text_color="blue";
-	DXF_main_base[0].QDXF_block_solid_color="blue";
+	DXF_main_base[0].QDXF_block_solid_color="magenta";
 
 	xcount=0;
 	Logtext="";
@@ -38,7 +38,7 @@ QString elmt_blocks::Insert_Block()
 	DXF_Block_Value="";
 	Block_count=-1;
 
-	QSqlQuery NewQuery("SELECT * FROM dxf_blocks");
+	QSqlQuery NewQueryBlock("SELECT * FROM dxf_blocks");
 
 
 
@@ -70,10 +70,10 @@ QString elmt_blocks::Insert_Block()
 
 	//QSqlRecord Record2=NewQuery.record();
 
-	while (NewQuery.next() and end_block==0)
+	while (NewQueryBlock.next() and end_block==0)
 	{
 
-		QSqlRecord Record2=NewQuery.record();
+		QSqlRecord Record2=NewQueryBlock.record();
 		Recordvalue=Record2.value("Command").toString();
 
 		Block_recod_count++;
@@ -110,23 +110,23 @@ QString elmt_blocks::Insert_Block()
 
 			while (end_block==0)
 			{
-				read_error1= NewQuery.next();
+				read_error1= NewQueryBlock.next();
 				if (read_error1==false)
 				{
 					end_block++;
 				}
-				QSqlRecord Record3=NewQuery.record();
+				QSqlRecord Record3=NewQueryBlock.record();
 
 				Block_recod_count++;
 
 				Signal_waarde1.clear();
 				Signal_waarde1.append(QET_handle);
 				Signal_waarde1.append(" : ");
-				Signal_waarde1.append(Record2.value("Command").toString());
+				Signal_waarde1.append(Record3.value("Command").toString());
 				Signal_waarde1.append(" : ");
-				Signal_waarde1.append(Record2.value("dxf_5").toString());
+				Signal_waarde1.append(Record3.value("dxf_5").toString());
 				Signal_waarde1.append(" : ");
-				Signal_waarde1.append(Record3.value("Command_count").toInt());
+				Signal_waarde1.append(Record3.value("Command_count").toString());
 
 				emit Signal1(Signal_waarde1);
 
@@ -139,8 +139,8 @@ QString elmt_blocks::Insert_Block()
 
 
 					New_DXF_Line.QET_x1=(Record3.value("dxf_10").toDouble()*Block_scale_x)+Block_X;
-					New_DXF_Line.QET_x2=(Record3.value("dxf_11").toDouble()*Block_scale_y)+Block_Y;
-					New_DXF_Line.QET_y1=(Record3.value("dxf_20").toDouble()*Block_scale_x)+Block_X;
+					New_DXF_Line.QET_x2=(Record3.value("dxf_11").toDouble()*Block_scale_x)+Block_X;
+					New_DXF_Line.QET_y1=(Record3.value("dxf_20").toDouble()*Block_scale_y)+Block_Y;
 					New_DXF_Line.QET_y2=(Record3.value("dxf_21").toDouble()*Block_scale_y)+Block_Y;
 
 					New_DXF_Line.QET_layer=Record3.value("dxf_8").toString();
@@ -446,8 +446,8 @@ QString elmt_blocks::Insert_Block()
 
 					while (end_seqend==0 and count_vertex<QET_L_POLYLINE)
 					{
-						NewQuery.next();
-						QSqlRecord Record4=NewQuery.record();
+						NewQueryBlock.next();
+						QSqlRecord Record4=NewQueryBlock.record();
 						//Recordvalue2=Record4.value("Command").toString();
 
 						if (Record4.value("Command").toString()=="VERTEX" and Record4.value("Command_count").toInt()==0)
@@ -576,8 +576,8 @@ QString elmt_blocks::Insert_Block()
 
 					while (end_lwpoly==0 and count_vertex<max_vertex-1)
 					{
-						NewQuery.next();
-						QSqlRecord Record4=NewQuery.record();
+						NewQueryBlock.next();
+						QSqlRecord Record4=NewQueryBlock.record();
 						//Recordvalue2=Record4.value("Command").toString();
 
 						if (Record3.value("Command").toString()=="LWPOLYLINE" and max_vertex<QET_L_POLYLINE)
@@ -713,7 +713,7 @@ QString elmt_blocks::Insert_Block()
 		}
 		else
 		{
-			NewQuery.next();
+			//NewQueryBlock.next();
 		}
 	}
 
