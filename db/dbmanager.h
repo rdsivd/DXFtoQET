@@ -55,6 +55,8 @@ class dbManager : public QWidget
 	QString Waarde1;
 	QString Waarde2;
 
+	QString BlockNaamID;
+
 
 
 	QString RecordNr;

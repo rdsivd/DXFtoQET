@@ -65,7 +65,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 	m_db.exec(QsqlString);
 
 	QsqlString="create table dxf_header (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -128,7 +128,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 
 
 	QsqlString="create table dxf_classes (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -190,7 +190,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 	m_db.exec(QsqlString);
 
 	QsqlString="create table dxf_tables (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -252,7 +252,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 	m_db.exec(QsqlString);
 
 	QsqlString="create table dxf_blocks (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -314,7 +314,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 	m_db.exec(QsqlString);
 
 	QsqlString="create table dxf_entities (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -377,7 +377,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 
 
 	QsqlString="create table dxf_objects (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -439,7 +439,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 	m_db.exec(QsqlString);
 
 	QsqlString="create table dxf_thumbnailimage (Index_count primary key,Section";
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -514,7 +514,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int64_t *Max_lin
 	QsqlString="INSERT INTO ";
 	QsqlString.append(dxf_type);
 	QsqlString.append(" (Index_count, Section");
-	QsqlString.append(", Command, ID_instruction, Command_count");
+	QsqlString.append(", dxfbase, Command, ID_instruction, Command_count");
 	QsqlString.append(", dxf_m1, dxf_m2, dxf_m3, dxf_m4, dxf_m5");
 	QsqlString.append(", dxf_0, dxf_1, dxf_2, dxf_3, dxf_4, dxf_5, dxf_6, dxf_7, dxf_8, dxf_9");
 	QsqlString.append(", dxf_10, dxf_11, dxf_12, dxf_13, dxf_14, dxf_15, dxf_16, dxf_17, dxf_18, dxf_19");
@@ -571,7 +571,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int64_t *Max_lin
 	QsqlString.append(", dxf_1070, dxf_1071");
 	QsqlString.append(")");
 	QsqlString.append(" VALUES (:Index_count, :Section");
-	QsqlString.append(", :Command, :ID_instruction, :Command_count");
+	QsqlString.append(", :dxfbase, :Command, :ID_instruction, :Command_count");
 	QsqlString.append(", :dxf_m1, :dxf_m2, :dxf_m3, :dxf_m4, :dxf_m5");
 	QsqlString.append(", :dxf_0, :dxf_1, :dxf_2, :dxf_3, :dxf_4, :dxf_5, :dxf_6, :dxf_7, :dxf_8, :dxf_9");//dxf_0
 	QsqlString.append(", :dxf_10, :dxf_11, :dxf_12, :dxf_13, :dxf_14, :dxf_15, :dxf_16, :dxf_17, :dxf_18, :dxf_19");
@@ -677,7 +677,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int64_t *Max_lin
 			}*/
 
 			Query1.bindValue(":ID_instruction",DXF_code_tables[0].ID_instruction);
-
+			Query1.bindValue(":dxfbase",BlockNaamID);
 			Query1.bindValue(":Command_count",QString::number(Command_Count));
 			Query1.bindValue(":dxf_m1",DXF_code_tables[x1].dxf_m1);
 			Query1.bindValue(":dxf_m2",DXF_code_tables[x1].dxf_m2);

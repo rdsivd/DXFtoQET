@@ -24,8 +24,8 @@ QString elmt_block_level2::Insert_Block()
 	DXF_main_base[0].QDXF_block_ellipse_color="green";
 	DXF_main_base[0].QDXF_block_input_color="green";
 	DXF_main_base[0].QDXF_block_line_color="green";
-	DXF_main_base[0].QDXF_block_lwpolyline_color="green";
-	DXF_main_base[0].QDXF_block_polyline_color="green";
+	DXF_main_base[0].QDXF_block_lwpolyline_color="orange";
+	DXF_main_base[0].QDXF_block_polyline_color="brown";
 	DXF_main_base[0].QDXF_block_rectangel_color="green";
 	DXF_main_base[0].QDXF_block_terminal_color="green";
 	DXF_main_base[0].QDXF_block_text_color="green";
@@ -38,9 +38,12 @@ QString elmt_block_level2::Insert_Block()
 	DXF_Block_Value="";
 	Block_count=-1;
 
-	QSqlQuery NewQuery4("SELECT * FROM dxf_blocks");
+	//QSqlQuery NewQuery4("SELECT * FROM dxf_blocks");
 
-
+	QSqlQuery NewQuery4;
+	NewQuery4.prepare("SELECT * FROM dxf_blocks WHERE dxfbase =(:dxfbase)");
+	NewQuery4.bindValue(":dxfbase",Block_name);
+	NewQuery4.exec();
 
 
 	dxf_base_line New_DXF_Line;

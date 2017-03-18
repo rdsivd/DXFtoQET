@@ -698,7 +698,226 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 		}
 
+		if (Record2.value("Command").toString()=="SPLINE" and Record2.value("Command_count").toInt()==0)
+		{
+
+			New_DXF_LWPolyline.QET_layer=Record2.value("dxf_8").toString();
+			New_DXF_LWPolyline.QET_ltype=Record2.value("dxf_6").toString();
+			New_DXF_LWPolyline.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_LWPolyline.QET_softID=Record2.value("dxf_330").toString();
+
+			New_DXF_LWPolyline.QET_antialias="false";
+			New_DXF_LWPolyline.QET_line_style="normal";
+			New_DXF_LWPolyline.QET_line_weight="thin";
+			New_DXF_LWPolyline.QET_filling="none";
+
+			New_DXF_LWPolyline.QET_color="red";//DXF_main_base[0].QDXF_entitie_polyline_color;
+
+			if (Record2.value("dxf_70").toInt()==1)
+			{
+				New_DXF_LWPolyline.QET_closed="true";
+			}
+			else
+			{
+				New_DXF_LWPolyline.QET_closed="false";
+			}
+
+			end_lwpoly=0;
+			max_vertex=0;
+			count_vertex=0;
+
+			max_vertex=Record2.value("dxf_73").toInt();
+
+			;
+
+			New_DXF_LWPolyline.QET_x[count_vertex]=Record2.value("dxf_10").toDouble();
+			New_DXF_LWPolyline.QET_y[count_vertex]=Record2.value("dxf_20").toDouble();
+
+			count_vertex++;
+
+			if (max_vertex >=QET_L_POLYLINE)
+			{
+				Logtext.append("max_vertex :  ");
+				Logtext.append(QString::number(max_vertex));
+				Logtext.append(" > ");
+				Logtext.append(QString::number(QET_L_POLYLINE));
+				Logtext.append(" \n");
+			}
+
+
+
+			while (end_lwpoly==0 and count_vertex<max_vertex-1)
+			{
+				NewQuery.next();
+				QSqlRecord Record3=NewQuery.record();
+				Recordvalue2=Record3.value("Command").toString();
+				comand_count2=Record3.value("Command_count").toInt();
+
+				if (Record3.value("Command").toString()=="SPLINE" and max_vertex<QET_L_POLYLINE)
+				{
+					New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
+					New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
+					count_vertex++;
+
+				}
+				else
+				{
+					if (count_vertex>max_vertex)
+					{
+						end_lwpoly=1;
+					}
+
+					//count_vertex++;
+				}
+
+				if (count_vertex>max_vertex)
+				{
+					end_lwpoly=1;
+				}
+
+			}
+
+			New_DXF_LWPolyline.segments=count_vertex;
+
+			DXF_Entities_List.DXF_Result.append(New_DXF_LWPolyline.Create_polyline());
+
+			Signal_waarde1.clear();
+			Signal_waarde1.append(Record2.value("Command").toString());
+			Signal_waarde1.append(" : ");
+			Signal_waarde1.append(Record2.value("dxf_5").toString());
+			Signal_waarde1.append(" : maxvertex => ");
+			Signal_waarde1.append(Record2.value("dxf_90").toString());
+			Signal_waarde1.append(" : count vertex => ");
+			Signal_waarde1.append(QString::number(count_vertex));
+			//Signal_waarde1.append(" : ");
+			//Signal_waarde1.append();
+
+			emit Signal1(Signal_waarde1);
+
+		}
+
+		if (Record2.value("Command").toString()=="MTEXT" and Record2.value("Command_count").toInt()==0)
+		{
+			/*  <text x="-11" y="3" size="6" rotation="90" text="Vcc"/>
+				<text x="-7" y="-8" size="3" text="HC-SR04"/>
+				<text x="-50" y="-45" text="Test" color="white" size="9"/>*/
+
+			New_DXF_Text.QET_x=Record2.value("dxf_10").toDouble();
+			New_DXF_Text.QET_y=Record2.value("dxf_20").toDouble();
+
+			New_DXF_Text.QET_rotation=Record2.value("dxf_50").toDouble();
+			New_DXF_Text.QET_text=Record2.value("dxf_1").toString();
+			New_DXF_Text.QET_size=Record2.value("dxf_40").toDouble();
+			New_DXF_Text.QET_text_style=Record2.value("dxf_7").toString();
+
+			New_DXF_Text.QET_layer=Record2.value("dxf_8").toString();
+			New_DXF_Text.QET_ltype=Record2.value("dxf_6").toString();
+			New_DXF_Text.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Text.QET_softID=Record2.value("dxf_330").toString();
+
+
+			//New_DXF_Text.QET_antialias="false";
+			//New_DXF_Text.QET_line_style="normal";
+			//New_DXF_Text.QET_line_weight="thin";
+			//New_DXF_Text.QET_filling="none";
+			New_DXF_Text.QET_color="red";//DXF_main_base[0].QDXF_entitie_circle_color;
+
+
+			DXF_Entities_List.DXF_Result.append(New_DXF_Text.Create_text());
+		}
+
+		/*if (Record2.value("Command").toString()=="HATCH" and Record2.value("Command_count").toInt()==0)
+		{
+
+			New_DXF_LWPolyline.QET_layer=Record2.value("dxf_8").toString();
+			New_DXF_LWPolyline.QET_ltype=Record2.value("dxf_6").toString();
+			New_DXF_LWPolyline.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_LWPolyline.QET_softID=Record2.value("dxf_330").toString();
+
+			New_DXF_LWPolyline.QET_antialias="false";
+			New_DXF_LWPolyline.QET_line_style="normal";
+			New_DXF_LWPolyline.QET_line_weight="thin";
+			New_DXF_LWPolyline.QET_filling="green";
+
+			New_DXF_LWPolyline.QET_color="orange";//DXF_main_base[0].QDXF_entitie_polyline_color;
+
+			if (Record2.value("dxf_70").toInt()==1)
+			{
+				New_DXF_LWPolyline.QET_closed="true";
+			}
+			else
+			{
+				New_DXF_LWPolyline.QET_closed="false";
+			}
+
+			end_lwpoly=0;
+			max_vertex=0;
+			count_vertex=0;
+
+			max_vertex=Record2.value("dxf_96").toInt();
+
+			if (max_vertex >=QET_L_POLYLINE)
+			{
+				Logtext.append("max_vertex :  ");
+				Logtext.append(QString::number(max_vertex));
+				Logtext.append(" > ");
+				Logtext.append(QString::number(QET_L_POLYLINE));
+				Logtext.append(" \n");
+			}
+
+
+
+			while (end_lwpoly==0 and count_vertex<max_vertex-1)
+			{
+				NewQuery.next();
+				QSqlRecord Record3=NewQuery.record();
+				Recordvalue2=Record3.value("Command").toString();
+				comand_count2=Record3.value("Command_count").toInt();
+
+				if (Record3.value("Command").toString()=="HATCH" and max_vertex<QET_L_POLYLINE)
+				{
+					New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
+					New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
+					count_vertex++;
+
+				}
+				else
+				{
+					if (count_vertex>max_vertex)
+					{
+						end_lwpoly=1;
+					}
+
+					//count_vertex++;
+				}
+
+				if (count_vertex>max_vertex)
+				{
+					end_lwpoly=1;
+				}
+
+			}
+
+			New_DXF_LWPolyline.segments=count_vertex;
+
+			DXF_Entities_List.DXF_Result.append(New_DXF_LWPolyline.Create_polyline());
+
+			Signal_waarde1.clear();
+			Signal_waarde1.append(Record2.value("Command").toString());
+			Signal_waarde1.append(" : ");
+			Signal_waarde1.append(Record2.value("dxf_5").toString());
+			Signal_waarde1.append(" : maxvertex => ");
+			Signal_waarde1.append(Record2.value("dxf_90").toString());
+			Signal_waarde1.append(" : count vertex => ");
+			Signal_waarde1.append(QString::number(count_vertex));
+			//Signal_waarde1.append(" : ");
+			//Signal_waarde1.append();
+
+			emit Signal1(Signal_waarde1);
+
+		}*/
 	}
+
 
 	Logtext.append("Records ENTITIE passed : ");
 	Logtext.append(QString::number(rowcount));

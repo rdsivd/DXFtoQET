@@ -61,6 +61,8 @@ class elmt_blocks : public QWidget
 
 	QString FromBlock;
 
+	QString QsqlString1;
+
 
 
 	double Block_X;				//10

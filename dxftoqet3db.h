@@ -184,6 +184,8 @@ class DXFtoQET3DB : public QWidget
 		int32_t x3;
 		int32_t x4;
 		int32_t xclear;
+		int x3x;
+		QString x3value;
 
 		int32_t clear_code_set;
 
@@ -215,6 +217,8 @@ class DXFtoQET3DB : public QWidget
 		QString Copy_list_item;
 
 		QString ResultELMT;
+
+		QString BlockNameItem;
 
 		int32_t list_header;
 		int32_t list_classes;

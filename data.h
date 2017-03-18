@@ -84,6 +84,7 @@ struct DXF_codes
 	QString ID_instruction; // unic id to select instruction
 	int Command_count; //
 
+	QString dxfbase;
 
 	QString dxf_m1;
 	QString dxf_m2;

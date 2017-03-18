@@ -1445,9 +1445,34 @@ void DXFtoQET3DB::split_blocks()
 
 		emit send_actual(count_blocks);
 
+
+
 		max=Split_list("dxf_blocks", x3, count_blocks_item, count_blocks , id_header );
 
+		if (split_tables_list[count_blocks].count()==0)
+		{
+		}
+		else
+		{
+			if (split_tables_list[count_blocks][1]=="BLOCK")
+			{
 
+				for (x3x=0;x3x<x3-1;x3x++)
+				{
+
+					x3value=split_tables_list[count_blocks][x3x];
+
+					if (x3value.toInt()==2)
+					{
+
+						mydb.BlockNaamID=split_tables_list[count_blocks][x3x+1];
+						x3x=x3+5;
+					}
+
+				}
+
+			}
+		}
 
 		Record_Count_Blocks= mydb.dbManager_added_records(Filename_db, &max,&Record_Count_Blocks,"dxf_blocks");
 
@@ -1897,6 +1922,8 @@ int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, in
 
 	max3=0;
 	clear_sw_header();
+
+
 
 
 	while (count_list_item<x3max and count_list_item<DXF_codeset_copies)
@@ -5065,6 +5092,9 @@ int DXFtoQET3DB::Split_list(QString TypeList, int x3max, int count_list_item, in
 
 		count_list_item=count_list_item+2;
 	}
+
+
+
 
 
 
