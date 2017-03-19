@@ -15,6 +15,8 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 
 	ui->setupUi(this);
 
+
+
 	QCoreApplication::setOrganizationName("rds");
 	QCoreApplication::setApplicationName("DXFtoQET3_DB");
 
@@ -56,6 +58,9 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 	connect (this,SIGNAL(send_min(const int &)),this,SLOT(on_progressBar_valueMin(const int &)));
 	connect (this,SIGNAL(send_max(const int &)),this,SLOT(on_progressBar_valueMax(const int &)));
 	connect (this,SIGNAL(send_actual(const int &)),this,SLOT(on_progressBar_valueChanged(const int &)));
+
+	ui->MainTab->setCurrentIndex(5);
+	ui->MainTab->repaint();
 
 }
 
@@ -170,10 +175,16 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 
 		ui->dxf_line_count1->setText(QString::number(dxf_line_count1,'f',0));
 
+		ui->dxf_line_count1_2->clear();
+
+		ui->dxf_line_count1_2->setText(QString::number(dxf_line_count1,'f',0));
+
 		Signal_log1.clear();
 		Signal_log1.append("check file for correct type of file ");
 
 		emit send_log(Signal_log1);
+
+		ui->Processing_dxf_file_2->insert(FileName);
 
 
 		dxf_load dxf_lf(this);
@@ -286,6 +297,9 @@ void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
 
 	Filename_db=DXF_main_base[0].dxf_savepath + "/" +FileName;
 	Filename_db.append(".db3");
+
+	ui->dxf_line_count1_2->clear();
+	ui->Processing_dxf_file_2->insert(FileName);
 
 	on_Delete_DB_clicked();
 

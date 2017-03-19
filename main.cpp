@@ -11,5 +11,7 @@ int main(int argc, char *argv[])
 	DXFtoQET3DB w;
 	w.show();
 
+	//ui->Info_2->activateWindow();
+
 	return a.exec();
 }

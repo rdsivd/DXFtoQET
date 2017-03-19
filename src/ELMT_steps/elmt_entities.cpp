@@ -746,7 +746,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 
 
-			while (end_lwpoly==0 and count_vertex<max_vertex-1)
+			while (end_lwpoly==0 and count_vertex<max_vertex)
 			{
 				NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
@@ -826,7 +826,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			DXF_Entities_List.DXF_Result.append(New_DXF_Text.Create_text());
 		}
 
-		/*if (Record2.value("Command").toString()=="HATCH" and Record2.value("Command_count").toInt()==0)
+		if (Record2.value("Command").toString()=="HATCH" and Record2.value("Command_count").toInt()==0)
 		{
 
 			New_DXF_LWPolyline.QET_layer=Record2.value("dxf_8").toString();
@@ -854,7 +854,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			max_vertex=0;
 			count_vertex=0;
 
-			max_vertex=Record2.value("dxf_96").toInt();
+			max_vertex=Record2.value("dxf_96").toInt()*Record2.value("dxf_91").toInt();
 
 			if (max_vertex >=QET_L_POLYLINE)
 			{
@@ -915,7 +915,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			emit Signal1(Signal_waarde1);
 
-		}*/
+		}
 	}
 
 

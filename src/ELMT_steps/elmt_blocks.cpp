@@ -754,7 +754,7 @@ QString elmt_blocks::Insert_Block()
 						Logtext.append(" \n");
 					}
 
-					while (end_lwpoly==0 and count_vertex<max_vertex-1)
+					while (end_lwpoly==0 and count_vertex<max_vertex)
 					{
 						NewQueryBlock.next();
 						QSqlRecord Record4=NewQueryBlock.record();
@@ -827,7 +827,7 @@ QString elmt_blocks::Insert_Block()
 					//DXF_Block_Value.append(New_DXF_Text.Create_text());
 				}
 
-				/*if (Record3.value("Command").toString()=="HATCH" and Record3.value("Command_count").toInt()==0)
+				if (Record3.value("Command").toString()=="HATCH" and Record3.value("Command_count").toInt()==0)
 				{
 
 					New_DXF_LWPolyline.QET_layer=Record3.value("dxf_8").toString();
@@ -864,7 +864,7 @@ QString elmt_blocks::Insert_Block()
 					max_vertex=0;
 					count_vertex=0;
 
-					max_vertex=Record3.value("dxf_96").toInt();
+					max_vertex=Record3.value("dxf_96").toInt()*Record3.value("dxf_91").toInt();
 
 					//New_DXF_LWPolyline.QET_x[count_vertex]=(Record4.value("dxf_10").toDouble()*Block_scale_x)+Block_X;
 					//New_DXF_LWPolyline.QET_y[count_vertex]=(Record4.value("dxf_20").toDouble()*Block_scale_y)+Block_Y;
@@ -915,7 +915,7 @@ QString elmt_blocks::Insert_Block()
 					//DXF_Block_Value.append(New_DXF_LWPolyline.Create_polyline());
 
 
-				}*/
+				}
 
 				if (Record3.value("Command").toString()=="ENDBLK" and Record3.value("Command_count").toInt()==0)
 				{
