@@ -218,6 +218,12 @@ class DXFtoQET3DB : public QWidget
 
 		QString ResultELMT;
 
+		QString Inline0;
+		QStringList Inline1;
+
+		int InSW1;
+		int InSW2;
+
 		QString BlockNameItem;
 
 		int32_t list_header;
@@ -373,6 +379,9 @@ class DXFtoQET3DB : public QWidget
 
 	protected:
 		void changeEvent(QEvent *e);
+
+		private slots:
+		void on_Button_Open_DXF_clicked();
 
 		private:
 		Ui::DXFtoQET3DB *ui;

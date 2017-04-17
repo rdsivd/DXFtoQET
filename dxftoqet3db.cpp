@@ -5446,3 +5446,249 @@ void DXFtoQET3DB::update_log(const QString &Waarde_receve3)
 	ui->dxf_log->moveCursor(QTextCursor::End);
 	ui->dxf_log->repaint();
 }
+
+void DXFtoQET3DB::on_Button_Open_DXF_clicked()
+{
+	ui->MainTab->setCurrentIndex(0);
+	ui->MainTab->repaint();
+
+	ui->dxf_log->activateWindow();
+	ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
+	ui->QET_user_symbole_path_save->setText(DXF_main_base[0].dxf_filepath);
+
+	main_sw1=0;
+	main_sw2=0;
+	main_sw3=0;
+
+	DXF_main_base[0].DXF_file_loaded_into_table=-1;
+
+	// open file dialog
+
+	ui->dxf_log->clear();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" -> Open file \n");
+	Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	QFileDialog dialog(this);
+	dialog.setNameFilter(tr("DXF files (*.dxf *.DXF *.csv *.CSV)"));
+	dialog.setFileMode(QFileDialog::ExistingFile);
+	dialog.setViewMode(QFileDialog::Detail);
+
+
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		DXF_main_base[0].dxf_filepath = dialog.selectedFiles().first();
+
+
+		DXF_main_base[0].dxf_dir = dialog.directory().absolutePath();
+		DXF_main_base[0].dxf_openfile=DXF_main_base[0].dxf_filepath.split("/").last();
+		//DXF_main_base[0].dxf_savepath=Config_QET_User_Symbols;//"../.qet/elements"; //DXF_main_base[0].dxf_dir;
+
+		ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
+
+		FileType=DXF_main_base[0].dxf_openfile.split(".").last();
+		FileName=DXF_main_base[0].dxf_openfile.split(".").first().toLower();
+
+		Filename2=FileName.remove(QRegExp("[+-/#_=<>]"));
+
+		DXF_main_base[0].dxf_openfile=Filename2.toLower();
+		DXF_main_base[0].dxf_filetype=FileType;
+
+		Signal_log1.clear();
+		Signal_log1.append(DXF_main_base[0].dxf_openfile);
+		Signal_log1.append(" \n");
+		Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		//DXF_main_base[0].DXF_ELMT_Name_text_en=FileName;
+		//DXF_main_base[0].DXF_ELMT_Name_text_fr=FileName;
+
+		//ui->elmt_lang_en->setText(FileName);
+		//ui->elmt_lang_fr->setText(FileName);
+
+		QFile file(DXF_main_base[0].dxf_filepath);
+		if (!file.open(QFile::ReadOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("Application"),
+					  tr("Cannot read file %1:\n%2.").arg(DXF_main_base[0].dxf_filepath).arg("binary or other non standard dxf file"));
+
+		}
+
+		ui->dxf_file_path->setPlaceholderText(DXF_main_base[0].dxf_dir);
+		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
+
+		Signal_log1.clear();
+		Signal_log1.append("read file ");
+		Signal_log1.append(FileName);
+		Signal_log1.append(" to check file type ");
+
+		emit send_log(Signal_log1);
+
+		QTextStream in(&file);
+		//DXF_main_base[0].dxf_text_all = in.readAll();
+
+		InSW1=0;
+		InSW2=0;
+
+		while (!in.atEnd() and InSW1==0 and InSW2==0)
+		{
+
+			Inline0=in.readLine();
+
+			Inline1=Inline0.split("\n");
+
+			if (Inline1.contains("AC"))
+			{
+				InSW1=1;
+
+				Signal_log1.clear();
+				Signal_log1.append("read file ");
+				Signal_log1.append(FileName);
+				Signal_log1.append(" is not a ascii file \n");
+
+				emit send_log(Signal_log1);
+
+			}
+			else
+			{
+				InSW2=1;
+
+				Signal_log1.clear();
+				Signal_log1.append("read file ");
+				Signal_log1.append(FileName);
+				Signal_log1.append(" is a ascii file \n");
+
+				emit send_log(Signal_log1);
+			}
+
+
+		}
+
+
+		file.close();
+
+
+		QFile file2(DXF_main_base[0].dxf_filepath);
+		if (!file2.open(QFile::ReadOnly | QFile::Text))
+		{
+			QMessageBox::warning(this, tr("Application"),
+					  tr("Cannot read file %1:\n%2.").arg(DXF_main_base[0].dxf_filepath).arg("binary or other non standard dxf file"));
+
+		}
+
+		ui->dxf_file_path->setPlaceholderText(DXF_main_base[0].dxf_dir);
+		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
+
+		Signal_log1.clear();
+		Signal_log1.append("read file ");
+		Signal_log1.append(FileName);
+		Signal_log1.append(" into db ");
+
+		emit send_log(Signal_log1);
+
+		QTextStream in2(&file2);
+
+		while (!in2.atEnd() and InSW1==0 and InSW2==1)
+		{
+
+
+			DXF_main_base[0].dxf_text_all = in2.readAll();
+
+		}
+
+
+		file.close();
+
+
+		ui->dxf_file_loaded->setPlainText(DXF_main_base[0].dxf_text_all);
+		ui->dxf_file_loaded->show();
+
+		dxf_line_count1=DXF_main_base[0].dxf_text_all.count();
+
+		ui->dxf_line_count1->setText(QString::number(dxf_line_count1,'f',0));
+
+		ui->dxf_line_count1_2->clear();
+
+		ui->dxf_line_count1_2->setText(QString::number(dxf_line_count1,'f',0));
+
+		Signal_log1.clear();
+		Signal_log1.append("check file for correct type of file ");
+
+		emit send_log(Signal_log1);
+
+		ui->Processing_dxf_file_2->insert(FileName);
+
+
+		dxf_load dxf_lf(this);
+
+		dxf_lf.dxf_header_split();
+
+		dxf_line_count2=DXF_main_base[0].dxf_input.count();
+
+		main_sw1=dxf_lf.dxf_check_file();
+
+		if (FileType=="csv" or FileType=="CSV")
+		{
+			main_sw2=1;
+			main_sw3=0;
+
+			Signal_log1.clear();
+			Signal_log1.append("file of type CSV ");
+
+			emit send_log(Signal_log1);
+
+			//dxf_lf.dxf_csv_split();
+
+			//int32_t dxf_line_count2=DXF_main_base[0].dxf_csv_line_count;
+			//ui->dxf_line_count2->setText(QString::number(dxf_line_count2,'f',0));
+		}
+		else
+		{
+			main_sw2=0;
+		}
+
+		if (FileType=="dxf" or FileType=="DXF")
+		{
+
+			main_sw3=1;
+			main_sw2=0;
+
+			Signal_log1.clear();
+			Signal_log1.append("file of type DXF ");
+
+			emit send_log(Signal_log1);
+
+		}
+		else
+		{
+			main_sw3=0;
+		}
+
+		if (main_sw1==1 and main_sw2==0)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("file of type ASCII DXF ");
+
+			emit send_log(Signal_log1);
+
+		}
+
+		if (main_sw1==0 and main_sw2==0)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("file of type BINARY DXF ");
+
+			emit send_log(Signal_log1);
+
+		}
+
+		mydb.dbManager_load_dxf(FileName);
+	}
+}
