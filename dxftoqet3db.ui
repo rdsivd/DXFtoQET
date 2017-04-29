@@ -38,7 +38,7 @@
     <enum>QTabWidget::West</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>5</number>
    </property>
    <widget class="QWidget" name="Log">
     <attribute name="title">
@@ -392,11 +392,13 @@
         <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
        <property name="plainText">
-        <string>DXF to QET ELMT converter V3.0 uses SQlite (text updated 2017 03 19)
+        <string>DXF to QET ELMT converter V3.0 uses SQlite (text updated 2017 04 29)
 ==============================================================================================================
 
 This converter converts only ASCII dxf files
 binary dxf files are not converted.
+
+now working form db to split dxf items
 
 ==============================================================================================================
 
@@ -548,8 +550,14 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
     </item>
     <item row="1" column="0">
      <widget class="QPushButton" name="Load_dxf_into_tables">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>Load dxf into DB</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -603,13 +611,19 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
     <item row="0" column="2">
      <widget class="QPushButton" name="Button_Open_DXF">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>Load DXF to DB</string>
       </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </item>

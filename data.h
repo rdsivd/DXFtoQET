@@ -72,6 +72,8 @@ struct DXF_base
 	int32_t dxf_line_count;
 	int32_t dxf_csv_line_count;
 
+	QStringList split_list_1[1200];
+
 	int DXF_file_loaded_into_table;
 };
 

@@ -43,10 +43,24 @@ class dbManager : public QWidget
 	int32_t dxf_line_count_max;
 	int32_t count_input;
 
+	int32_t transfer_count;
+	QString Transfer_Code;
+	QString Transfer_waarde;
+	QString Transfer_Section;
+	QString Transfer_Commando;
+
+	int List_1;
+	QString List_2;
+	int List_3;
+	QString List_4;
+
 	QString QsqlString;
 	QString QsqlString2;
 	QString Qsqlstring3;
 	QString dxf_section;
+
+	QString QSql_dxf_list;
+	QString QSql_transfer;
 
 	QString Qsql_Block;
 	QString Qsql_entitie;
@@ -73,9 +87,14 @@ class dbManager : public QWidget
 
 	int dbManager_added_records(const QString &pathname, int64_t *Max_lines, int64_t *Record_count, QString dxf_type);
 
+	int DB_dbManager_added_records(const QString &pathname, int64_t *Max_lines, int64_t *Record_count, QString dxf_type);
+
+
 	void dbManager_load_dxf(const QString &pathname);
 
 	void dbManager_load_dxf_list(const QString &pathname);
+
+	void dbManager_transfer_dxf(const QString &pathname);
 
 	void dbManager_create_elmt_entitie(const QString &pathname, int32_t Index_count_1,QString Block_naam_1, QString Block_value_1);
 

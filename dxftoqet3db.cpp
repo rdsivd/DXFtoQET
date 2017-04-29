@@ -1098,6 +1098,310 @@ void DXFtoQET3DB::split_header()
 
 }
 
+void DXFtoQET3DB::db_split_header()
+{
+
+
+	mydb.dbManager1(Filename_db);
+
+	//QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
+
+	QSqlQuery Header_Query;
+
+	Header_Query.prepare("SELECT * FROM dxf_file WHERE section =(:Section)");
+	Header_Query.bindValue(":Section","HEADER");
+
+
+	Header_Query.exec();
+
+	header_max_items=dxf_header.count("  9");
+	header_max_items2=dxf_header.count(" 9");
+	header_max_items3=dxf_header.count("9");
+
+	header_max_items=header_max_items+header_max_items2+header_max_items3;
+
+	header_max_count=dxf_header.count();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("DB split header items : ");
+	Signal_log1.append(QString::number(header_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	count_header=0;
+	count_header_record_id=1;
+	count_header_lines=0;
+	id_header=1;
+
+	clear_dxf_header_items();
+	clear_split_tables();
+	x1=-1;
+	x2=0;
+
+	while (Header_Query.next())
+	{
+		QSqlRecord Header_record=Header_Query.record();
+
+		//split_list_1[Header_record.value("Code").toInt()].append(Header_record.value("Waarde").toString());
+
+		if (Header_record.value("Code").toInt()==9 )
+		{
+			x1++;
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+
+		}
+		else
+		{
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end split table ");
+	//Signal_log1.append(QString::number(header_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	header_max_items=x1;
+
+	Signal_log1.clear();
+	Signal_log1.append("header items : ");
+	Signal_log1.append(QString::number(header_max_items));
+	Signal_log1.append("\n");
+	Signal_log1.append("X1 : ");
+	Signal_log1.append(QString::number(x1));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	// split input into tempory table
+
+	/*for (x2=0;x2<header_max_count and header_max_items<DXF_item_split;x2++)
+	{
+
+		if (QString(dxf_header[x2]).toInt()==9)
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_header[x2]); //??
+			x2++;
+			split_tables_list[x1].append(dxf_header[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_header[x2]); //??
+			x2++;
+			split_tables_list[x1].append(dxf_header[x2]);
+		}
+	}*/
+
+
+
+	clear_sw_header();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("Splitting HEADER  ");
+
+	emit send_log(Signal_log1);
+
+	max=0;
+	Record_Count_Header=1;
+
+
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Header");
+
+
+
+
+	emit send_text("dxf_header");
+	emit send_min(0);
+	emit send_max(header_max_items-1);
+
+
+
+	text1=QString::number(header_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+
+
+	while (count_header< header_max_items)
+	{
+		/*text1=QString::number(count_header);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();*/
+
+		/*Signal_log1.clear();
+		Signal_log1.append(QTime::currentTime().toString());
+		Signal_log1.append("\n");
+		Signal_log1.append("start split ");
+		Signal_log1.append(QString::number(count_header));
+		emit send_log(Signal_log1);*/
+
+		count_header_item=0;
+		x3=split_tables_list[count_header].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting header : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
+		}
+
+		clear_dxf_code_tables();
+
+		emit send_actual(count_header);
+
+		// record of temp table split to dxf table
+		//max=Split_list("dxf_header", x3, count_header_item, count_header, id_header );
+
+		max=DB_Split_list("dxf_header", x3, count_header_item, count_header, id_header );
+
+		/*Signal_log1.clear();
+		Signal_log1.append(QTime::currentTime().toString());
+		Signal_log1.append("\n");
+		Signal_log1.append("end split ");
+		emit send_log(Signal_log1);*/
+
+		Record_Count_Header= mydb.DB_dbManager_added_records(Filename_db, &max,&Record_Count_Header,"dxf_header");
+
+		/*Signal_log1.clear();
+		Signal_log1.append(QTime::currentTime().toString());
+		Signal_log1.append("\n");
+		Signal_log1.append("end save record ");
+		emit send_log(Signal_log1);*/
+
+		sw_header[9]=0;
+		sw_header[0]=0;
+
+
+		id_header++;
+
+		count_header++;
+
+
+
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end ");
+	emit send_log(Signal_log1);
+
+	mydb.dbManager_close(Filename_db);
+
+	return;
+
+}
+
+int DXFtoQET3DB::DB_Split_list(QString TypeList, int x3max, int count_list_item, int count_tables_list, int header_id)
+{
+
+	max3=0;
+	clear_sw_header();
+
+	for (int xy=0;xy <1075;xy++)
+	{
+		DXF_main_base[0].split_list_1[xy].clear();
+	}
+
+
+	while (count_list_item<x3max and count_list_item<DXF_codeset_copies)
+	{
+
+		line1=QString(split_tables_list[count_tables_list][count_list_item]).toInt();
+		line2=split_tables_list[count_tables_list][count_list_item+1];
+
+
+		DXF_main_base[0].split_list_1[line1].append(line2);
+
+
+		switch (line1)
+		{
+			case 0:
+
+				DXF_code_tables[0].Section=TypeList;
+				DXF_code_tables[0].Command=line2;
+
+				DXF_code_tables[0].ID_instruction=QString::number(header_id);
+
+			break;
+
+			case 9:
+
+				DXF_code_tables[0].Section=TypeList;
+				DXF_code_tables[0].Command=line2;
+
+				DXF_code_tables[0].ID_instruction=QString::number(header_id);
+
+				break;
+		}
+
+
+
+		count_list_item=count_list_item+2;
+	}
+
+
+
+
+	for (xx=0; xx<1200;xx++)
+	{
+
+
+		if(DXF_main_base[0].split_list_1[xx].count() > max3)
+		{
+			max3=DXF_main_base[0].split_list_1[xx].count();
+		}
+
+	}
+
+	for (int xy=0;xy <1200;xy++)
+	{
+		if (DXF_main_base[0].split_list_1[xy].count()==max3)
+		{
+			//DXF_main_base[0].split_list_1[xy].value()=" ";
+		}
+		else
+		{
+			for (int xz=0;xz<max3+1;xz++)
+			{
+				DXF_main_base[0].split_list_1[xy].append(" ");
+			}
+		}
+
+	}
+
+	return max3;
+
+}
+
 void DXFtoQET3DB::split_classes()
 {
 	classes_max_items=dxf_classes.count("  0");
@@ -1222,26 +1526,209 @@ void DXFtoQET3DB::split_classes()
 
 	}
 
-
+	mydb.dbManager_close(Filename_db);
 
 	return;
 }
 
+void DXFtoQET3DB::db_split_classes()
+{
+
+	mydb.dbManager1(Filename_db);
+
+	//QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
+
+	QSqlQuery Tables_Query;
+
+	Tables_Query.prepare("SELECT * FROM dxf_file WHERE section =(:Section)");
+	Tables_Query.bindValue(":Section","CLASSES");
+
+	Tables_Query.exec();
+
+	classes_max_items=dxf_classes.count("  0");
+	classes_max_items=tables_max_items+dxf_classes.count(" 0");
+	classes_max_items=tables_max_items+dxf_classes.count("0");
+
+
+	classes_max_count=dxf_classes.count();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("tables items : ");
+	Signal_log1.append(QString::number(classes_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+
+
+	count_tables=0;
+	count_tables_record_id=1;
+	count_tables_lines=0;
+	id_header=1;
+
+	clear_dxf_tables_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	while (Tables_Query.next())
+	{
+		QSqlRecord Header_record=Tables_Query.record();
+
+		if (Header_record.value("Code").toInt()==0 )
+		{
+			x1++;
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+		else
+		{
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end split table ");
+
+	//Signal_log1.append(QString::number(tables_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	/*for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
+	{
+
+		if (QString(dxf_tables[x2]).toInt()==0)
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+	}*/
+
+	clear_sw_header();
+
+	Signal_log1.clear();
+	Signal_log1.append("Splitting Classes ");
+	Signal_log1.append(QString::number(classes_max_items));
+	Signal_log1.append("\n");
+	Signal_log1.append("X1 : ");
+	Signal_log1.append(QString::number(x1));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	max=0;
+	Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Classes");
+
+	emit send_text("dxf_classes");
+	emit send_min(0);
+	emit send_max(classes_max_items-1);
+
+	text1=QString::number(classes_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+
+
+	while (count_tables< classes_max_items)
+	{
+		/*text1=QString::number(count_tables);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();*/
+
+		count_tables_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_tables].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting tables  : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
+
+		}
+
+		clear_dxf_code_tables();
+
+		emit send_actual(count_tables);
+
+		max=DB_Split_list("dxf_classes", x3, count_tables_item, count_tables, id_header  );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_tables;
+
+		Record_Count_Tables= mydb.DB_dbManager_added_records(Filename_db, &max,&Record_Count_Tables,"dxf_classes");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_tables++;
+
+		//Record_Count_Tables++;
+
+
+	}
+
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end ");
+	emit send_log(Signal_log1);
+
+	mydb.dbManager_close(Filename_db);
+
+	return;
+}
+
+
 void DXFtoQET3DB::split_tables()
 {
+
 	tables_max_items=dxf_tables.count("  0");
-	if (tables_max_items==0)
-	{
-		tables_max_items=dxf_tables.count(" 0");
-	}
-	if (tables_max_items==0)
-	{
-		tables_max_items=dxf_tables.count("0");
-	}
+	tables_max_items=tables_max_items+dxf_tables.count(" 0");
+	tables_max_items=tables_max_items+dxf_tables.count("0");
 
 	tables_max_count=dxf_tables.count();
 
 	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
 	Signal_log1.append("tables items : ");
 	Signal_log1.append(QString::number(tables_max_items));
 	//Signal_log1.append("============================================================================");
@@ -1257,6 +1744,7 @@ void DXFtoQET3DB::split_tables()
 	clear_split_tables();
 
 	x1=-1;
+
 
 	for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
 	{
@@ -1356,6 +1844,196 @@ void DXFtoQET3DB::split_tables()
 
 	}
 
+
+	return;
+}
+
+void DXFtoQET3DB::db_split_tables()
+{
+
+	mydb.dbManager1(Filename_db);
+
+	//QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
+
+	QSqlQuery Tables_Query;
+
+	Tables_Query.prepare("SELECT * FROM dxf_file WHERE section =(:Section)");
+	Tables_Query.bindValue(":Section","TABLES");
+
+	Tables_Query.exec();
+
+	tables_max_items=dxf_tables.count("  0");
+	tables_max_items=tables_max_items+dxf_tables.count(" 0");
+	tables_max_items=tables_max_items+dxf_tables.count("0");
+
+
+	tables_max_count=dxf_tables.count();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("tables items : ");
+	Signal_log1.append(QString::number(entities_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+
+
+	count_tables=0;
+	count_tables_record_id=1;
+	count_tables_lines=0;
+	id_header=1;
+
+	clear_dxf_tables_items();
+	clear_split_tables();
+
+	for (int xyz=0;xyz<1200;xyz++)
+	{
+		split_tables_list[xyz].clear();
+	}
+
+	x1=-1;
+
+	while (Tables_Query.next())
+	{
+		QSqlRecord Header_record=Tables_Query.record();
+
+		if (Header_record.value("Code").toInt()==0 )
+		{
+			x1++;
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+		else
+		{
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end split table ");
+
+	//Signal_log1.append(QString::number(tables_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	/*for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
+	{
+
+		if (QString(dxf_tables[x2]).toInt()==0)
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+	}*/
+
+	clear_sw_header();
+
+	Signal_log1.clear();
+	Signal_log1.append("Splitting tables ");
+	Signal_log1.append(QString::number(entities_max_items));
+	Signal_log1.append("\n");
+	Signal_log1.append("X1 : ");
+	Signal_log1.append(QString::number(x1));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	max=0;
+	Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Tables");
+
+	emit send_text("dxf_tables");
+	emit send_min(0);
+	emit send_max(tables_max_items-1);
+
+	text1=QString::number(tables_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+
+
+	while (count_tables< tables_max_items)
+	{
+		/*text1=QString::number(count_tables);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();*/
+
+		count_tables_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_tables].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting tables  : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
+
+		}
+
+		clear_dxf_code_tables();
+
+		emit send_actual(count_tables);
+
+		max=DB_Split_list("dxf_tables", x3, count_tables_item, count_tables, id_header  );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_tables;
+
+		Record_Count_Tables= mydb.DB_dbManager_added_records(Filename_db, &max,&Record_Count_Tables,"dxf_tables");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_tables++;
+
+		//Record_Count_Tables++;
+
+
+	}
+
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end ");
+	emit send_log(Signal_log1);
+
+	mydb.dbManager_close(Filename_db);
 
 	return;
 }
@@ -1505,6 +2183,191 @@ void DXFtoQET3DB::split_blocks()
 	return;
 }
 
+void DXFtoQET3DB::db_split_blocks()
+{
+
+	mydb.dbManager1(Filename_db);
+
+	//QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
+
+	QSqlQuery Tables_Query;
+
+	Tables_Query.prepare("SELECT * FROM dxf_file WHERE section =(:Section)");
+	Tables_Query.bindValue(":Section","BLOCKS");
+
+	Tables_Query.exec();
+
+	blocks_max_items=dxf_tables.count("  0");
+	blocks_max_items=blocks_max_items+dxf_blocks.count(" 0");
+	tables_max_items=blocks_max_items+dxf_blocks.count("0");
+
+
+	blocks_max_count=dxf_blocks.count();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("tables items : ");
+	Signal_log1.append(QString::number(blocks_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+
+
+	count_tables=0;
+	count_tables_record_id=1;
+	count_tables_lines=0;
+	id_header=1;
+
+	clear_dxf_tables_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	while (Tables_Query.next())
+	{
+		QSqlRecord Header_record=Tables_Query.record();
+
+		if (Header_record.value("Code").toInt()==0 )
+		{
+			x1++;
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+		else
+		{
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end split table ");
+
+	//Signal_log1.append(QString::number(tables_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	/*for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
+	{
+
+		if (QString(dxf_tables[x2]).toInt()==0)
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+	}*/
+
+	clear_sw_header();
+
+	Signal_log1.clear();
+	Signal_log1.append("Splitting tables ");
+	Signal_log1.append(QString::number(blocks_max_items));
+	Signal_log1.append("\n");
+	Signal_log1.append("X1 : ");
+	Signal_log1.append(QString::number(x1));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	max=0;
+	Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section Blokcs");
+
+	emit send_text("dxf_blocks");
+	emit send_min(0);
+	emit send_max(blocks_max_items-1);
+
+	text1=QString::number(blocks_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+
+
+	while (count_tables< blocks_max_items)
+	{
+		/*text1=QString::number(count_tables);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();*/
+
+		count_tables_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_tables].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting tables  : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
+
+		}
+
+		clear_dxf_code_tables();
+
+		emit send_actual(count_tables);
+
+		max=DB_Split_list("dxf_blocks", x3, count_tables_item, count_tables, id_header  );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_tables;
+
+		Record_Count_Tables= mydb.DB_dbManager_added_records(Filename_db, &max,&Record_Count_Tables,"dxf_blocks");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_tables++;
+
+		//Record_Count_Tables++;
+
+
+	}
+
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end ");
+	emit send_log(Signal_log1);
+
+	mydb.dbManager_close(Filename_db);
+
+	return;
+}
+
 void DXFtoQET3DB::split_entities()
 {
 	entities_max_items=dxf_entities.count("  0");
@@ -1637,6 +2500,192 @@ void DXFtoQET3DB::split_entities()
 
 	return;
 }
+
+void DXFtoQET3DB::db_split_entities()
+{
+
+	mydb.dbManager1(Filename_db);
+
+	//QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
+
+	QSqlQuery Tables_Query;
+
+	Tables_Query.prepare("SELECT * FROM dxf_file WHERE section =(:Section)");
+	Tables_Query.bindValue(":Section","ENTITIES");
+
+	Tables_Query.exec();
+
+	entities_max_items=dxf_entities.count("  0");
+	entities_max_items=entities_max_items+dxf_entities.count(" 0");
+	entities_max_items=entities_max_items+dxf_entities.count("0");
+
+
+	tables_max_count=dxf_entities.count();
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("tables items : ");
+	Signal_log1.append(QString::number(entities_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+
+
+	count_tables=0;
+	count_tables_record_id=1;
+	count_tables_lines=0;
+	id_header=1;
+
+	clear_dxf_tables_items();
+	clear_split_tables();
+
+	x1=-1;
+
+	while (Tables_Query.next())
+	{
+		QSqlRecord Header_record=Tables_Query.record();
+
+		if (Header_record.value("Code").toInt()==0 )
+		{
+			x1++;
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+		else
+		{
+			split_tables_list[x1].append(Header_record.value("Code").toString() );
+
+			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+	}
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end split table ");
+
+	//Signal_log1.append(QString::number(tables_max_items));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	/*for (x2=0;x2<tables_max_count and tables_max_items<DXF_item_split;x2++)
+	{
+
+		if (QString(dxf_tables[x2]).toInt()==0)
+		{
+			x1=x1+1;
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+		else
+		{
+			split_tables_list[x1].append(dxf_tables[x2]);
+			x2++;
+			split_tables_list[x1].append(dxf_tables[x2]);
+		}
+	}*/
+
+	clear_sw_header();
+
+	Signal_log1.clear();
+	Signal_log1.append("Splitting entities ");
+	Signal_log1.append(QString::number(entities_max_items));
+	Signal_log1.append("\n");
+	Signal_log1.append("X1 : ");
+	Signal_log1.append(QString::number(x1));
+	//Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	max=0;
+	Record_Count_Tables=1;
+
+	clear_dxf_code_tables();
+
+	ui->dxf_section->clear();
+	ui->dxf_section->insert("Section entities");
+
+	emit send_text("dxf_entities");
+	emit send_min(0);
+	emit send_max(entities_max_items-1);
+
+	text1=QString::number(entities_max_items);
+	ui->dxf_section_count->clear();
+	ui->dxf_section_count->insert(text1);
+
+
+	while (count_tables< entities_max_items)
+	{
+		/*text1=QString::number(count_tables);
+		ui->dxf_section_count->clear();
+		ui->dxf_section_count->insert(text1);
+		ui->dxf_log->repaint();*/
+
+		count_tables_item=0;
+
+		//Record_Count_Tables=1;
+
+		x3=split_tables_list[count_tables].count();
+
+		if (x3>DXF_codeset_copies)
+		{
+
+			Signal_log1.clear();
+			Signal_log1.append("============================================================================\n");
+			Signal_log1.append("Splitting tables  : out of range subitems acad command \n");
+			Signal_log1.append(QString::number(x3));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_codeset_copies));
+			Signal_log1.append("\n");
+			Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
+
+
+		}
+
+		clear_dxf_code_tables();
+
+		emit send_actual(count_tables);
+
+		max=DB_Split_list("dxf_entities", x3, count_tables_item, count_tables, id_header  );
+
+		//Record_Count_Tables++;
+
+		//Record_Count_Tables=Record_Count_Tables+count_tables;
+
+		Record_Count_Tables= mydb.DB_dbManager_added_records(Filename_db, &max,&Record_Count_Tables,"dxf_entities");
+
+		sw_header[0]=0;
+		sw_header[9]=0;
+
+		id_header++;
+
+		count_tables++;
+
+		//Record_Count_Tables++;
+
+
+	}
+
+
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("end ");
+	emit send_log(Signal_log1);
+
+	mydb.dbManager_close(Filename_db);
+
+	return;
+}
+
 
 void DXFtoQET3DB::split_objects()
 {
@@ -5449,246 +6498,299 @@ void DXFtoQET3DB::update_log(const QString &Waarde_receve3)
 
 void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 {
+
 	ui->MainTab->setCurrentIndex(0);
 	ui->MainTab->repaint();
 
+	Filename_db=DXF_main_base[0].dxf_savepath + "/" +FileName;
+	Filename_db.append(".db3");
+
+	ui->dxf_line_count1_2->clear();
+	ui->Processing_dxf_file_2->clear();
+	ui->Processing_dxf_file_2->insert(FileName);
+
+	on_Delete_DB_clicked();
+
 	ui->dxf_log->activateWindow();
-	ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
-	ui->QET_user_symbole_path_save->setText(DXF_main_base[0].dxf_filepath);
-
-	main_sw1=0;
-	main_sw2=0;
-	main_sw3=0;
-
-	DXF_main_base[0].DXF_file_loaded_into_table=-1;
-
-	// open file dialog
-
-	ui->dxf_log->clear();
 
 	Signal_log1.clear();
 	Signal_log1.append(QTime::currentTime().toString());
-	Signal_log1.append(" -> Open file \n");
+	Signal_log1.append("=> Start loading dxf");
+	Signal_log1.append(FileName);
+	Signal_log1.append(" file into DB tables \n");
+	Signal_log1.append("Creating DB : ");
+	Signal_log1.append(FileName);
+	Signal_log1.append("\n");
 	Signal_log1.append("============================================================================");
 
 	emit send_log(Signal_log1);
 
-	QFileDialog dialog(this);
-	dialog.setNameFilter(tr("DXF files (*.dxf *.DXF *.csv *.CSV)"));
-	dialog.setFileMode(QFileDialog::ExistingFile);
-	dialog.setViewMode(QFileDialog::Detail);
+	Signal_log1.clear();
+	Signal_log1.append("create : ");
+	Signal_log1.append(Filename_db);
+
+	emit send_log(Signal_log1);
+
+	mydb.dbManager1(Filename_db);
+
+	Signal_log1.clear();
+	Signal_log1.append("creating tables \n");
+	Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	mydb.dbManager_create_tables(FileName);
+
+	dxf_split_count1=DXF_main_base[0].dxf_input.count();
+
+	counter1=0;
+
+	Signal_log1.clear();
+	Signal_log1.append("total characters : ");
+	Signal_log1.append(QString::number(dxf_line_count1));
+	Signal_log1.append("\n");
+	Signal_log1.append("total lines : ");
+	Signal_log1.append(QString::number(dxf_line_count2));
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
 
 
-	if (dialog.exec() == QDialog::Accepted)
+	//DXF_main_base[0].dxf_input = DXF_main_base[0].dxf_text_all.split("\n");
+	//DXF_main_base[0].dxf_line_count=DXF_main_base[0].dxf_input.count();
+
+
+	mydb.dbManager_load_dxf_list(FileName);
+
+	mydb.dbManager_transfer_dxf(FileName);
+
+
+	mydb.dbManager_close(FileName);
+
+	Signal_log1.clear();
+	Signal_log1.append("End loading into db ");
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
+
+	emit send_log(Signal_log1);
+
+	dxf_split_count1=DXF_main_base[0].dxf_input.count();
+
+	index_header= DXF_main_base[0].dxf_input.indexOf("HEADER");
+	index_classes= DXF_main_base[0].dxf_input.indexOf("CLASSES");
+	index_tables= DXF_main_base[0].dxf_input.indexOf("TABLES");
+	index_blocks= DXF_main_base[0].dxf_input.indexOf("BLOCKS");
+	index_entities= DXF_main_base[0].dxf_input.indexOf("ENTITIES");
+	index_objects= DXF_main_base[0].dxf_input.indexOf("OBJECTS");
+	index_thumbnailimage= DXF_main_base[0].dxf_input.indexOf("THUMBNAILIMAGE");
+
+	section_lengts();
+
+	copy_list();
+
+
+
+	index_header= DXF_main_base[0].dxf_input.indexOf("HEADER");
+	index_classes= DXF_main_base[0].dxf_input.indexOf("CLASSES");
+	index_tables= DXF_main_base[0].dxf_input.indexOf("TABLES");
+	index_blocks= DXF_main_base[0].dxf_input.indexOf("BLOCKS");
+	index_entities= DXF_main_base[0].dxf_input.indexOf("ENTITIES");
+	index_objects= DXF_main_base[0].dxf_input.indexOf("OBJECTS");
+	index_thumbnailimage= DXF_main_base[0].dxf_input.indexOf("THUMBNAILIMAGE");
+
+	Signal_log1.clear();
+	Signal_log1.append("index header : ");
+	Signal_log1.append(QString::number(index_header));
+	Signal_log1.append("\n");
+	Signal_log1.append("index classes : ");
+	Signal_log1.append(QString::number(index_classes));
+	Signal_log1.append("\n");
+	Signal_log1.append("index tables : ");
+	Signal_log1.append(QString::number(index_tables));
+	Signal_log1.append("\n");
+	Signal_log1.append("index blocks : ");
+	Signal_log1.append(QString::number(index_blocks));
+	Signal_log1.append("\n");
+	Signal_log1.append("index entities : ");
+	Signal_log1.append(QString::number(index_entities));
+	Signal_log1.append("\n");
+	Signal_log1.append("index objects : ");
+	Signal_log1.append(QString::number(index_objects));
+	Signal_log1.append("\n");
+	Signal_log1.append("index thumbnailimage : ");
+	Signal_log1.append(QString::number(index_thumbnailimage));
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
+
+	emit send_log(Signal_log1);
+
+	section_lengts();
+
+	copy_list();
+
+	Signal_log1.clear();
+	Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
+
+	emit send_log(Signal_log1);
+
+	if (index_header!=-1)
 	{
-		DXF_main_base[0].dxf_filepath = dialog.selectedFiles().first();
-
-
-		DXF_main_base[0].dxf_dir = dialog.directory().absolutePath();
-		DXF_main_base[0].dxf_openfile=DXF_main_base[0].dxf_filepath.split("/").last();
-		//DXF_main_base[0].dxf_savepath=Config_QET_User_Symbols;//"../.qet/elements"; //DXF_main_base[0].dxf_dir;
-
-		ui->dxf_file_path_save->setText(DXF_main_base[0].dxf_savepath);
-
-		FileType=DXF_main_base[0].dxf_openfile.split(".").last();
-		FileName=DXF_main_base[0].dxf_openfile.split(".").first().toLower();
-
-		Filename2=FileName.remove(QRegExp("[+-/#_=<>]"));
-
-		DXF_main_base[0].dxf_openfile=Filename2.toLower();
-		DXF_main_base[0].dxf_filetype=FileType;
-
 		Signal_log1.clear();
-		Signal_log1.append(DXF_main_base[0].dxf_openfile);
-		Signal_log1.append(" \n");
-		Signal_log1.append("============================================================================");
+		Signal_log1.append("Splitting HEADER list ");
+		//Signal_log1.append("============================================================================");
 
 		emit send_log(Signal_log1);
 
-		//DXF_main_base[0].DXF_ELMT_Name_text_en=FileName;
-		//DXF_main_base[0].DXF_ELMT_Name_text_fr=FileName;
+		db_split_header();
 
-		//ui->elmt_lang_en->setText(FileName);
-		//ui->elmt_lang_fr->setText(FileName);
-
-		QFile file(DXF_main_base[0].dxf_filepath);
-		if (!file.open(QFile::ReadOnly | QFile::Text))
-		{
-			QMessageBox::warning(this, tr("Application"),
-					  tr("Cannot read file %1:\n%2.").arg(DXF_main_base[0].dxf_filepath).arg("binary or other non standard dxf file"));
-
-		}
-
-		ui->dxf_file_path->setPlaceholderText(DXF_main_base[0].dxf_dir);
-		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
-
-		Signal_log1.clear();
-		Signal_log1.append("read file ");
-		Signal_log1.append(FileName);
-		Signal_log1.append(" to check file type ");
-
-		emit send_log(Signal_log1);
-
-		QTextStream in(&file);
-		//DXF_main_base[0].dxf_text_all = in.readAll();
-
-		InSW1=0;
-		InSW2=0;
-
-		while (!in.atEnd() and InSW1==0 and InSW2==0)
-		{
-
-			Inline0=in.readLine();
-
-			Inline1=Inline0.split("\n");
-
-			if (Inline1.contains("AC"))
-			{
-				InSW1=1;
-
-				Signal_log1.clear();
-				Signal_log1.append("read file ");
-				Signal_log1.append(FileName);
-				Signal_log1.append(" is not a ascii file \n");
-
-				emit send_log(Signal_log1);
-
-			}
-			else
-			{
-				InSW2=1;
-
-				Signal_log1.clear();
-				Signal_log1.append("read file ");
-				Signal_log1.append(FileName);
-				Signal_log1.append(" is a ascii file \n");
-
-				emit send_log(Signal_log1);
-			}
-
-
-		}
-
-
-		file.close();
-
-
-		QFile file2(DXF_main_base[0].dxf_filepath);
-		if (!file2.open(QFile::ReadOnly | QFile::Text))
-		{
-			QMessageBox::warning(this, tr("Application"),
-					  tr("Cannot read file %1:\n%2.").arg(DXF_main_base[0].dxf_filepath).arg("binary or other non standard dxf file"));
-
-		}
-
-		ui->dxf_file_path->setPlaceholderText(DXF_main_base[0].dxf_dir);
-		ui->dxf_open_file->setPlaceholderText(DXF_main_base[0].dxf_openfile);
-
-		Signal_log1.clear();
-		Signal_log1.append("read file ");
-		Signal_log1.append(FileName);
-		Signal_log1.append(" into db ");
-
-		emit send_log(Signal_log1);
-
-		QTextStream in2(&file2);
-
-		while (!in2.atEnd() and InSW1==0 and InSW2==1)
-		{
-
-
-			DXF_main_base[0].dxf_text_all = in2.readAll();
-
-		}
-
-
-		file.close();
-
-
-		ui->dxf_file_loaded->setPlainText(DXF_main_base[0].dxf_text_all);
-		ui->dxf_file_loaded->show();
-
-		dxf_line_count1=DXF_main_base[0].dxf_text_all.count();
-
-		ui->dxf_line_count1->setText(QString::number(dxf_line_count1,'f',0));
-
-		ui->dxf_line_count1_2->clear();
-
-		ui->dxf_line_count1_2->setText(QString::number(dxf_line_count1,'f',0));
-
-		Signal_log1.clear();
-		Signal_log1.append("check file for correct type of file ");
-
-		emit send_log(Signal_log1);
-
-		ui->Processing_dxf_file_2->insert(FileName);
-
-
-		dxf_load dxf_lf(this);
-
-		dxf_lf.dxf_header_split();
-
-		dxf_line_count2=DXF_main_base[0].dxf_input.count();
-
-		main_sw1=dxf_lf.dxf_check_file();
-
-		if (FileType=="csv" or FileType=="CSV")
-		{
-			main_sw2=1;
-			main_sw3=0;
-
-			Signal_log1.clear();
-			Signal_log1.append("file of type CSV ");
-
-			emit send_log(Signal_log1);
-
-			//dxf_lf.dxf_csv_split();
-
-			//int32_t dxf_line_count2=DXF_main_base[0].dxf_csv_line_count;
-			//ui->dxf_line_count2->setText(QString::number(dxf_line_count2,'f',0));
-		}
-		else
-		{
-			main_sw2=0;
-		}
-
-		if (FileType=="dxf" or FileType=="DXF")
-		{
-
-			main_sw3=1;
-			main_sw2=0;
-
-			Signal_log1.clear();
-			Signal_log1.append("file of type DXF ");
-
-			emit send_log(Signal_log1);
-
-		}
-		else
-		{
-			main_sw3=0;
-		}
-
-		if (main_sw1==1 and main_sw2==0)
-		{
-
-			Signal_log1.clear();
-			Signal_log1.append("file of type ASCII DXF ");
-
-			emit send_log(Signal_log1);
-
-		}
-
-		if (main_sw1==0 and main_sw2==0)
-		{
-
-			Signal_log1.clear();
-			Signal_log1.append("file of type BINARY DXF ");
-
-			emit send_log(Signal_log1);
-
-		}
-
-		mydb.dbManager_load_dxf(FileName);
 	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no HEADER list to split ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+	if (index_classes!=-1)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting CLASSES list ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		//db_split_classes();
+	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no CLASSES list to split ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+	if (index_tables!=-1)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting TABLES list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		db_split_tables();
+	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no TABLES list to split ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+
+	if (index_blocks!=-1)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting BLOCKS list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		db_split_blocks();
+	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no BLOCKS list to split ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+
+	if (index_entities!=-1)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting ENTITIES list ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		db_split_entities();
+	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no ENTITIES list to split ");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+	if (index_objects!=-1)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting OBJECTS list ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		//db_split_objects();
+
+	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no OBJECTS list to split ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+	if (index_thumbnailimage!=-1)
+	{
+		Signal_log1.clear();
+		Signal_log1.append("Splitting THUMBNAILIMAGE list ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+
+		//db_split_thumbnailimage();
+
+	}
+	else
+	{
+
+		Signal_log1.clear();
+		Signal_log1.append("no THUMBNAILIMAGE list to split ");
+		Signal_log1.append(": disabled");
+		//Signal_log1.append("============================================================================");
+
+		emit send_log(Signal_log1);
+	}
+
+
+
+
+	return;
+
 }

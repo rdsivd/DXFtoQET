@@ -49,7 +49,7 @@ class DXFtoQET3DB : public QWidget
 
 		dbManager mydb;
 
-
+		QString QSQL_split;
 
 		int main_sw1; // Binaery = 0 ASCII = 1
 		int main_sw2; // CSV = 1
@@ -190,7 +190,7 @@ class DXFtoQET3DB : public QWidget
 		int32_t clear_code_set;
 
 		int64_t max;
-		int64_t max3;
+		int max3;
 
 		int32_t index1;
 		int32_t	index2;
@@ -212,6 +212,8 @@ class DXFtoQET3DB : public QWidget
 		QStringList dxf_thumbnailimage_items[DXF_item_split];
 		QStringList split_tables_list[DXF_item_split];
 
+		//QStringList split_list_1[1200];
+
 		int count_tables_list;
 
 		QString Copy_list_item;
@@ -223,6 +225,7 @@ class DXFtoQET3DB : public QWidget
 
 		int InSW1;
 		int InSW2;
+		int xx;
 
 		QString BlockNameItem;
 
@@ -293,22 +296,40 @@ class DXFtoQET3DB : public QWidget
 		QString Signal_log1;
 		QString Signal_elmt1;
 
+		//db var
+
+		int32_t Max_Lines;
+		int32_t Count_x1;
 
 	public:
 
 		void split_header();
 
+		void db_split_header();
+
 		void split_classes();
+
+		void db_split_classes();
 
 		void split_tables();
 
+		void db_split_tables();
+
 		void split_blocks();
+
+		void db_split_blocks();
 
 		void split_entities();
 
+		void db_split_entities();
+
 		void split_objects();
 
+		void db_split_objects();
+
 		void split_thumbnailimage();
+
+		void db_split_thumbnailimage();
 
 		void section_lengts();
 
@@ -335,6 +356,8 @@ class DXFtoQET3DB : public QWidget
 		void clear_dxf_code_tables();
 
 		int Split_list(QString TypeList, int x3max, int count_list_item, int count_tables_list, int header_id);
+
+		int DB_Split_list(QString TypeList, int x3max, int count_list_item, int count_tables_list, int header_id);
 
 		//QString Calc_Width();
 		//QString Calc_Height();
