@@ -7,9 +7,9 @@
 //#include "db/dbmanager.h"
 
 #define DXF_base_set 1
-#define DXF_item_split 100000 //dxf split tables
-#define DXF_codes_set 300000
-#define DXF_codeset_copies 300000
+#define DXF_item_split 10000 //dxf split tables
+#define DXF_codes_set 10000
+#define DXF_codeset_copies 10000
 #define QET_L_POLYLINE 100
 
 #define DXF_layers_set 500

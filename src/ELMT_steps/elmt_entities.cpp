@@ -41,8 +41,8 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	DXF_main_base[0].QDXF_entitie_ellipse_color="black";
 	DXF_main_base[0].QDXF_entitie_input_color="black";
 	DXF_main_base[0].QDXF_entitie_line_color="black";
-	DXF_main_base[0].QDXF_entitie_lwpolyline_color="black";
-	DXF_main_base[0].QDXF_entitie_polyline_color="black";
+	DXF_main_base[0].QDXF_entitie_lwpolyline_color="red";
+	DXF_main_base[0].QDXF_entitie_polyline_color="blue";
 	DXF_main_base[0].QDXF_entitie_rectangel_color="black";
 	DXF_main_base[0].QDXF_entitie_terminal_color="black";
 	DXF_main_base[0].QDXF_entitie_text_color="black";
@@ -428,32 +428,42 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			end_seqend=0;
 			count_vertex=0;
+			readrecord=1;
 
 			while (end_seqend==0 and count_vertex<QET_L_POLYLINE)
 			{
-				NewQuery.next();
+				readrecord=NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
 				Recordvalue2=Record3.value("Command").toString();
 
-				if (Record3.value("Command").toString()=="VERTEX" and Record3.value("Command_count").toInt()==0)
+				if (readrecord==true)
 				{
-					New_DXF_Polyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
-					New_DXF_Polyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
-					count_vertex++;
 
-				}
-				else
-				{
+					if (Record3.value("Command").toString()=="VERTEX" and Record3.value("Command_count").toInt()==0)
+					{
+						New_DXF_Polyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
+						New_DXF_Polyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
+						count_vertex++;
+
+					}
+					else
+					{
+						if (Record3.value("Command").toString()=="SEQEND" and Record3.value("Command_count").toInt()==0)
+						{
+							end_seqend=1;
+						}
+
+						//count_vertex++;
+					}
 					if (Record3.value("Command").toString()=="SEQEND" and Record3.value("Command_count").toInt()==0)
 					{
 						end_seqend=1;
 					}
-
-					//count_vertex++;
 				}
-				if (Record3.value("Command").toString()=="SEQEND" and Record3.value("Command_count").toInt()==0)
+				else
 				{
 					end_seqend=1;
+
 				}
 
 			}
@@ -546,6 +556,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			end_lwpoly=0;
 			max_vertex=0;
 			count_vertex=0;
+			readrecord=1;
 
 			max_vertex=Record2.value("dxf_90").toInt();
 
@@ -562,26 +573,34 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			while (end_lwpoly==0 and count_vertex<max_vertex-1)
 			{
-				NewQuery.next();
+				readrecord=NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
 				Recordvalue2=Record3.value("Command").toString();
 				comand_count2=Record3.value("Command_count").toInt();
 
-				if (Record3.value("Command").toString()=="LWPOLYLINE" and max_vertex<QET_L_POLYLINE)
+				if (readrecord==true)
 				{
-					New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
-					New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
-					count_vertex++;
+					if (Record3.value("Command").toString()=="LWPOLYLINE" and max_vertex<QET_L_POLYLINE)
+					{
+						New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
+						New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
+						count_vertex++;
 
+					}
+					else
+					{
+						if (count_vertex>max_vertex)
+						{
+							end_lwpoly=1;
+						}
+
+						//count_vertex++;
+					}
 				}
 				else
 				{
-					if (count_vertex>max_vertex)
-					{
-						end_lwpoly=1;
-					}
+					end_lwpoly=1;
 
-					//count_vertex++;
 				}
 
 				if (count_vertex>max_vertex)
@@ -725,6 +744,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			end_lwpoly=0;
 			max_vertex=0;
 			count_vertex=0;
+			readrecord=1;
 
 			max_vertex=Record2.value("dxf_73").toInt();
 
@@ -748,26 +768,34 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			while (end_lwpoly==0 and count_vertex<max_vertex)
 			{
-				NewQuery.next();
+				readrecord=NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
 				Recordvalue2=Record3.value("Command").toString();
 				comand_count2=Record3.value("Command_count").toInt();
 
-				if (Record3.value("Command").toString()=="SPLINE" and max_vertex<QET_L_POLYLINE)
+				if (readrecord==true)
 				{
-					New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
-					New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
-					count_vertex++;
+					if (Record3.value("Command").toString()=="SPLINE" and max_vertex<QET_L_POLYLINE)
+					{
+						New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
+						New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
+						count_vertex++;
 
+					}
+					else
+					{
+						if (count_vertex>max_vertex)
+						{
+							end_lwpoly=1;
+						}
+
+						//count_vertex++;
+					}
 				}
 				else
 				{
-					if (count_vertex>max_vertex)
-					{
-						end_lwpoly=1;
-					}
+					end_lwpoly=1;
 
-					//count_vertex++;
 				}
 
 				if (count_vertex>max_vertex)
@@ -853,6 +881,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			end_lwpoly=0;
 			max_vertex=0;
 			count_vertex=0;
+			readrecord=1;
 
 			max_vertex=Record2.value("dxf_96").toInt()*Record2.value("dxf_91").toInt();
 
@@ -869,26 +898,34 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			while (end_lwpoly==0 and count_vertex<max_vertex-1)
 			{
-				NewQuery.next();
+				readrecord=NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
 				Recordvalue2=Record3.value("Command").toString();
 				comand_count2=Record3.value("Command_count").toInt();
 
-				if (Record3.value("Command").toString()=="HATCH" and max_vertex<QET_L_POLYLINE)
+				if (readrecord==true)
 				{
-					New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
-					New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
-					count_vertex++;
+					if (Record3.value("Command").toString()=="HATCH" and max_vertex<QET_L_POLYLINE)
+					{
+						New_DXF_LWPolyline.QET_x[count_vertex]=Record3.value("dxf_10").toDouble();
+						New_DXF_LWPolyline.QET_y[count_vertex]=Record3.value("dxf_20").toDouble();
+						count_vertex++;
 
+					}
+					else
+					{
+						if (count_vertex>max_vertex)
+						{
+							end_lwpoly=1;
+						}
+
+						//count_vertex++;
+					}
 				}
 				else
 				{
-					if (count_vertex>max_vertex)
-					{
-						end_lwpoly=1;
-					}
 
-					//count_vertex++;
+					end_lwpoly=1;
 				}
 
 				if (count_vertex>max_vertex)

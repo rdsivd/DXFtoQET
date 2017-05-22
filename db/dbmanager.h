@@ -48,6 +48,7 @@ class dbManager : public QWidget
 	QString Transfer_waarde;
 	QString Transfer_Section;
 	QString Transfer_Commando;
+	int32_t Transfer_AcadValue;
 
 	int List_1;
 	QString List_2;
@@ -85,9 +86,9 @@ class dbManager : public QWidget
 
 	void dbManager_create_tables(const QString &pathname);
 
-	int dbManager_added_records(const QString &pathname, int64_t *Max_lines, int64_t *Record_count, QString dxf_type);
+	int dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type);
 
-	int DB_dbManager_added_records(const QString &pathname, int64_t *Max_lines, int64_t *Record_count, QString dxf_type);
+	int DB_dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type);
 
 
 	void dbManager_load_dxf(const QString &pathname);

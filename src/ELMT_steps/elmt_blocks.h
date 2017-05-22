@@ -34,6 +34,7 @@ class elmt_blocks : public QWidget
 	int end_lwpoly;
 
 	int read_error1;
+	int readrecord;
 
 	int32_t count_vertex;
 	int32_t xcount;

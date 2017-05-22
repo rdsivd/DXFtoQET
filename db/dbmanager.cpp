@@ -52,7 +52,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 
 	m_db.exec(QsqlString);
 
-	QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
+	QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando, AcadValue )";
 
 	m_db.exec(QsqlString);
 
@@ -503,7 +503,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 	return;
 }
 
-int dbManager::dbManager_added_records(const QString &pathname, int64_t *Max_lines, int64_t *Record_count, QString dxf_type)
+int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
 	m_db.transaction();
 	QSqlQuery Query1;
@@ -1198,7 +1198,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int64_t *Max_lin
 }
 
 
-int dbManager::DB_dbManager_added_records(const QString &pathname, int64_t *Max_lines, int64_t *Record_count, QString dxf_type)
+int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
 	m_db.transaction();
 	QSqlQuery Query1;
@@ -1560,7 +1560,7 @@ int dbManager::DB_dbManager_added_records(const QString &pathname, int64_t *Max_
 			Query1.bindValue(":dxf_177",DXF_main_base[0].split_list_1[177][x1]);
 			Query1.bindValue(":dxf_178",DXF_main_base[0].split_list_1[178][x1]);
 			Query1.bindValue(":dxf_179",DXF_main_base[0].split_list_1[179][x1]);
-			/*/Query1.bindValue(":dxf_180",DXF_main_base[0].split_list_1[180][x1]);
+			/*Query1.bindValue(":dxf_180",DXF_main_base[0].split_list_1[180][x1]);
 			Query1.bindValue(":dxf_181",DXF_main_base[0].split_list_1[181][x1]);
 			Query1.bindValue(":dxf_182",DXF_main_base[0].split_list_1[182][x1]);
 			Query1.bindValue(":dxf_183",DXF_main_base[0].split_list_1[183][x1]);
@@ -2679,11 +2679,12 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 
 	//Read_list.prepare(QSql_dxf_list);
 
-	QSql_transfer= "INSERT INTO dxf_file (Index_count, Code, Waarde, Section, Commando )";
-	QSql_transfer.append("VALUES (:Index_count, :Code, :Waarde, :Section, :Commando)");
+	QSql_transfer= "INSERT INTO dxf_file (Index_count, Code, Waarde, Section, Commando, AcadValue )";
+	QSql_transfer.append("VALUES (:Index_count, :Code, :Waarde, :Section, :Commando, :AcadValue)");
 
 	Write_transfer.prepare(QSql_transfer);
 
+	Transfer_AcadValue=0;
 
 	while (Read_list.next())
 	{
@@ -2701,6 +2702,8 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 			Read_list.next();
 			List_4=Read_list.value(1).toString();
 
+			Transfer_AcadValue=0;
+
 			if (List_3==2)
 			{
 
@@ -2714,11 +2717,23 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 			Transfer_Commando=List_2;
 		}
 
+		if (List_1==0 and List_2!="SECTION")
+		{
+			Transfer_AcadValue++;
+		}
+
+		if (List_1==9)
+		{
+			Transfer_AcadValue++;
+		}
+
+
 		Write_transfer.bindValue(":Index_count",transfer_count);
 		Write_transfer.bindValue(":Code",List_1);
 		Write_transfer.bindValue(":Waarde",List_2);
 		Write_transfer.bindValue(":Section",Transfer_Section);
 		Write_transfer.bindValue(":Commando",Transfer_Commando);
+		Write_transfer.bindValue(":AcadValue",Transfer_AcadValue);
 
 		Write_transfer.exec();
 
@@ -2728,4 +2743,6 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 	}
 
 	m_db.database().commit();
+
+
 }

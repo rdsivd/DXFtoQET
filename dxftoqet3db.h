@@ -100,78 +100,84 @@ class DXFtoQET3DB : public QWidget
 		int sw_objects[1072];
 		int sw_thumbnailimage[1072];
 
-		int64_t count_header;
-		int64_t count_header_record_id;
-		int64_t count_header_lines;
-		int64_t count_header_item;
+		int32_t count_header;
+		int32_t count_header_record_id;
+		int32_t count_header_lines;
+		int32_t count_header_item;
 
-		int64_t count_classes;
-		int64_t count_classes_record_id;
-		int64_t count_classes_lines;
-		int64_t count_classes_item;
+		int32_t count_classes;
+		int32_t count_classes_record_id;
+		int32_t count_classes_lines;
+		int32_t count_classes_item;
 
-		int64_t count_tables;
-		int64_t count_tables_record_id;
-		int64_t count_tables_lines;
-		int64_t count_tables_item;
+		int32_t count_tables;
+		int32_t count_tables_record_id;
+		int32_t count_tables_lines;
+		int32_t count_tables_item;
 
-		int64_t count_blocks;
-		int64_t count_blocks_record_id;
-		int64_t count_blocks_lines;
-		int64_t count_blocks_item;
+		int32_t count_blocks;
+		int32_t count_blocks_record_id;
+		int32_t count_blocks_lines;
+		int32_t count_blocks_item;
 
-		int64_t count_entities;
-		int64_t count_entities_record_id;
-		int64_t count_entities_lines;
-		int64_t count_entities_item;
+		int32_t count_entities;
+		int32_t count_entities_record_id;
+		int32_t count_entities_lines;
+		int32_t count_entities_item;
 
-		int64_t count_objects;
-		int64_t count_objects_record_id;
-		int64_t count_objects_lines;
-		int64_t count_object_item;
+		int32_t count_objects;
+		int32_t count_objects_record_id;
+		int32_t count_objects_lines;
+		int32_t count_object_item;
 
-		int64_t count_thumbnailimage;
-		int64_t count_thumbnailimage_record_id;
-		int64_t count_thumbnailimage_lines;
-		int64_t count_thumbnailimage_item;
+		int32_t count_thumbnailimage;
+		int32_t count_thumbnailimage_record_id;
+		int32_t count_thumbnailimage_lines;
+		int32_t count_thumbnailimage_item;
 
-		int64_t header_max_items;
-		int64_t header_max_items2;
-		int64_t header_max_items3;
-		int64_t classes_max_items;
-		int64_t classes_max_items2;
-		int64_t classes_max_items3;
-		int64_t tables_max_items;
-		int64_t tables_max_items2;
-		int64_t tables_max_items3;
-		int64_t blocks_max_items;
-		int64_t blocks_max_items2;
-		int64_t blocks_max_items3;
-		int64_t entities_max_items;
-		int64_t entities_max_items2;
-		int64_t entities_max_items3;
-		int64_t objects_max_items;
-		int64_t thumbnailimage_max_items;
+		int32_t header_max_items;
+		int32_t header_max_items2;
+		int32_t header_max_items3;
+		int32_t classes_max_items;
+		int32_t classes_max_items2;
+		int32_t classes_max_items3;
+		int32_t tables_max_items;
+		int32_t tables_max_items2;
+		int32_t tables_max_items3;
+		int32_t blocks_max_items;
+		int32_t blocks_max_items2;
+		int32_t blocks_max_items3;
+		int32_t entities_max_items;
+		int32_t entities_max_items2;
+		int32_t entities_max_items3;
+		int32_t objects_max_items;
+		int32_t thumbnailimage_max_items;
 
 
-		int64_t header_max_count;
-		int64_t classes_max_count;
-		int64_t tables_max_count;
-		int64_t blocks_max_count;
-		int64_t entities_max_count;
-		int64_t objects_max_count;
-		int64_t thumbnailimage_max_count;
+		int32_t header_max_count;
+		int32_t classes_max_count;
+		int32_t tables_max_count;
+		int32_t blocks_max_count;
+		int32_t entities_max_count;
+		int32_t objects_max_count;
+		int32_t thumbnailimage_max_count;
 
-		int64_t Record_Count_Header;
-		int64_t Record_Count_Classes;
-		int64_t Record_Count_Tables;
-		int64_t Record_Count_Blocks;
-		int64_t Record_Count_Entities;
-		int64_t Record_Count_Objects;
-		int64_t Record_Count_Thumbnailimage;
+		int32_t Record_Count_Header;
+		int32_t Record_Count_Classes;
+		int32_t Record_Count_Tables;
+		int32_t Record_Count_Blocks;
+		int32_t Record_Count_Entities;
+		int32_t Record_Count_Objects;
+		int32_t Record_Count_Thumbnailimage;
 
 		int32_t for1;
 		int32_t for2;
+		int32_t for3;
+		int32_t for4;
+		int32_t for5;
+		int32_t for6;
+		int32_t for7;
+		int32_t for8;
 
 		int32_t line1;
 		QString line2;
@@ -189,7 +195,7 @@ class DXFtoQET3DB : public QWidget
 
 		int32_t clear_code_set;
 
-		int64_t max;
+		int32_t max;
 		int max3;
 
 		int32_t index1;
@@ -300,6 +306,13 @@ class DXFtoQET3DB : public QWidget
 
 		int32_t Max_Lines;
 		int32_t Count_x1;
+
+		QString Read_Index;
+		QString Read_Code;
+		QString Read_Waarde;
+		QString Read_Section;
+		QString Read_Commando;
+		QString Read_AcadValue;
 
 	public:
 

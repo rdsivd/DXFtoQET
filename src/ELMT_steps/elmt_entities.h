@@ -34,6 +34,7 @@ class elmt_entities : public QWidget
 
 	int end_seqend;
 	int end_lwpoly;
+	int readrecord;
 
 
 	int32_t count_vertex;

@@ -624,7 +624,7 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_header=0;
+		lenght_header=-1;
 	}
 
 	Signal_log1.clear();
@@ -670,7 +670,7 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_classes=0;
+		lenght_classes=-1;
 	}
 
 	Signal_log1.clear();
@@ -712,7 +712,7 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_tables=0;
+		lenght_tables=-1;
 
 	}
 
@@ -749,7 +749,7 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_blocks=0;
+		lenght_blocks=-1;
 	}
 
 	Signal_log1.clear();
@@ -780,7 +780,7 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_entities=0;
+		lenght_entities=-1;
 	}
 
 	Signal_log1.clear();
@@ -811,7 +811,7 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_objects=0;
+		lenght_objects=-1;
 	}
 
 	Signal_log1.clear();
@@ -823,7 +823,7 @@ void DXFtoQET3DB::section_lengts()
 
 	// thumbnailimage
 
-	lenght_thumbnailimage=dxf_line_count2-index_thumbnailimage;
+	lenght_thumbnailimage=dxf_line_count2-index_objects;
 
 	if(lenght_thumbnailimage<0)
 	{
@@ -832,7 +832,11 @@ void DXFtoQET3DB::section_lengts()
 
 		emit send_log(Signal_log1);
 
-		lenght_thumbnailimage=0;
+		lenght_thumbnailimage=-1;
+	}
+	else
+	{
+		lenght_thumbnailimage=dxf_line_count2-index_thumbnailimage;
 	}
 
 	Signal_log1.clear();
@@ -877,10 +881,10 @@ void DXFtoQET3DB::copy_list()
 
 	if (index_header != -1)
 	{
-		for (for1=index_header+1;for1<max_header; for1++)
+		for (for1=1;for1<max_header-index_header; for1++)
 		{
 
-			dxf_header.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_header.append(DXF_main_base[0].dxf_input[index_header+for1]);
 
 		}
 
@@ -889,10 +893,10 @@ void DXFtoQET3DB::copy_list()
 
 	if (index_classes != -1)
 	{
-		for (for1=index_classes+1;for1<max_classes;for1++)
+		for (for2=1;for2<max_classes-index_classes;for2++)
 		{
 
-			dxf_classes.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_classes.append(DXF_main_base[0].dxf_input[index_classes+for2]);
 
 		}
 
@@ -902,10 +906,10 @@ void DXFtoQET3DB::copy_list()
 	if (index_tables != -1)
 	{
 
-		for (for1=index_tables+1;for1<max_tables;for1++)
+		for (for3=1;for3<max_tables-index_tables;for3++)
 		{
 
-			dxf_tables.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_tables.append(DXF_main_base[0].dxf_input[index_tables+for3]);
 
 		}
 
@@ -914,10 +918,10 @@ void DXFtoQET3DB::copy_list()
 
 	if (index_blocks != -1)
 	{
-		for (for1=index_blocks+1;for1<max_blocks;for1++)
+		for (for4=1;for4<max_blocks-index_blocks;for4++)
 		{
 
-			dxf_blocks.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_blocks.append(DXF_main_base[0].dxf_input[index_blocks+for4]);
 
 		}
 
@@ -926,10 +930,10 @@ void DXFtoQET3DB::copy_list()
 
 	if (index_entities != -1)
 	{
-		for (for1=index_entities+1;for1<max_entities;for1++)
+		for (for5=1;for5<max_entities-index_entities;for5++)
 		{
 
-			dxf_entities.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_entities.append(DXF_main_base[0].dxf_input[index_entities+for5]);
 
 		}
 
@@ -938,10 +942,10 @@ void DXFtoQET3DB::copy_list()
 
 	if (index_objects != -1)
 	{
-		for (for1=index_objects+1;for1<max_objects;for1++)
+		for (for6=1;for6<max_objects-index_objects ;for6++)
 		{
 
-			dxf_objects.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_objects.append(DXF_main_base[0].dxf_input[index_objects+for6]);
 
 		}
 
@@ -950,10 +954,10 @@ void DXFtoQET3DB::copy_list()
 
 	if (index_thumbnailimage != -1)
 	{
-		for (for1=index_thumbnailimage+1;for1<max_thumbnailimage;for1++)
+		for (for7=1;for7<max_thumbnailimage-index_thumbnailimage;for7++)
 		{
 
-			dxf_thumbnailimage.append(DXF_main_base[0].dxf_input[for1]);
+			dxf_thumbnailimage.append(DXF_main_base[0].dxf_input[index_thumbnailimage+for7]);
 
 		}
 
@@ -1136,7 +1140,7 @@ void DXFtoQET3DB::db_split_header()
 	count_header_lines=0;
 	id_header=1;
 
-	clear_dxf_header_items();
+	//clear_dxf_header_items();
 	clear_split_tables();
 	x1=-1;
 	x2=0;
@@ -1146,6 +1150,13 @@ void DXFtoQET3DB::db_split_header()
 		QSqlRecord Header_record=Header_Query.record();
 
 		//split_list_1[Header_record.value("Code").toInt()].append(Header_record.value("Waarde").toString());
+
+		Read_Index=Header_record.value("Index_count").toString();
+		Read_Code=Header_record.value("Code").toString();
+		Read_Waarde=Header_record.value("Waarde").toString();
+		Read_Section=Header_record.value("Section").toString();
+		Read_Commando=Header_record.value("Cmmando").toString();
+		Read_AcadValue=Header_record.value("AcadValue").toString();
 
 		if (Header_record.value("Code").toInt()==9 )
 		{
@@ -1160,6 +1171,20 @@ void DXFtoQET3DB::db_split_header()
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
 
 			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+		if (x1 > DXF_item_split)
+		{
+			Signal_log1.clear();
+			Signal_log1.append(QTime::currentTime().toString());
+			Signal_log1.append("\n");
+			Signal_log1.append("split table to short : ");
+			Signal_log1.append(QString::number(x1));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_item_split));
+			//Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
 		}
 
 	}
@@ -1207,7 +1232,7 @@ void DXFtoQET3DB::db_split_header()
 
 
 
-	clear_sw_header();
+	//clear_sw_header();
 
 	Signal_log1.clear();
 	Signal_log1.append(QTime::currentTime().toString());
@@ -1221,7 +1246,7 @@ void DXFtoQET3DB::db_split_header()
 
 
 
-	clear_dxf_code_tables();
+	//clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Header");
@@ -1328,11 +1353,14 @@ int DXFtoQET3DB::DB_Split_list(QString TypeList, int x3max, int count_list_item,
 
 	for (int xy=0;xy <1075;xy++)
 	{
-		DXF_main_base[0].split_list_1[xy].clear();
+		if(DXF_main_base[0].split_list_1[xy].count()>0)
+		{
+			DXF_main_base[0].split_list_1[xy].clear();
+		}
 	}
 
 
-	while (count_list_item<x3max and count_list_item<DXF_codeset_copies)
+	while (count_list_item<(x3max-1) and count_list_item<DXF_codeset_copies)
 	{
 
 		line1=QString(split_tables_list[count_tables_list][count_list_item]).toInt();
@@ -1384,15 +1412,22 @@ int DXFtoQET3DB::DB_Split_list(QString TypeList, int x3max, int count_list_item,
 
 	for (int xy=0;xy <1200;xy++)
 	{
-		if (DXF_main_base[0].split_list_1[xy].count()==max3)
+		if (DXF_main_base[0].split_list_1[xy].count()>max3)
 		{
 			//DXF_main_base[0].split_list_1[xy].value()=" ";
 		}
 		else
 		{
-			for (int xz=0;xz<max3+1;xz++)
+			for (int xz=DXF_main_base[0].split_list_1[xy].count();xz<max3;xz++)
 			{
-				DXF_main_base[0].split_list_1[xy].append(" ");
+				if (DXF_main_base[0].split_list_1[xy].count()>=max3)
+				{
+
+				}
+				else
+				{
+					DXF_main_base[0].split_list_1[xy].append(" ");
+				}
 			}
 		}
 
@@ -1577,6 +1612,13 @@ void DXFtoQET3DB::db_split_classes()
 	{
 		QSqlRecord Header_record=Tables_Query.record();
 
+		Read_Index=Header_record.value("Index_count").toString();
+		Read_Code=Header_record.value("Code").toString();
+		Read_Waarde=Header_record.value("Waarde").toString();
+		Read_Section=Header_record.value("Section").toString();
+		Read_Commando=Header_record.value("Cmmando").toString();
+		Read_AcadValue=Header_record.value("AcadValue").toString();
+
 		if (Header_record.value("Code").toInt()==0 )
 		{
 			x1++;
@@ -1589,6 +1631,21 @@ void DXFtoQET3DB::db_split_classes()
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
 
 			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+
+		if (x1 > DXF_item_split)
+		{
+			Signal_log1.clear();
+			Signal_log1.append(QTime::currentTime().toString());
+			Signal_log1.append("\n");
+			Signal_log1.append("split table to short : ");
+			Signal_log1.append(QString::number(x1));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_item_split));
+			//Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
 		}
 
 	}
@@ -1621,7 +1678,7 @@ void DXFtoQET3DB::db_split_classes()
 		}
 	}*/
 
-	clear_sw_header();
+	//clear_sw_header();
 
 	Signal_log1.clear();
 	Signal_log1.append("Splitting Classes ");
@@ -1636,7 +1693,7 @@ void DXFtoQET3DB::db_split_classes()
 	max=0;
 	Record_Count_Tables=1;
 
-	clear_dxf_code_tables();
+	//clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Classes");
@@ -1658,9 +1715,6 @@ void DXFtoQET3DB::db_split_classes()
 		ui->dxf_log->repaint();*/
 
 		count_tables_item=0;
-
-		//Record_Count_Tables=1;
-
 		x3=split_tables_list[count_tables].count();
 
 		if (x3>DXF_codeset_copies)
@@ -1885,13 +1939,8 @@ void DXFtoQET3DB::db_split_tables()
 	count_tables_lines=0;
 	id_header=1;
 
-	clear_dxf_tables_items();
+	//clear_dxf_tables_items();
 	clear_split_tables();
-
-	for (int xyz=0;xyz<1200;xyz++)
-	{
-		split_tables_list[xyz].clear();
-	}
 
 	x1=-1;
 
@@ -1911,6 +1960,21 @@ void DXFtoQET3DB::db_split_tables()
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
 
 			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
+		}
+
+
+		if (x1 > DXF_item_split)
+		{
+			Signal_log1.clear();
+			Signal_log1.append(QTime::currentTime().toString());
+			Signal_log1.append("\n");
+			Signal_log1.append("split table to short : ");
+			Signal_log1.append(QString::number(x1));
+			Signal_log1.append(" > ");
+			Signal_log1.append(QString::number(DXF_item_split));
+			//Signal_log1.append("============================================================================");
+
+			emit send_log(Signal_log1);
 		}
 
 	}
@@ -1943,7 +2007,7 @@ void DXFtoQET3DB::db_split_tables()
 		}
 	}*/
 
-	clear_sw_header();
+	//clear_sw_header();
 
 	Signal_log1.clear();
 	Signal_log1.append("Splitting tables ");
@@ -1958,7 +2022,7 @@ void DXFtoQET3DB::db_split_tables()
 	max=0;
 	Record_Count_Tables=1;
 
-	clear_dxf_code_tables();
+	//clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Tables");
@@ -2220,7 +2284,7 @@ void DXFtoQET3DB::db_split_blocks()
 	count_tables_lines=0;
 	id_header=1;
 
-	clear_dxf_tables_items();
+	//clear_dxf_tables_items();
 	clear_split_tables();
 
 	x1=-1;
@@ -2228,6 +2292,13 @@ void DXFtoQET3DB::db_split_blocks()
 	while (Tables_Query.next())
 	{
 		QSqlRecord Header_record=Tables_Query.record();
+
+		Read_Index=Header_record.value("Index_count").toString();
+		Read_Code=Header_record.value("Code").toString();
+		Read_Waarde=Header_record.value("Waarde").toString();
+		Read_Section=Header_record.value("Section").toString();
+		Read_Commando=Header_record.value("Cmmando").toString();
+		Read_AcadValue=Header_record.value("AcadValue").toString();
 
 		if (Header_record.value("Code").toInt()==0 )
 		{
@@ -2273,7 +2344,7 @@ void DXFtoQET3DB::db_split_blocks()
 		}
 	}*/
 
-	clear_sw_header();
+	//clear_sw_header();
 
 	Signal_log1.clear();
 	Signal_log1.append("Splitting tables ");
@@ -2288,7 +2359,7 @@ void DXFtoQET3DB::db_split_blocks()
 	max=0;
 	Record_Count_Tables=1;
 
-	clear_dxf_code_tables();
+	//clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section Blokcs");
@@ -2538,7 +2609,7 @@ void DXFtoQET3DB::db_split_entities()
 	count_tables_lines=0;
 	id_header=1;
 
-	clear_dxf_tables_items();
+	//clear_dxf_tables_items();
 	clear_split_tables();
 
 	x1=-1;
@@ -2546,6 +2617,14 @@ void DXFtoQET3DB::db_split_entities()
 	while (Tables_Query.next())
 	{
 		QSqlRecord Header_record=Tables_Query.record();
+
+		Read_Index=Header_record.value("Index_count").toString();
+		Read_Code=Header_record.value("Code").toString();
+		Read_Waarde=Header_record.value("Waarde").toString();
+		Read_Section=Header_record.value("Section").toString();
+		Read_Commando=Header_record.value("Cmmando").toString();
+		Read_AcadValue=Header_record.value("AcadValue").toString();
+
 
 		if (Header_record.value("Code").toInt()==0 )
 		{
@@ -2591,7 +2670,7 @@ void DXFtoQET3DB::db_split_entities()
 		}
 	}*/
 
-	clear_sw_header();
+	//clear_sw_header();
 
 	Signal_log1.clear();
 	Signal_log1.append("Splitting entities ");
@@ -2606,7 +2685,7 @@ void DXFtoQET3DB::db_split_entities()
 	max=0;
 	Record_Count_Tables=1;
 
-	clear_dxf_code_tables();
+	//clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
 	ui->dxf_section->insert("Section entities");
@@ -6586,20 +6665,6 @@ void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 	index_objects= DXF_main_base[0].dxf_input.indexOf("OBJECTS");
 	index_thumbnailimage= DXF_main_base[0].dxf_input.indexOf("THUMBNAILIMAGE");
 
-	section_lengts();
-
-	copy_list();
-
-
-
-	index_header= DXF_main_base[0].dxf_input.indexOf("HEADER");
-	index_classes= DXF_main_base[0].dxf_input.indexOf("CLASSES");
-	index_tables= DXF_main_base[0].dxf_input.indexOf("TABLES");
-	index_blocks= DXF_main_base[0].dxf_input.indexOf("BLOCKS");
-	index_entities= DXF_main_base[0].dxf_input.indexOf("ENTITIES");
-	index_objects= DXF_main_base[0].dxf_input.indexOf("OBJECTS");
-	index_thumbnailimage= DXF_main_base[0].dxf_input.indexOf("THUMBNAILIMAGE");
-
 	Signal_log1.clear();
 	Signal_log1.append("index header : ");
 	Signal_log1.append(QString::number(index_header));
@@ -6631,11 +6696,9 @@ void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 
 	copy_list();
 
-	Signal_log1.clear();
-	Signal_log1.append("============================================================================");
-	Signal_log1.append("\n");
 
-	emit send_log(Signal_log1);
+
+
 
 	if (index_header!=-1)
 	{
