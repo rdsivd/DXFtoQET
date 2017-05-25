@@ -18,6 +18,7 @@ class elmt_tables : public QWidget
 	int rowcount;
 
 	QString Logtext;
+	int db_error;
 
 	void Open_SQL_DB (QString ELMT_filename);
 	void Close_SQL_DB (QString ELMT_filename);

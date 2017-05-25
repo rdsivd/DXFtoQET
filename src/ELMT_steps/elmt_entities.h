@@ -44,6 +44,7 @@ class elmt_entities : public QWidget
 	QString Logtext;
 	QString Recordvalue;
 	QString Recordvalue2;
+	QString RecordID;
 
 	QString Signal_waarde1;
 	QString Signal_log1;

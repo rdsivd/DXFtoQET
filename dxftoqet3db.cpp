@@ -1948,6 +1948,13 @@ void DXFtoQET3DB::db_split_tables()
 	{
 		QSqlRecord Header_record=Tables_Query.record();
 
+		Read_Index=Header_record.value("Index_count").toString();
+		Read_Code=Header_record.value("Code").toString();
+		Read_Waarde=Header_record.value("Waarde").toString();
+		Read_Section=Header_record.value("Section").toString();
+		Read_Commando=Header_record.value("Commando").toString();
+		Read_AcadValue=Header_record.value("AcadValue").toString();
+
 		if (Header_record.value("Code").toInt()==0 )
 		{
 			x1++;

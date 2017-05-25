@@ -570,13 +570,16 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			}
 
 
-
-			while (end_lwpoly==0 and count_vertex<max_vertex-1)
+			NewQuery.previous();
+			//while (end_lwpoly==0 and count_vertex<=max_vertex-1)
+			//while (end_lwpoly==0 and count_vertex<max_vertex)
+			while (end_lwpoly==0 and count_vertex<max_vertex)
 			{
 				readrecord=NewQuery.next();
 				QSqlRecord Record3=NewQuery.record();
 				Recordvalue2=Record3.value("Command").toString();
 				comand_count2=Record3.value("Command_count").toInt();
+				RecordID=Record3.value("Index_count").toString();
 
 				if (readrecord==true)
 				{
@@ -706,12 +709,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			Signal_waarde1.append(Record2.value("Command").toString());
 			Signal_waarde1.append(" : ");
 			Signal_waarde1.append(Record2.value("dxf_5").toString());
-			//Signal_waarde1.append(" : maxvertex => ");
-			//Signal_waarde1.append(Record2.value("dxf_90").toString());
-			//Signal_waarde1.append(" : count vertex => ");
-			//Signal_waarde1.append(QString::number(count_vertex));
-			//Signal_waarde1.append(" : ");
-			//Signal_waarde1.append();
+
 
 			emit Signal1(Signal_waarde1);
 
@@ -764,6 +762,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 				Logtext.append(" \n");
 			}
 
+			NewQuery.previous();
 
 
 			while (end_lwpoly==0 and count_vertex<max_vertex)
@@ -895,7 +894,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			}
 
 
-
+			//NewQuery.previous();
 			while (end_lwpoly==0 and count_vertex<max_vertex-1)
 			{
 				readrecord=NewQuery.next();

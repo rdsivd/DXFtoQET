@@ -77,6 +77,7 @@ QString elmt_tables::Get_Tables_Layers(QString ELMT_filename)
 
 		//QObject::connect(Logtext,SIGNAL(QString),,SLOT(insertPlainText()))
 	}
+
 	return Logtext;
 }
 

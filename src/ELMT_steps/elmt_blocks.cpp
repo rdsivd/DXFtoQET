@@ -449,6 +449,7 @@ QString elmt_blocks::Insert_Block()
 					count_vertex=0;
 					readrecord=1;
 
+
 					while (end_seqend==0 and count_vertex<QET_L_POLYLINE)
 					{
 						readrecord=NewQueryBlock.next();
@@ -588,7 +589,8 @@ QString elmt_blocks::Insert_Block()
 						Logtext.append(" \n");
 					}
 
-					while (end_lwpoly==0 and count_vertex<max_vertex-1)
+					NewQueryBlock.previous();
+					while (end_lwpoly==0 and count_vertex<max_vertex)
 					{
 						readrecord=NewQueryBlock.next();
 						QSqlRecord Record4=NewQueryBlock.record();
@@ -772,6 +774,8 @@ QString elmt_blocks::Insert_Block()
 						Logtext.append(" \n");
 					}
 
+					NewQueryBlock.previous();
+
 					while (end_lwpoly==0 and count_vertex<max_vertex)
 					{
 						readrecord=NewQueryBlock.next();
@@ -904,6 +908,8 @@ QString elmt_blocks::Insert_Block()
 						Logtext.append(QString::number(QET_L_POLYLINE));
 						Logtext.append(" \n");
 					}
+
+					//NewQueryBlock.previous();
 
 					while (end_lwpoly==0 and count_vertex<max_vertex-1)
 					{
