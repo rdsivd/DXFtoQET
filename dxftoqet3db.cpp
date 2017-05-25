@@ -1158,7 +1158,7 @@ void DXFtoQET3DB::db_split_header()
 		Read_Commando=Header_record.value("Cmmando").toString();
 		Read_AcadValue=Header_record.value("AcadValue").toString();
 
-		if (Header_record.value("Code").toInt()==9 )
+		if ((Header_record.value("Code").toInt()==9) and (x1<DXF_item_split))
 		{
 			x1++;
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
@@ -1619,7 +1619,7 @@ void DXFtoQET3DB::db_split_classes()
 		Read_Commando=Header_record.value("Cmmando").toString();
 		Read_AcadValue=Header_record.value("AcadValue").toString();
 
-		if (Header_record.value("Code").toInt()==0 )
+		if ((Header_record.value("Code").toInt()==0) and (x1<DXF_item_split))
 		{
 			x1++;
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
@@ -1955,7 +1955,7 @@ void DXFtoQET3DB::db_split_tables()
 		Read_Commando=Header_record.value("Commando").toString();
 		Read_AcadValue=Header_record.value("AcadValue").toString();
 
-		if (Header_record.value("Code").toInt()==0 )
+		if ((Header_record.value("Code").toInt()==0) and (x1<DXF_item_split))
 		{
 			x1++;
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
@@ -2296,7 +2296,7 @@ void DXFtoQET3DB::db_split_blocks()
 
 	x1=-1;
 
-	while (Tables_Query.next())
+	while ((Tables_Query.next()) and (x1<DXF_item_split))
 	{
 		QSqlRecord Header_record=Tables_Query.record();
 
@@ -2304,10 +2304,10 @@ void DXFtoQET3DB::db_split_blocks()
 		Read_Code=Header_record.value("Code").toString();
 		Read_Waarde=Header_record.value("Waarde").toString();
 		Read_Section=Header_record.value("Section").toString();
-		Read_Commando=Header_record.value("Cmmando").toString();
+		Read_Commando=Header_record.value("Commando").toString();
 		Read_AcadValue=Header_record.value("AcadValue").toString();
 
-		if (Header_record.value("Code").toInt()==0 )
+		if ((Header_record.value("Code").toInt()==0) and (x1<DXF_item_split))
 		{
 			x1++;
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
@@ -2379,8 +2379,8 @@ void DXFtoQET3DB::db_split_blocks()
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
 
-
-	while (count_tables< blocks_max_items)
+	while (count_tables<= x1)
+	//while (count_tables< blocks_max_items)
 	{
 		/*text1=QString::number(count_tables);
 		ui->dxf_section_count->clear();
@@ -2633,7 +2633,7 @@ void DXFtoQET3DB::db_split_entities()
 		Read_AcadValue=Header_record.value("AcadValue").toString();
 
 
-		if (Header_record.value("Code").toInt()==0 )
+		if ((Header_record.value("Code").toInt()==0) and (x1<DXF_item_split))
 		{
 			x1++;
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
@@ -2812,7 +2812,7 @@ void DXFtoQET3DB::split_objects()
 	for (x2=0;x2<objects_max_count and objects_max_items<DXF_item_split;x2++)
 	{
 
-		if ( QString( dxf_objects[x2]).toInt()==0)
+		if ( (QString( dxf_objects[x2]).toInt()==0) and (x1<DXF_item_split))
 		{
 			x1=x1+1;
 			split_tables_list[x1].append(dxf_objects[x2]);
