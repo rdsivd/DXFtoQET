@@ -4,7 +4,8 @@
 #include <QWidget>
 #include <QObject>
 
-#include <QSql>
+#include <QtSql>
+
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QMessageBox>

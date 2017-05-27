@@ -1,6 +1,6 @@
 #include "elmt_entities.h"
 
-#include <qsql.h>
+
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>

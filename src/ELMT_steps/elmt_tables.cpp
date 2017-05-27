@@ -1,7 +1,7 @@
 #include "elmt_tables.h"
 //#include "dxftoqet3db.h"
 #include "ui_dxftoqet3db.h"
-#include <qsql.h>
+
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
