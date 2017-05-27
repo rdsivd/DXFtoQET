@@ -762,7 +762,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 				Logtext.append(" \n");
 			}
 
-			NewQuery.previous();
+			//NewQuery.previous();
 
 
 			while (end_lwpoly==0 and count_vertex<max_vertex)

@@ -774,7 +774,7 @@ QString elmt_blocks::Insert_Block()
 						Logtext.append(" \n");
 					}
 
-					NewQueryBlock.previous();
+					//NewQueryBlock.previous();
 
 					while (end_lwpoly==0 and count_vertex<max_vertex)
 					{

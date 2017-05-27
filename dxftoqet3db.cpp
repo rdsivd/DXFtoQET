@@ -1351,7 +1351,7 @@ int DXFtoQET3DB::DB_Split_list(QString TypeList, int x3max, int count_list_item,
 	max3=0;
 	clear_sw_header();
 
-	for (int xy=0;xy <1075;xy++)
+	for (int xy=0;xy <1200;xy++)
 	{
 		if(DXF_main_base[0].split_list_1[xy].count()>0)
 		{
@@ -2369,11 +2369,11 @@ void DXFtoQET3DB::db_split_blocks()
 	//clear_dxf_code_tables();
 
 	ui->dxf_section->clear();
-	ui->dxf_section->insert("Section Blokcs");
+	ui->dxf_section->insert("Section Blocks Split");
 
 	emit send_text("dxf_blocks");
 	emit send_min(0);
-	emit send_max(blocks_max_items-1);
+	emit send_max(x1-1);
 
 	text1=QString::number(blocks_max_items);
 	ui->dxf_section_count->clear();
