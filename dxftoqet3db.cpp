@@ -1264,6 +1264,11 @@ void DXFtoQET3DB::db_split_header()
 	ui->dxf_section_count->clear();
 	ui->dxf_section_count->insert(text1);
 
+	Signal_log1.clear();
+	Signal_log1.append(QTime::currentTime().toString());
+	//Signal_log1.append("\n");
+	Signal_log1.append("filling table dxf_header ");
+	emit send_log(Signal_log1);
 
 	while (count_header< header_max_items)
 	{
@@ -1310,7 +1315,7 @@ void DXFtoQET3DB::db_split_header()
 		/*Signal_log1.clear();
 		Signal_log1.append(QTime::currentTime().toString());
 		Signal_log1.append("\n");
-		Signal_log1.append("end split ");
+		Signal_log1.append("table dxf_header : ");
 		emit send_log(Signal_log1);*/
 
 		Record_Count_Header= mydb.DB_dbManager_added_records(Filename_db, &max,&Record_Count_Header,"dxf_header");
@@ -1359,6 +1364,22 @@ int DXFtoQET3DB::DB_Split_list(QString TypeList, int x3max, int count_list_item,
 		}
 	}
 
+	Signal_log1.clear();
+	Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" - splitter : ");
+	Signal_log1.append(QString::number(x3max));
+	Signal_log1.append(" - list items : ");
+	Signal_log1.append(QString::number(count_list_item));
+	Signal_log1.append(" - table list : ");
+	Signal_log1.append(QString::number(count_tables_list));
+	Signal_log1.append(" - header id : ");
+	Signal_log1.append(QString::number(header_id));
+	Signal_log1.append("\n");
+
+	emit send_log(Signal_log1);
+
 
 	while (count_list_item<(x3max-1) and count_list_item<DXF_codeset_copies)
 	{
@@ -1366,6 +1387,16 @@ int DXFtoQET3DB::DB_Split_list(QString TypeList, int x3max, int count_list_item,
 		line1=QString(split_tables_list[count_tables_list][count_list_item]).toInt();
 		line2=split_tables_list[count_tables_list][count_list_item+1];
 
+		Signal_log1.clear();
+		Signal_log1.append(" count item ");
+		Signal_log1.append(QString::number(count_list_item));
+		Signal_log1.append(" - item code : ");
+		Signal_log1.append(QString::number(line1));
+		Signal_log1.append(" - value : ");
+		Signal_log1.append(line2);
+		//Signal_log1.append("\n");
+
+		emit send_log(Signal_log1);
 
 		DXF_main_base[0].split_list_1[line1].append(line2);
 
@@ -1590,7 +1621,7 @@ void DXFtoQET3DB::db_split_classes()
 	Signal_log1.clear();
 	Signal_log1.append(QTime::currentTime().toString());
 	Signal_log1.append("\n");
-	Signal_log1.append("tables items : ");
+	Signal_log1.append("classes items : ");
 	Signal_log1.append(QString::number(classes_max_items));
 	//Signal_log1.append("============================================================================");
 
@@ -2276,11 +2307,11 @@ void DXFtoQET3DB::db_split_blocks()
 	blocks_max_count=dxf_blocks.count();
 
 	Signal_log1.clear();
-	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append("============================================================================");
 	Signal_log1.append("\n");
-	Signal_log1.append("tables items : ");
+	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" - blocks items : ");
 	Signal_log1.append(QString::number(blocks_max_items));
-	//Signal_log1.append("============================================================================");
 
 	emit send_log(Signal_log1);
 
@@ -2294,11 +2325,16 @@ void DXFtoQET3DB::db_split_blocks()
 	//clear_dxf_tables_items();
 	clear_split_tables();
 
+	emit send_min(0);
+	emit send_max(tables_max_items);
+
 	x1=-1;
 
 	while ((Tables_Query.next()) and (x1<DXF_item_split))
 	{
 		QSqlRecord Header_record=Tables_Query.record();
+
+		//emit send_actual(x1);
 
 		Read_Index=Header_record.value("Index_count").toString();
 		Read_Code=Header_record.value("Code").toString();
@@ -2310,6 +2346,7 @@ void DXFtoQET3DB::db_split_blocks()
 		if ((Header_record.value("Code").toInt()==0) and (x1<DXF_item_split))
 		{
 			x1++;
+			emit send_actual(x1);
 			split_tables_list[x1].append(Header_record.value("Code").toString() );
 
 			split_tables_list[x1].append(Header_record.value("Waarde").toString() );
@@ -2325,11 +2362,9 @@ void DXFtoQET3DB::db_split_blocks()
 
 	Signal_log1.clear();
 	Signal_log1.append(QTime::currentTime().toString());
+	Signal_log1.append(" - end split table ");
+	Signal_log1.append(QString::number(x1));
 	Signal_log1.append("\n");
-	Signal_log1.append("end split table ");
-
-	//Signal_log1.append(QString::number(tables_max_items));
-	//Signal_log1.append("============================================================================");
 
 	emit send_log(Signal_log1);
 
@@ -2356,10 +2391,9 @@ void DXFtoQET3DB::db_split_blocks()
 	Signal_log1.clear();
 	Signal_log1.append("Splitting tables ");
 	Signal_log1.append(QString::number(blocks_max_items));
-	Signal_log1.append("\n");
-	Signal_log1.append("X1 : ");
+	Signal_log1.append(" - X1 : ");
 	Signal_log1.append(QString::number(x1));
-	//Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
 
 	emit send_log(Signal_log1);
 
@@ -2603,7 +2637,7 @@ void DXFtoQET3DB::db_split_entities()
 	Signal_log1.clear();
 	Signal_log1.append(QTime::currentTime().toString());
 	Signal_log1.append("\n");
-	Signal_log1.append("tables items : ");
+	Signal_log1.append("entities items : ");
 	Signal_log1.append(QString::number(entities_max_items));
 	//Signal_log1.append("============================================================================");
 
@@ -6624,6 +6658,8 @@ void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 	Signal_log1.append("============================================================================");
 
 	emit send_log(Signal_log1);
+
+	connect (&mydb ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
 
 	mydb.dbManager_create_tables(FileName);
 

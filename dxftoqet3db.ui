@@ -574,26 +574,6 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
       </property>
      </spacer>
     </item>
-    <item row="0" column="2">
-     <widget class="QPushButton" name="OpenFile">
-      <property name="text">
-       <string>Open dxf file</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="Load_dxf_into_tables">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="text">
-       <string>Load dxf into proces</string>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QPushButton" name="Delete_DB">
       <property name="text">
@@ -624,6 +604,26 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
      <widget class="QPushButton" name="Choose_DB">
       <property name="text">
        <string>Choose DB to proces</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="OpenFile">
+      <property name="text">
+       <string>Open dxf file</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="Load_dxf_into_tables">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Load dxf into proces</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
       </property>
      </widget>
     </item>

@@ -74,6 +74,8 @@ class dbManager : public QWidget
 	QString BlockNaamID;
 
 
+	QString Signal_log1;
+	QString Signal_elmt1;
 
 	QString RecordNr;
 
@@ -107,6 +109,14 @@ class dbManager : public QWidget
 	signals:
 
 
+	void send_text (const QString &text2);
+	void send_min(const int &valuemin);
+	void send_max(const int &valuemax);
+	void send_actual(const int &valueactual);
+
+	void send_log(const QString &Waarde2);
+	void send_elmt(const QString &Waarde3);
+	void send_process(const QString &Waarde4);
 
 	public slots:
 

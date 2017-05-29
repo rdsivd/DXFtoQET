@@ -1,11 +1,19 @@
 #include "dbmanager.h"
+//#include "ui_dxftoqet3db.h"
 
 extern struct DXF_codes DXF_code_tables[DXF_codes_set];
 extern struct DXF_base DXF_main_base[DXF_base_set];
 
 dbManager::dbManager(QWidget *parent) : QWidget(parent)
 {
+	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
+	connect (this, SIGNAL (send_elmt(const QString &)),this,SLOT(update_elmt(const QString &)));
+	connect (this, SIGNAL (send_process(const QString &)),this,SLOT(update_proces(const QString &)));
 
+	connect (this,SIGNAL(send_text(const QString &)),this,SLOT(on_progressBar_text(const QString &)));
+	connect (this,SIGNAL(send_min(const int &)),this,SLOT(on_progressBar_valueMin(const int &)));
+	connect (this,SIGNAL(send_max(const int &)),this,SLOT(on_progressBar_valueMax(const int &)));
+	connect (this,SIGNAL(send_actual(const int &)),this,SLOT(on_progressBar_valueChanged(const int &)));
 }
 
 void dbManager::dbManager1(const QString &pathname)
@@ -1200,8 +1208,18 @@ int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lin
 
 int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
+	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
+
 	m_db.transaction();
 	QSqlQuery Query1;
+
+	Signal_log1.clear();
+	Signal_log1.append(" DB add records : ");
+	Signal_log1.append("\n");
+	Signal_log1.append("============================================================================");
+	//Signal_log1.append("\n");
+
+	emit send_log(Signal_log1);
 
 	x1=0;
 	//x10=0;
@@ -1333,6 +1351,20 @@ int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_
 	Record_count_lines=*Record_count;
 	x1=0;
 
+	Signal_log1.clear();
+	Signal_log1.append(" index : ");
+	Signal_log1.append(QString::number(Record_count_lines));
+	Signal_log1.append(DXF_code_tables[0].Section);
+	Signal_log1.append(DXF_code_tables[0].Command);
+
+
+	//Signal_log1.append(" DB add records : ");
+	//Signal_log1.append("\n");
+	//Signal_log1.append("============================================================================");
+	Signal_log1.append("\n");
+
+	emit send_log(Signal_log1);
+
 	while ((x1<Max_count_lines) and (x1<DXF_codes_set))
 	{
 		//DXF_code_tables[x1].ID_instruction=1;
@@ -1351,6 +1383,8 @@ int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_
 		//{
 
 		//Record_count_lines++;
+
+
 
 			//RecordNr=(QString::number(Record_count_lines));
 			//Query1.bindValue(":Index_count",RecordNr);
@@ -2658,6 +2692,8 @@ QString dbManager::db_split_header(const QString &pathname)
 
 void dbManager::dbManager_transfer_dxf(const QString &pathname)
 {
+	connect (this ,SIGNAL (send_log(const QString &)),parent(),SLOT(update_log(const QString &)));
+
 	m_db.transaction();
 
 	//QsqlString="create table dxf_file (Index_count primary key, Code, Waarde, Section, Commando )";
@@ -2734,6 +2770,26 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 		Write_transfer.bindValue(":Section",Transfer_Section);
 		Write_transfer.bindValue(":Commando",Transfer_Commando);
 		Write_transfer.bindValue(":AcadValue",Transfer_AcadValue);
+
+		Signal_log1.clear();
+		Signal_log1.append(" index count : ");
+		Signal_log1.append(QString::number(transfer_count));
+		Signal_log1.append(" dxf code : ");
+		Signal_log1.append(List_1);
+		Signal_log1.append(" Value : ");
+		Signal_log1.append(List_2);
+		Signal_log1.append(" Section : ");
+		Signal_log1.append(Transfer_Section);
+		Signal_log1.append(" Commando : ");
+		Signal_log1.append(Transfer_Commando);
+		Signal_log1.append(" AcadValue : ");
+		Signal_log1.append(QString::number(Transfer_AcadValue));
+
+
+
+		Signal_log1.append("\n");
+
+		emit send_log(Signal_log1);
 
 		Write_transfer.exec();
 

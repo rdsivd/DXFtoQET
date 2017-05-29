@@ -48,6 +48,7 @@ class DXFtoQET3DB : public QWidget
 	~DXFtoQET3DB();
 
 		dbManager mydb;
+		//connect (&mydb ,SIGNAL (send_log(const QString &)),parent(),SLOT(update_log(const QString &)));
 
 		QString QSQL_split;
 
