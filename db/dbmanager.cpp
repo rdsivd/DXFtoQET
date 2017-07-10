@@ -2775,7 +2775,7 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 		Signal_log1.append(" index count : ");
 		Signal_log1.append(QString::number(transfer_count));
 		Signal_log1.append(" dxf code : ");
-		Signal_log1.append(List_1);
+		Signal_log1.append(QString::number(List_1));
 		Signal_log1.append(" Value : ");
 		Signal_log1.append(List_2);
 		Signal_log1.append(" Section : ");
@@ -2787,7 +2787,7 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 
 
 
-		Signal_log1.append("\n");
+		//Signal_log1.append("\n");
 
 		emit send_log(Signal_log1);
 
