@@ -466,7 +466,7 @@ A few steps to follow
 
 Click on &quot;Open dxf file&quot; to search the dxf file you want to convert
 
-next click on &quot;Load dxf into DB&quot;, this starts splitting and loading the dxf code into the different db tables
+next click on &quot;Load dxf into proces&quot;, this starts splitting and loading the dxf code into the different db tables
 
 is this is don you dont need everityme to do the &quot;load dxf into DB&quot; (except when the structure of the DB file changes)
 
@@ -476,7 +476,7 @@ after &quot;Load dxf into DB&quot; or &quot;Choose DB to proces&quot; click on &
 
 you can check this syntax under the tab &quot;ELMT&quot;
 
-Then click on &quot;Save to ELMT file&quot; to store the result into the QET user cymbols folder
+Then click on &quot;Save to ELMT file&quot; to store the result into the QET user symbols folder
 
 if this is not done into the correct folder, checkout the tab settings to change the destination path
 
