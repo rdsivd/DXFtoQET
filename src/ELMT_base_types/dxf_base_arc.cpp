@@ -48,6 +48,11 @@ QString dxf_base_arc::Create_arc()
 	Result_arc.append(QET_block_name);
 	Result_arc.append(QChar(34));
 
+	Result_arc.append(" dxfelmtid=");
+	Result_arc.append(QChar(34));
+	Result_arc.append(QET_block_name_id);
+	Result_arc.append(QChar(34));
+
 	Result_arc.append(" dxfid=");
 	Result_arc.append(QChar(34));
 	Result_arc.append(QET_handle);

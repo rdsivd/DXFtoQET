@@ -38,6 +38,7 @@ class dxf_base_rectangel : public QWidget // QMainWindow
 	QString Result_rect;
 
 	QString QET_block_name;
+	QString QET_block_name_id;
 
 	QString Create_rectangel();
 

@@ -25,6 +25,11 @@ QString dxf_base_terminal::Create_terminal()
 	Result.append(QET_block_name);
 	Result.append(QChar(34));
 
+	Result.append(" dxfelmtid=");
+	Result.append(QChar(34));
+	Result.append(QET_block_name_id);
+	Result.append(QChar(34));
+
 	Result.append(" dxfid=");
 	Result.append(QChar(34));
 	Result.append(QET_handle);

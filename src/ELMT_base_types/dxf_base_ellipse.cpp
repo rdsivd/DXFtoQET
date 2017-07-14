@@ -49,6 +49,11 @@ QString dxf_base_ellipse::Create_ellipse()
 	Result_ellipse.append(QET_block_name);
 	Result_ellipse.append(QChar(34));
 
+	Result_ellipse.append(" dxfelmtid=");
+	Result_ellipse.append(QChar(34));
+	Result_ellipse.append(QET_block_name_id);
+	Result_ellipse.append(QChar(34));
+
 	Result_ellipse.append(" dxfid=");
 	Result_ellipse.append(QChar(34));
 	Result_ellipse.append(QET_handle);

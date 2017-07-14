@@ -43,6 +43,7 @@ class dxf_base_input : public QWidget // QMainWindow
 	QString QET_tag;
 
 	QString QET_block_name;
+	QString QET_block_name_id;
 
 	QString Create_input();
 

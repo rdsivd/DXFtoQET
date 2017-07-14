@@ -48,6 +48,11 @@ QString dxf_base_polyline::Create_polyline()
 	Result_polyline.append(QET_block_name);
 	Result_polyline.append(QChar(34));
 
+	Result_polyline.append(" dxfelmtid=");
+	Result_polyline.append(QChar(34));
+	Result_polyline.append(QET_block_name_id);
+	Result_polyline.append(QChar(34));
+
 	Result_polyline.append(" dxfid=");
 	Result_polyline.append(QChar(34));
 	Result_polyline.append(QET_handle);

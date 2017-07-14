@@ -34,6 +34,7 @@ class dxf_base_text : public QWidget // QMainWindow
 	QString Result_text;
 
 	QString QET_block_name;
+	QString QET_block_name_id;
 
 	QString Create_text();
 

@@ -35,6 +35,11 @@ QString dxf_base_rectangel::Create_rectangel()
 	Result_rect.append(QET_block_name);
 	Result_rect.append(QChar(34));
 
+	Result_rect.append(" dxfelmtid=");
+	Result_rect.append(QChar(34));
+	Result_rect.append(QET_block_name_id);
+	Result_rect.append(QChar(34));
+
 	Result_rect.append(" dxfid=");
 	Result_rect.append(QChar(34));
 	Result_rect.append(QET_handle);

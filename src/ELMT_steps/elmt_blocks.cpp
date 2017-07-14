@@ -17,7 +17,7 @@ elmt_blocks::elmt_blocks(QWidget *parent) : QWidget(parent)
 QString elmt_blocks::Insert_Block()
 {
 
-	dbManager Manage_Blocks;
+	//dbManager Manage_Blocks;
 
 	DXF_main_base[0].QDXF_block_arc_color="blue";
 	DXF_main_base[0].QDXF_block_circle_color="blue";
@@ -153,6 +153,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Line.QET_handle.append(":");
 					New_DXF_Line.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Line.QET_block_name=QET_block_name;
+					New_DXF_Line.QET_block_name_id=QET_block_name_id;
 					//New_DXF_Line.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Line.QET_softID=Record3.value("dxf_330").toString();
 
@@ -188,6 +189,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Circle.QET_handle.append(":");
 					New_DXF_Circle.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Circle.QET_block_name=QET_block_name;
+					New_DXF_Circle.QET_block_name_id=QET_block_name_id;
 					//New_DXF_Circle.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Circle.QET_softID=Record3.value("dxf_330").toString();
 
@@ -223,6 +225,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Arc.QET_handle.append(":");
 					New_DXF_Arc.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Arc.QET_block_name=QET_block_name;
+					New_DXF_Arc.QET_block_name_id=QET_block_name_id;
 					//New_DXF_Arc.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Arc.QET_softID=Record3.value("dxf_330").toString();
 
@@ -259,6 +262,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Text.QET_handle.append(":");
 					New_DXF_Text.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Text.QET_block_name=QET_block_name;
+					New_DXF_Text.QET_block_name_id=QET_block_name_id;
 					//New_DXF_Text.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Text.QET_softID=Record3.value("dxf_330").toString();
 
@@ -295,6 +299,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Input.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_Input.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Input.QET_block_name=QET_block_name;
+					New_DXF_Input.QET_block_name_id=QET_block_name_id;
 					New_DXF_Input.QET_softID=Record3.value("dxf_330").toString();
 
 					//New_DXF_Text.QET_antialias="false";
@@ -331,6 +336,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Input.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_Input.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Input.QET_block_name=QET_block_name;
+					New_DXF_Input.QET_block_name_id=QET_block_name_id;
 					New_DXF_Input.QET_softID=Record3.value("dxf_330").toString();
 
 
@@ -368,6 +374,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Terminal.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_Terminal.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Terminal.QET_block_name=QET_block_name;
+					New_DXF_Terminal.QET_block_name_id=QET_block_name_id;
 					New_DXF_Terminal.QET_softID=Record3.value("dxf_330").toString();
 
 
@@ -406,6 +413,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Ellipse.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_Ellipse.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Ellipse.QET_block_name=QET_block_name;
+					New_DXF_Ellipse.QET_block_name_id=QET_block_name_id;
 					New_DXF_Ellipse.QET_softID=Record3.value("dxf_330").toString();
 
 					//New_DXF_Terminal.QET_orientation="sud";//Record2.value("dxf_50").toDouble();
@@ -436,6 +444,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Polyline.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_Polyline.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Polyline.QET_block_name=QET_block_name;
+					New_DXF_Polyline.QET_block_name_id=QET_block_name_id;
 					New_DXF_Polyline.QET_softID=Record3.value("dxf_330").toString();
 
 					New_DXF_Polyline.QET_antialias="false";
@@ -531,6 +540,8 @@ QString elmt_blocks::Insert_Block()
 					}
 					New_DXF_blocks2.Block_rotation=Record3.value("dxf_43").toDouble();
 
+					New_DXF_blocks2.QET_block_name_id=QET_block_name_id;
+
 					Signal_waarde1.clear();
 					Signal_waarde1.append("block : ");
 					Signal_waarde1.append(Record3.value("dxf_2").toString());
@@ -569,6 +580,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_LWPolyline.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_LWPolyline.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_LWPolyline.QET_block_name=QET_block_name;
+					New_DXF_LWPolyline.QET_block_name_id=QET_block_name_id;
 					New_DXF_LWPolyline.QET_softID=Record3.value("dxf_330").toString();
 
 
@@ -653,6 +665,7 @@ QString elmt_blocks::Insert_Block()
 					New_DXF_SOLID.QET_ltype=Record3.value("dxf_6").toString();
 					New_DXF_SOLID.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_SOLID.QET_block_name=QET_block_name;
+					New_DXF_SOLID.QET_block_name_id=QET_block_name_id;
 					New_DXF_SOLID.QET_softID=Record3.value("dxf_330").toString();
 
 					New_DXF_SOLID.QET_antialias="false";
@@ -739,6 +752,7 @@ QString elmt_blocks::Insert_Block()
 					New_DXF_LWPolyline.QET_ltype=Record3.value("dxf_6").toString();
 					New_DXF_LWPolyline.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_LWPolyline.QET_block_name=QET_block_name;
+					New_DXF_LWPolyline.QET_block_name_id=QET_block_name_id;
 					New_DXF_LWPolyline.QET_softID=Record3.value("dxf_330").toString();
 
 					New_DXF_LWPolyline.QET_antialias="false";
@@ -856,6 +870,7 @@ QString elmt_blocks::Insert_Block()
 					//New_DXF_Text.QET_handle.append(Record3.value("dxf_5").toString());
 					New_DXF_Text.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_Text.QET_block_name=QET_block_name;
+					New_DXF_Text.QET_block_name_id=QET_block_name_id;
 					New_DXF_Text.QET_softID=Record3.value("dxf_330").toString();
 
 
@@ -876,6 +891,7 @@ QString elmt_blocks::Insert_Block()
 					New_DXF_LWPolyline.QET_ltype=Record3.value("dxf_6").toString();
 					New_DXF_LWPolyline.QET_handle=Record3.value("dxf_5").toString();
 					New_DXF_LWPolyline.QET_block_name=QET_block_name;
+					New_DXF_LWPolyline.QET_block_name_id=QET_block_name_id;
 					New_DXF_LWPolyline.QET_softID=Record3.value("dxf_330").toString();
 
 					New_DXF_LWPolyline.QET_antialias="false";
@@ -925,7 +941,7 @@ QString elmt_blocks::Insert_Block()
 
 					//NewQueryBlock.previous();
 
-					while (end_lwpoly==0 and count_vertex<max_vertex-1)
+					while (end_lwpoly==0 and count_vertex<max_vertex)
 					{
 						readrecord=NewQueryBlock.next();
 						QSqlRecord Record4=NewQueryBlock.record();

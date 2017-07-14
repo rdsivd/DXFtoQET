@@ -97,7 +97,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	//New_DXF_Text.QET_filling="none";
 	New_DXF_Input.QET_rotate="true";
 	New_DXF_Input.QET_tag="label";
-
+	New_DXF_Input.QET_block_name="_elmt_";
 	New_DXF_Input.QET_color=DXF_main_base[0].QDXF_entitie_text_color;
 
 
@@ -106,6 +106,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 	New_DXF_Terminal.QET_x=10;
 	New_DXF_Terminal.QET_y=-10;
 	New_DXF_Terminal.QET_orientation="sud";
+	New_DXF_Terminal.QET_block_name="_elmt_";
 
 	DXF_Entities_List.DXF_Result.append(New_DXF_Terminal.Create_terminal());
 
@@ -510,6 +511,8 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_blocks.QET_handle=Record2.value("dxf_5").toString();
 			New_DXF_blocks.QET_block_name=Record2.value("dxf_2").toString();
 			New_DXF_blocks.QET_softID=Record2.value("dxf_330").toString();
+
+			New_DXF_blocks.QET_block_name_id=Record2.value("dxf_5").toString();
 
 
 			New_DXF_blocks.Block_scale_x=Record2.value("dxf_41").toDouble();
