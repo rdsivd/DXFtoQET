@@ -58,6 +58,8 @@ class elmt_blocks : public QWidget
 	QString QET_handle;	//5
 	QString QET_softID;	//330
 
+	QString QET_block_name;
+
 	QString filename1;
 
 	QString FromBlock;

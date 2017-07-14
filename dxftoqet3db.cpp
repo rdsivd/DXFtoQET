@@ -184,6 +184,7 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 
 		emit send_log(Signal_log1);
 
+		ui->Processing_dxf_file_2->clear();
 		ui->Processing_dxf_file_2->insert(FileName);
 
 
@@ -299,6 +300,7 @@ void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
 	Filename_db.append(".db3");
 
 	ui->dxf_line_count1_2->clear();
+	ui->Processing_dxf_file_2->clear();
 	ui->Processing_dxf_file_2->insert(FileName);
 
 	on_Delete_DB_clicked();
@@ -1145,6 +1147,10 @@ void DXFtoQET3DB::db_split_header()
 	x1=-1;
 	x2=0;
 
+	emit send_text("dxf_header");
+	emit send_min(0);
+	emit send_max(header_max_items-1);
+
 	while (Header_Query.next())
 	{
 		QSqlRecord Header_record=Header_Query.record();
@@ -1186,6 +1192,7 @@ void DXFtoQET3DB::db_split_header()
 
 			emit send_log(Signal_log1);
 		}
+		emit send_actual(x1);
 
 	}
 
@@ -6335,6 +6342,10 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	Signal_log1.append("\n");
 	Signal_log1.append("Get dxf Header information");
 
+
+	ui->Processing_dxf_file_2->clear();
+	ui->Processing_dxf_file_2->insert(Filename_db);
+
 	emit send_log(Signal_log1);
 
 	ELMT_header_steps NewHeader;
@@ -6637,8 +6648,8 @@ void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 	Signal_log1.append(QTime::currentTime().toString());
 	Signal_log1.append("=> Start loading dxf");
 	Signal_log1.append(FileName);
-	Signal_log1.append(" file into DB tables \n");
-	Signal_log1.append("Creating DB : ");
+	Signal_log1.append(" file into SQLite DB tables \n");
+	Signal_log1.append("Creating SQLite DB : ");
 	Signal_log1.append(FileName);
 	Signal_log1.append("\n");
 	Signal_log1.append("============================================================================");
@@ -6681,6 +6692,10 @@ void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 
 	//DXF_main_base[0].dxf_input = DXF_main_base[0].dxf_text_all.split("\n");
 	//DXF_main_base[0].dxf_line_count=DXF_main_base[0].dxf_input.count();
+
+	emit send_text("dxf into SQLite DB");
+	emit send_min(0);
+	emit send_max(dxf_line_count2-1);
 
 
 	mydb.dbManager_load_dxf_list(FileName);
@@ -6750,6 +6765,8 @@ void DXFtoQET3DB::on_Button_Open_DXF_clicked()
 		//Signal_log1.append("============================================================================");
 
 		emit send_log(Signal_log1);
+
+
 
 		db_split_header();
 

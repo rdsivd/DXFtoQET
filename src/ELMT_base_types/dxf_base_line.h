@@ -41,7 +41,7 @@ class dxf_base_line : public QWidget //QMainWindow
 	QString QET_filling;
 	QString QET_color;
 
-
+	QString QET_block_name;
 
 	QString Result;
 

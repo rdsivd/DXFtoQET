@@ -33,6 +33,8 @@ class dxf_base_text : public QWidget // QMainWindow
 
 	QString Result_text;
 
+	QString QET_block_name;
+
 	QString Create_text();
 
 	signals:

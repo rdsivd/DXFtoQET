@@ -30,6 +30,11 @@ QString dxf_base_line::CreateElmt()
 	Result.append("     ");
 	Result.append("<line");
 
+	Result.append(" dxfelmt=");
+	Result.append(QChar(34));
+	Result.append(QET_block_name);
+	Result.append(QChar(34));
+
 	Result.append(" dxfid=");
 	Result.append(QChar(34));
 	Result.append(QET_handle);

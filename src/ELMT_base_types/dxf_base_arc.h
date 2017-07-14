@@ -42,7 +42,7 @@ class dxf_base_arc : public QWidget // QMainWindow
 	QString QET_softID;	//330
 
 
-
+	QString QET_block_name;
 
 
 

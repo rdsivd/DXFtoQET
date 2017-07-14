@@ -115,6 +115,9 @@ QString ELMT_header_steps::Calc_Width()
 	DXF_LIMMAX_X=DXF_variable.DXF_LIMMAX_X.toDouble();
 	DXF_LIMMIN_X=DXF_variable.DXF_LIMMIN_X.toDouble();
 
+	//DXF_variable.DXF_INSBASE_X;
+	//DXF_variable.DXF_INSBASE_y;
+
 	if (DXF_LIMMIN_X <0)
 	{
 		DXF_LIMMIN_X=-DXF_LIMMIN_X;
@@ -124,7 +127,8 @@ QString ELMT_header_steps::Calc_Width()
 		DXF_LIMMAX_X=-DXF_LIMMAX_X;
 	}
 
-	return (QString::number(DXF_LIMMIN_X+DXF_LIMMAX_X));
+	//return (QString::number(DXF_LIMMIN_X+DXF_LIMMAX_X));
+	return (QString::number((DXF_variable.DXF_INSBASE_X.toDouble()*2)+5));
 }
 
 QString ELMT_header_steps::Calc_Height()
@@ -141,6 +145,7 @@ QString ELMT_header_steps::Calc_Height()
 		DXF_LIMMAX_Y=-DXF_LIMMAX_Y;
 	}
 
-	return (QString::number(DXF_LIMMIN_Y+DXF_LIMMAX_Y));
+	//return (QString::number(DXF_LIMMIN_Y+DXF_LIMMAX_Y));
+	return (QString::number((DXF_variable.DXF_INSBASE_Y.toDouble()*2)+5));
 }
 

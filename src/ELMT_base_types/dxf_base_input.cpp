@@ -26,6 +26,12 @@ QString dxf_base_input::Create_input()
 	Result.append("     ");
 	Result.append("<input");
 
+
+	Result.append(" dxfelmt=");
+	Result.append(QChar(34));
+	Result.append(QET_block_name);
+	Result.append(QChar(34));
+
 	Result.append(" dxfid=");
 	Result.append(QChar(34));
 	Result.append(QET_handle);

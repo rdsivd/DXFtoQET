@@ -165,6 +165,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Line.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Line.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Line.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Line.QET_block_name="_elmt_";
 			New_DXF_Line.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_Line.QET_lenght1=1.5;
@@ -196,6 +197,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Circle.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Circle.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Circle.QET_handle=Record2.value("dxf_5").toString(); //dxf id
+			New_DXF_Circle.QET_block_name="_elmt_";
 			New_DXF_Circle.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_Circle.QET_antialias="false";
@@ -225,6 +227,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Arc.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Arc.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Arc.QET_handle=Record2.value("dxf_5").toString(); //dxf id
+			New_DXF_Arc.QET_block_name="_elmt_";
 			New_DXF_Arc.QET_softID=Record2.value("dxf_330").toString();
 
 
@@ -254,6 +257,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Text.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Text.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Text.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Text.QET_block_name="_elmt_";
 			New_DXF_Text.QET_softID=Record2.value("dxf_330").toString();
 
 
@@ -261,7 +265,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			//New_DXF_Text.QET_line_style="normal";
 			//New_DXF_Text.QET_line_weight="thin";
 			//New_DXF_Text.QET_filling="none";
-			New_DXF_Text.QET_color=DXF_main_base[0].QDXF_entitie_circle_color;
+			New_DXF_Text.QET_color=DXF_main_base[0].QDXF_entitie_text_color;
 
 
 			DXF_Entities_List.DXF_Result.append(New_DXF_Text.Create_text());
@@ -284,6 +288,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Input.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Input.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Input.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Input.QET_block_name="_elmt_";
 			New_DXF_Input.QET_softID=Record2.value("dxf_330").toString();
 
 			//New_DXF_Text.QET_antialias="false";
@@ -314,6 +319,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Input.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Input.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Input.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Input.QET_block_name="_elmt_";
 			New_DXF_Input.QET_softID=Record2.value("dxf_330").toString();
 			New_DXF_Input.QET_dxf_tag=Record2.value("dxf_2").toString();
 
@@ -348,6 +354,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Terminal.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Terminal.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Terminal.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Terminal.QET_block_name="_elmt_";
 			New_DXF_Terminal.QET_softID=Record2.value("dxf_330").toString();
 
 
@@ -382,6 +389,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Ellipse.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Ellipse.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Ellipse.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Ellipse.QET_block_name="_elmt_";
 			New_DXF_Ellipse.QET_softID=Record2.value("dxf_330").toString();
 
 			//New_DXF_Terminal.QET_orientation="sud";//Record2.value("dxf_50").toDouble();
@@ -408,6 +416,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Polyline.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Polyline.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Polyline.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Polyline.QET_block_name="_elmt_";
 			New_DXF_Polyline.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_Polyline.QET_antialias="false";
@@ -498,7 +507,8 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 
 			New_DXF_blocks.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_blocks.QET_ltype=Record2.value("dxf_6").toString();
-			New_DXF_blocks.QET_handle=Record2.value("dxf_2").toString();//Record2.value("dxf_5").toString();
+			New_DXF_blocks.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_blocks.QET_block_name=Record2.value("dxf_2").toString();
 			New_DXF_blocks.QET_softID=Record2.value("dxf_330").toString();
 
 
@@ -535,6 +545,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_LWPolyline.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_LWPolyline.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_LWPolyline.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_LWPolyline.QET_block_name="_elmt_";
 			New_DXF_LWPolyline.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_LWPolyline.QET_antialias="false";
@@ -638,6 +649,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_SOLID.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_SOLID.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_SOLID.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_SOLID.QET_block_name="_elmt_";
 			New_DXF_SOLID.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_SOLID.QET_antialias="false";
@@ -721,6 +733,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_LWPolyline.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_LWPolyline.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_LWPolyline.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_LWPolyline.QET_block_name="_elmt_";
 			New_DXF_LWPolyline.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_LWPolyline.QET_antialias="false";
@@ -840,6 +853,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_Text.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_Text.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_Text.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_Text.QET_block_name="_elmt_";
 			New_DXF_Text.QET_softID=Record2.value("dxf_330").toString();
 
 
@@ -859,6 +873,7 @@ QString elmt_entities::Get_Entities (QString ELMT_filename)
 			New_DXF_LWPolyline.QET_layer=Record2.value("dxf_8").toString();
 			New_DXF_LWPolyline.QET_ltype=Record2.value("dxf_6").toString();
 			New_DXF_LWPolyline.QET_handle=Record2.value("dxf_5").toString();
+			New_DXF_LWPolyline.QET_block_name="_elmt_";
 			New_DXF_LWPolyline.QET_softID=Record2.value("dxf_330").toString();
 
 			New_DXF_LWPolyline.QET_antialias="false";

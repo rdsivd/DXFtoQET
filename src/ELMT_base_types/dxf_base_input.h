@@ -42,6 +42,8 @@ class dxf_base_input : public QWidget // QMainWindow
 
 	QString QET_tag;
 
+	QString QET_block_name;
+
 	QString Create_input();
 
 	signals:

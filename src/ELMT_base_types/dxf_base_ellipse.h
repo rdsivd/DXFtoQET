@@ -57,6 +57,8 @@ class dxf_base_ellipse : public QWidget // QMainWindow
 	double start_angle;
 	double end_angle;
 
+	QString QET_block_name;
+
 
 
 

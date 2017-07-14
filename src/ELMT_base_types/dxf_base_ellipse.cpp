@@ -43,6 +43,12 @@ QString dxf_base_ellipse::Create_ellipse()
 	Result_ellipse.append("     ");
 	Result_ellipse.append("<arc");
 
+
+	Result_ellipse.append(" dxfelmt=");
+	Result_ellipse.append(QChar(34));
+	Result_ellipse.append(QET_block_name);
+	Result_ellipse.append(QChar(34));
+
 	Result_ellipse.append(" dxfid=");
 	Result_ellipse.append(QChar(34));
 	Result_ellipse.append(QET_handle);

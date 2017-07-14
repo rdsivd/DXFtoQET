@@ -26,6 +26,8 @@ class dxf_base_terminal : public QWidget // QMainWindow
 	QString QET_handle;			//5
 	QString QET_softID;			//330
 
+	QString QET_block_name;
+
 	QString Create_terminal();
 
 	signals:

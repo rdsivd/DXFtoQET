@@ -27,6 +27,12 @@ QString dxf_base_circle::Create_circle()
 
 	Result_circle.append("<ellipse");
 
+
+	Result_circle.append(" dxfelmt=");
+	Result_circle.append(QChar(34));
+	Result_circle.append(QET_block_name);
+	Result_circle.append(QChar(34));
+
 	Result_circle.append(" dxfid=");
 	Result_circle.append(QChar(34));
 	Result_circle.append(QET_handle);

@@ -33,6 +33,7 @@ class dxf_base_circle : public QWidget // QMainWindow
 	QString QET_line_weight;
 	QString QET_filling;
 	QString QET_color;
+	QString QET_block_name;
 
 
 	QString Create_circle();

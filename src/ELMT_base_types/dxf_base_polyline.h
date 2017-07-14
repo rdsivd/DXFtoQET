@@ -35,6 +35,8 @@ class dxf_base_polyline : public QWidget // QMainWindow
 	int count_segments;
 	int segments;
 
+	QString QET_block_name;
+
 
 	QString Create_polyline();
 
