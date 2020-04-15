@@ -67,7 +67,8 @@ class elmt_blocks : public QWidget
 
 	QString QsqlString1;
 
-
+    double hatchx;
+    double hatchy;
 
 	double Block_X;				//10
 	double Block_Y;				//20

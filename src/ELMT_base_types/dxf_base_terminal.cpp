@@ -20,7 +20,7 @@ QString dxf_base_terminal::Create_terminal()
 	Result.append("<terminal");
 
 
-	Result.append(" dxfelmt=");
+    /*Result.append(" dxfelmt=");
 	Result.append(QChar(34));
 	Result.append(QET_block_name);
 	Result.append(QChar(34));
@@ -28,12 +28,12 @@ QString dxf_base_terminal::Create_terminal()
 	Result.append(" dxfelmtid=");
 	Result.append(QChar(34));
 	Result.append(QET_block_name_id);
-	Result.append(QChar(34));
+    Result.append(QChar(34));
 
 	Result.append(" dxfid=");
 	Result.append(QChar(34));
 	Result.append(QET_handle);
-	Result.append(QChar(34));
+    Result.append(QChar(34));*/
 
 	Result.append(" x=");
 	Result.append(QChar(34));

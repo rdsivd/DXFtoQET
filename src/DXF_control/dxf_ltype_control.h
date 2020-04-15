@@ -10,7 +10,7 @@ class DXF_Ltype_control : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit DXF_Ltype_control(QWidget *parent = 0);
+    explicit DXF_Ltype_control(QWidget *parent = nullptr);
 
 	QString LTfound;
 	QString FindLT;

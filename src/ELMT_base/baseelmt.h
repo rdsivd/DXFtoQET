@@ -12,7 +12,7 @@ class BaseELMT : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit BaseELMT(QWidget *parent = 0);
+    explicit BaseELMT(QWidget *parent = nullptr);
 
 	QString ELMT_definition_width;
 	QString ELMT_definition_version;

@@ -30,7 +30,7 @@ QString dxf_base_rectangel::Create_rectangel()
 	Result_rect.append("<rect");
 
 
-	Result_rect.append(" dxfelmt=");
+    /*Result_rect.append(" dxfelmt=");
 	Result_rect.append(QChar(34));
 	Result_rect.append(QET_block_name);
 	Result_rect.append(QChar(34));
@@ -43,7 +43,7 @@ QString dxf_base_rectangel::Create_rectangel()
 	Result_rect.append(" dxfid=");
 	Result_rect.append(QChar(34));
 	Result_rect.append(QET_handle);
-	Result_rect.append(QChar(34));
+    Result_rect.append(QChar(34));*/
 
 	Result_rect.append(" width=");
 	Result_rect.append(QChar(34));

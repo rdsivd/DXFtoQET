@@ -38,7 +38,7 @@
     <enum>QTabWidget::West</enum>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="Log">
     <attribute name="title">
@@ -584,7 +584,7 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
     <item row="1" column="2">
      <widget class="QPushButton" name="Button_Open_DXF">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="text">
        <string>DXFDB to DB</string>
@@ -770,6 +770,9 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
        </size>
       </property>
      </spacer>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="QETlines"/>
     </item>
     <item>
      <widget class="QLineEdit" name="dxf_line_count1_2"/>

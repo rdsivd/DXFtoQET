@@ -30,7 +30,7 @@ class dbManager : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit dbManager(QWidget *parent = 0 );
+    explicit dbManager(QWidget *parent = nullptr );
 
 	int x1;
 	int x2;

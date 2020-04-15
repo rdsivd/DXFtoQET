@@ -13,7 +13,7 @@ class dxf_base_input : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_input(QWidget *parent = 0);
+    explicit dxf_base_input(QWidget *parent = nullptr);
 
 	QString Result;
 

@@ -13,7 +13,7 @@ class dxf_base_rectangel : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_rectangel(QWidget *parent = 0);
+    explicit dxf_base_rectangel(QWidget *parent = nullptr);
 
 	//QET xml var
 	double QET_x;				//10

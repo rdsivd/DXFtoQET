@@ -27,7 +27,7 @@ QString dxf_base_input::Create_input()
 	Result.append("<input");
 
 
-	Result.append(" dxfelmt=");
+    /*Result.append(" dxfelmt=");
 	Result.append(QChar(34));
 	Result.append(QET_block_name);
 	Result.append(QChar(34));
@@ -45,7 +45,7 @@ QString dxf_base_input::Create_input()
 	Result.append(" dxftagg=");
 	Result.append(QChar(34));
 	Result.append(QET_dxf_tag);
-	Result.append(QChar(34));
+    Result.append(QChar(34));*/
 
 	Result.append(" x=");
 	Result.append(QChar(34));

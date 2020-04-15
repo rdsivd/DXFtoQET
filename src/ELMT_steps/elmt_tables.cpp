@@ -16,7 +16,7 @@ elmt_tables::elmt_tables(QWidget *parent) : QWidget(parent)
 
 QString elmt_tables::Get_Tables_Layers(QString ELMT_filename)
 {
-
+    QString path = ELMT_filename;
 	QSqlQuery NewQuery("SELECT * FROM dxf_tables");
 
 
@@ -95,5 +95,5 @@ void elmt_tables::Close_SQL_DB (QString ELMT_filename)
 
 void elmt_tables::GetTable_info (QString ELMT_filename)
 {
-
+    QString path = ELMT_filename;
 }

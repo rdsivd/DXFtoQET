@@ -33,18 +33,21 @@ void dbManager::dbManager1(const QString &pathname)
 		/*QMessageBox::warning(this, tr("Application"),
 				  tr("Connection with database ok"));*/
 		
-		m_db.exec("PRAGMA temp_store = MEMORY");
+        m_db.exec("PRAGMA temp_store = FILE");
+        //m_db.exec("PRAGMA temp_store_directory = 'c:/temp/'");
 		m_db.exec("PRAGMA journal_mode = MEMORY");
 		m_db.exec("PRAGMA page_size = 4096");
 		m_db.exec("PRAGMA cache_size = 16384");
 		m_db.exec("PRAGMA locking_mode = EXCLUSIVE");
 		m_db.exec("PRAGMA synchronous = OFF");
+        //m_db.exec("PRAGMA journal_mode = OFF");
 	}
 
 }
 
 void dbManager::dbManager_close(const QString &pathname)
 {
+    QString path = pathname;
 	if (m_db.isOpen())
 	{
 		m_db.close();
@@ -55,7 +58,7 @@ void dbManager::dbManager_close(const QString &pathname)
 
 void dbManager::dbManager_create_tables(const QString &pathname)
 {
-
+    QString path = pathname;
 	QsqlString="create table dxf_list (Index_count primary key, Code)";
 
 	m_db.exec(QsqlString);
@@ -513,6 +516,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 
 int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
+    QString path = pathname;
 	m_db.transaction();
 	QSqlQuery Query1;
 
@@ -1208,6 +1212,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lin
 
 int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
+    QString path = pathname;
 	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
 
 	m_db.transaction();
@@ -2510,6 +2515,7 @@ int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_
 
 void dbManager::dbManager_load_dxf(const QString &pathname)
 {
+    QString path = pathname;
 	//m_db.database().transaction();
 	m_db.transaction();
 
@@ -2582,6 +2588,7 @@ void dbManager::dbManager_load_dxf(const QString &pathname)
 
 void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int32_t Index_count_1,QString Block_naam_1, QString Block_value_1)
 {
+    QString path = pathname;
 
 	QSqlQuery Query_entitie;
 
@@ -2605,6 +2612,7 @@ void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int32_t 
 
 void dbManager::dbManager_create_elmt_block (const QString &pathname, int32_t Index_count_2,QString Block_naam_2, QString Block_value_2)
 {
+    QString path = pathname;
 	QSqlQuery Query_block;
 
 	Qsql_Block = "INSERT INTO table_elmt_entities (Index_count, Block_Naam, Block_value";
@@ -2625,6 +2633,7 @@ void dbManager::dbManager_create_elmt_block (const QString &pathname, int32_t In
 
 void dbManager::dbManager_load_dxf_list(const QString &pathname)
 {
+    QString path = pathname;
 	m_db.transaction();
 
 	QSqlQuery Query_List;
@@ -2665,6 +2674,7 @@ void dbManager::dbManager_load_dxf_list(const QString &pathname)
 
 QString dbManager::db_split_header(const QString &pathname)
 {
+    QString path = pathname;
 	/*m_db.transaction();
 
 	QSqlTableModel dxf_tabel1;
@@ -2692,6 +2702,7 @@ QString dbManager::db_split_header(const QString &pathname)
 
 void dbManager::dbManager_transfer_dxf(const QString &pathname)
 {
+    QString path = pathname;
 	connect (this ,SIGNAL (send_log(const QString &)),parent(),SLOT(update_log(const QString &)));
 
 	m_db.transaction();

@@ -13,7 +13,7 @@ class dxf_base_text : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_text(QWidget *parent = 0);
+    explicit dxf_base_text(QWidget *parent = nullptr);
 
 	//QET xml var
 	double QET_x;			//10

@@ -7,11 +7,11 @@
 //#include "db/dbmanager.h"
 
 #define DXF_base_set 1
-#define DXF_item_split 30000 //dxf split tables
+#define DXF_item_split 50000 //dxf split tables
 #define DXF_codes_set 10000
 #define DXF_codeset_copies 10000
-#define QET_L_POLYLINE 100
-
+#define QET_L_POLYLINE 500
+#define QSTRING_max_lengt 1900000
 #define DXF_layers_set 500
 
 struct DXF_base
@@ -752,6 +752,17 @@ struct DXF_Layers
 struct DXF_Entities
 {
 	QString DXF_Result;
+    QString DXF_ResultBegin;
+    QString DXF_ResultEinde;
+    QString DXF_ResultEntitie;
+    QString DXF_ResultEntitieLine;
+    QString DXF_ResultEntitiePolyline;
+    QString DXF_ResultEntitieLwpolyline;
+    QString DXF_ResultEntitieSpline;
+    QString DXF_ResultEntitieSolid;
+    QString DXF_ResultEntitieHatch;
+    QString DXF_ResultBlock;
+    QString DXF_ResultBlock2;
 
 };
 
@@ -767,7 +778,7 @@ class data : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit data(QWidget *parent = 0);
+    explicit data(QWidget *parent = nullptr);
 
 	signals:
 

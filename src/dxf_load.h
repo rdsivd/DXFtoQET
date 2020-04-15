@@ -8,7 +8,7 @@ class dxf_load : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit dxf_load(QWidget *parent = 0);
+    explicit dxf_load(QWidget *parent = nullptr);
 
 
 	QString dxf_check;

@@ -13,7 +13,7 @@ class dxf_base_polyline : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_polyline(QWidget *parent = 0);
+    explicit dxf_base_polyline(QWidget *parent = nullptr);
 
 	QString Result_polyline;
 

@@ -44,13 +44,16 @@ class DXFtoQET3DB : public QWidget
 	Q_OBJECT
 
 	public:
-	explicit DXFtoQET3DB(QWidget *parent = 0);
+    explicit DXFtoQET3DB(QWidget *parent = nullptr);
 	~DXFtoQET3DB();
 
 		dbManager mydb;
 		//connect (&mydb ,SIGNAL (send_log(const QString &)),parent(),SLOT(update_log(const QString &)));
 
 		QString QSQL_split;
+
+        double hatchx;
+        double hatchy;
 
 		int main_sw1; // Binaery = 0 ASCII = 1
 		int main_sw2; // CSV = 1
@@ -233,6 +236,7 @@ class DXFtoQET3DB : public QWidget
 		int InSW1;
 		int InSW2;
 		int xx;
+        int stringsize;
 
 		QString BlockNameItem;
 
@@ -386,7 +390,7 @@ class DXFtoQET3DB : public QWidget
 		void send_log(const QString &Waarde2);
 		void send_elmt(const QString &Waarde3);
 		void send_process(const QString &Waarde4);
-
+        void send_lines(const int &valuelines);
 
 	public slots:
 

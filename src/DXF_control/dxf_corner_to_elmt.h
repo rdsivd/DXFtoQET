@@ -12,7 +12,7 @@ class dxf_corner_to_elmt : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit dxf_corner_to_elmt(QWidget *parent = 0);
+    explicit dxf_corner_to_elmt(QWidget *parent = nullptr);
 
 
 	double start_angle;
