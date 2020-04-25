@@ -3,7 +3,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <QtSql>
+//#include <QtSql>
 
 extern struct DXF_var DXF_variable;
 
@@ -32,7 +32,7 @@ void ELMT_header_steps::Close_SQL_DB (QString ELMT_filename)
 
 QString ELMT_header_steps::GetHeader_info (QString ELMT_filename)
 {
-
+    QString path = ELMT_filename;
 	QSqlQueryModel model;
 	model.setQuery("SELECT * FROM dxf_header");
 

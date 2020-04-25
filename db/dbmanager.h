@@ -30,7 +30,7 @@ class dbManager : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit dbManager(QWidget *parent = 0 );
+    explicit dbManager(QWidget *parent = nullptr );
 
 	int x1;
 	int x2;
@@ -83,6 +83,8 @@ class dbManager : public QWidget
 	QVariantList dxf_list2;
 	QVariantList dxf_list3;
 	QVariantList dxf_list4;
+
+    void dbActivate (const QString &pathname);
 	void dbManager1(const QString &pathname);
 
 	void dbManager_close(const QString &pathname);

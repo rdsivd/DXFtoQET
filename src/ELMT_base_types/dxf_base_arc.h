@@ -14,7 +14,7 @@ class dxf_base_arc : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_arc(QWidget *parent = 0);
+    explicit dxf_base_arc(QWidget *parent = nullptr);
 
 	QString Result_arc;
 

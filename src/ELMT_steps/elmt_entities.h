@@ -7,7 +7,9 @@
 #include "data.h"
 #include "src/dxf_load.h"
 #include "db/dbmanager.h"
-
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 #include "src/DXF_control/dxf_layer_control.h"
 #include "src/DXF_control/dxf_ltype_control.h"
 #include "src/DXF_control/dxf_text_control.h"
@@ -22,20 +24,24 @@
 #include "src/ELMT_base_types/dxf_base_polyline.h"
 #include "src/ELMT_steps/elmt_blocks.h"
 
+
 class elmt_entities : public QWidget
 {
 	Q_OBJECT
 
 	public:
-	explicit elmt_entities(QWidget *parent = 0);
+    explicit elmt_entities(QWidget *parent = nullptr);
 
 	int32_t xcount;
 	int32_t rowcount;
 
+    double hatchx;
+    double hatchy;
+
 	int end_seqend;
 	int end_lwpoly;
 	int readrecord;
-
+    int32_t stringsize;
 
 	int32_t count_vertex;
 	int32_t comand_count2;

@@ -13,7 +13,7 @@ class DXF_layer_control : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit DXF_layer_control(QWidget *parent = 0);
+    explicit DXF_layer_control(QWidget *parent = nullptr);
 
 	QString layer_to_find;
 	QString layer_ltype;

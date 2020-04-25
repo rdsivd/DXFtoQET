@@ -27,7 +27,7 @@ class elmt_blocks : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit elmt_blocks(QWidget *parent = 0);
+    explicit elmt_blocks(QWidget *parent = nullptr);
 
 	int end_block;
 	int end_seqend;
@@ -35,6 +35,7 @@ class elmt_blocks : public QWidget
 
 	int read_error1;
 	int readrecord;
+    int32_t stringsize;
 
 	int32_t count_vertex;
 	int32_t xcount;
@@ -47,7 +48,7 @@ class elmt_blocks : public QWidget
 
 	QString Logtext;
 	QString Recordvalue;
-
+    QString Recordvalue2;
 	QString ELMT_ID_instruction;
 
 	QString Rec_Command;
@@ -67,7 +68,8 @@ class elmt_blocks : public QWidget
 
 	QString QsqlString1;
 
-
+    double hatchx;
+    double hatchy;
 
 	double Block_X;				//10
 	double Block_Y;				//20
@@ -91,8 +93,9 @@ class elmt_blocks : public QWidget
 	QString DXF_Block_Name;
 
 	QString Signal_waarde1;
+    QString Signal_log1;
 
-	QString Insert_Block();
+    QString Insert_Block_1();
 
 	signals:
 

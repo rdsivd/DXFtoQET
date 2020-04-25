@@ -38,7 +38,7 @@
     <enum>QTabWidget::West</enum>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="Log">
     <attribute name="title">
@@ -593,10 +593,10 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
        <bool>false</bool>
       </property>
       <property name="default">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="flat">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </item>
@@ -628,6 +628,15 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
      </widget>
     </item>
    </layout>
+   <zorder>SavetoELMT</zorder>
+   <zorder>Convert_dxf_blocks</zorder>
+   <zorder>Convert_dxf_entities</zorder>
+   <zorder>Create_QET_ELMT</zorder>
+   <zorder>Delete_DB</zorder>
+   <zorder>Choose_DB</zorder>
+   <zorder>OpenFile</zorder>
+   <zorder>Load_dxf_into_tables</zorder>
+   <zorder>Button_Open_DXF</zorder>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -770,6 +779,9 @@ the creation of the ELMT file is faster and depents on the amount of ENTITIES an
        </size>
       </property>
      </spacer>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="QETlines"/>
     </item>
     <item>
      <widget class="QLineEdit" name="dxf_line_count1_2"/>

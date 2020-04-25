@@ -7,7 +7,7 @@ class data2 : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit data2(QWidget *parent = 0);
+    explicit data2(QWidget *parent = nullptr);
 
 	signals:
 

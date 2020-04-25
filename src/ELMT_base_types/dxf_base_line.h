@@ -13,7 +13,7 @@ class dxf_base_line : public QWidget //QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_line(QWidget *parent = 0);
+    explicit dxf_base_line(QWidget *parent = nullptr);
 
 
 	//DXF var

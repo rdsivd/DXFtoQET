@@ -44,13 +44,16 @@ class DXFtoQET3DB : public QWidget
 	Q_OBJECT
 
 	public:
-	explicit DXFtoQET3DB(QWidget *parent = 0);
+    explicit DXFtoQET3DB(QWidget *parent = nullptr);
 	~DXFtoQET3DB();
 
 		dbManager mydb;
 		//connect (&mydb ,SIGNAL (send_log(const QString &)),parent(),SLOT(update_log(const QString &)));
 
 		QString QSQL_split;
+
+        double hatchx;
+        double hatchy;
 
 		int main_sw1; // Binaery = 0 ASCII = 1
 		int main_sw2; // CSV = 1
@@ -93,13 +96,15 @@ class DXFtoQET3DB : public QWidget
 		int32_t id_objects;
 		int32_t id_thumbnailimage;
 
-		int sw_header[1072];
-		int sw_classes[1072];
-		int sw_tables[1072];
-		int sw_blocks[1072];
-		int sw_entities[1072];
-		int sw_objects[1072];
-		int sw_thumbnailimage[1072];
+        //    QVector<double> QET_x =  QVector<double>(QET_L_POLYLINE,0.0);
+
+        int sw_header[1072];
+        int sw_classes[1072];
+        int sw_tables[1072];
+        int sw_blocks[1072];
+        int sw_entities[1072];
+        int sw_objects[1072];
+        int sw_thumbnailimage[1072];
 
 		int32_t count_header;
 		int32_t count_header_record_id;
@@ -210,6 +215,8 @@ class DXFtoQET3DB : public QWidget
 		QStringList dxf_objects;
 		QStringList dxf_thumbnailimage;
 
+        //    QVector<double> QET_x =  QVector<double>(QET_L_POLYLINE,0.0);
+
 		QStringList dxf_header_items[DXF_item_split];
 		QStringList dxf_classes_items[DXF_item_split];
 		QStringList dxf_tables_items[DXF_item_split];
@@ -233,6 +240,7 @@ class DXFtoQET3DB : public QWidget
 		int InSW1;
 		int InSW2;
 		int xx;
+        int stringsize;
 
 		QString BlockNameItem;
 
@@ -386,7 +394,7 @@ class DXFtoQET3DB : public QWidget
 		void send_log(const QString &Waarde2);
 		void send_elmt(const QString &Waarde3);
 		void send_process(const QString &Waarde4);
-
+        void send_lines(const int &valuelines);
 
 	public slots:
 

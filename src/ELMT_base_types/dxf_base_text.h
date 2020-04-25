@@ -8,12 +8,13 @@
 #include "src/DXF_control/dxf_layer_control.h"
 #include "src/DXF_control/dxf_ltype_control.h"
 #include "src/DXF_control/dxf_text_control.h"
+#include "src/ELMT_base/baseelmt.h"
 
 class dxf_base_text : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_text(QWidget *parent = 0);
+    explicit dxf_base_text(QWidget *parent = nullptr);
 
 	//QET xml var
 	double QET_x;			//10

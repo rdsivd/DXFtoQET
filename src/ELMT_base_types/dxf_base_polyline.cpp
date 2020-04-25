@@ -43,7 +43,7 @@ QString dxf_base_polyline::Create_polyline()
 	Result_polyline.append("<polygon");
 
 
-	Result_polyline.append(" dxfelmt=");
+    /*Result_polyline.append(" dxfelmt=");
 	Result_polyline.append(QChar(34));
 	Result_polyline.append(QET_block_name);
 	Result_polyline.append(QChar(34));
@@ -56,7 +56,7 @@ QString dxf_base_polyline::Create_polyline()
 	Result_polyline.append(" dxfid=");
 	Result_polyline.append(QChar(34));
 	Result_polyline.append(QET_handle);
-	Result_polyline.append(QChar(34));
+    Result_polyline.append(QChar(34));*/
 
 	Result_polyline.append(" style=");
 
@@ -90,19 +90,26 @@ QString dxf_base_polyline::Create_polyline()
 
 	for (count_segments=0; (count_segments<segments) and (count_segments<QET_L_POLYLINE);count_segments++)
 	{
-		Result_polyline.append(" x");
-		Result_polyline.append(QString::number(count_segments+1));
-		Result_polyline.append("=");
-		Result_polyline.append(QChar(34));
-		Result_polyline.append(QString::number(QET_x[count_segments],'f',2));
-		Result_polyline.append(QChar(34));
+        if (QET_x[count_segments]==0.0 and QET_y[count_segments]==0.0)
+        {
 
-		Result_polyline.append(" y");
-		Result_polyline.append(QString::number(count_segments+1));
-		Result_polyline.append("=");
-		Result_polyline.append(QChar(34));
-		Result_polyline.append(QString::number(-QET_y[count_segments],'f',2));
-		Result_polyline.append(QChar(34));
+        }
+        else
+        {
+            Result_polyline.append(" x");
+            Result_polyline.append(QString::number(count_segments+1));
+            Result_polyline.append("=");
+            Result_polyline.append(QChar(34));
+            Result_polyline.append(QString::number(QET_x[count_segments],'f',2));
+            Result_polyline.append(QChar(34));
+
+            Result_polyline.append(" y");
+            Result_polyline.append(QString::number(count_segments+1));
+            Result_polyline.append("=");
+            Result_polyline.append(QChar(34));
+            Result_polyline.append(QString::number(-QET_y[count_segments],'f',2));
+            Result_polyline.append(QChar(34));
+        }
 	}
 
 	Result_polyline.append("/>");

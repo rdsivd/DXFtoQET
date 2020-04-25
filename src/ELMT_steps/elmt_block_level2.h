@@ -27,7 +27,7 @@ class elmt_block_level2 : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit elmt_block_level2(QWidget *parent = 0);
+    explicit elmt_block_level2(QWidget *parent = nullptr);
 
 	int read_error2;
 
@@ -45,6 +45,7 @@ class elmt_block_level2 : public QWidget
 
 	QString Logtext;
 	QString Recordvalue;
+    QString Recordvalue2;
 
 	QString ELMT_ID_instruction;
 

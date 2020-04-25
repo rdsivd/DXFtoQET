@@ -9,7 +9,7 @@ class dxf_base_terminal : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit dxf_base_terminal(QWidget *parent = 0);
+    explicit dxf_base_terminal(QWidget *parent = nullptr);
 
 	QString Result;
 

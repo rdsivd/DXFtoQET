@@ -12,7 +12,7 @@ class ELMT_header_steps : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit ELMT_header_steps(QWidget *parent = 0);
+    explicit ELMT_header_steps(QWidget *parent = nullptr);
 
 	QString QsqlString;
 	QString ResultCommand;

@@ -10,7 +10,7 @@ class DXF_Text_control : public QWidget // QMainWindow
 {
 	Q_OBJECT
 	public:
-	explicit DXF_Text_control(QWidget *parent = 0);
+    explicit DXF_Text_control(QWidget *parent = nullptr);
 
 	QString TextToCheck;
 

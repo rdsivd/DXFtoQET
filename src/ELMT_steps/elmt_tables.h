@@ -12,7 +12,7 @@ class elmt_tables : public QWidget
 {
 	Q_OBJECT
 	public:
-	explicit elmt_tables(QWidget *parent = 0);
+    explicit elmt_tables(QWidget *parent = nullptr);
 
 	int xcount;
 	int rowcount;

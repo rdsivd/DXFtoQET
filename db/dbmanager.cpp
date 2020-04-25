@@ -6,56 +6,89 @@ extern struct DXF_base DXF_main_base[DXF_base_set];
 
 dbManager::dbManager(QWidget *parent) : QWidget(parent)
 {
-	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
-	connect (this, SIGNAL (send_elmt(const QString &)),this,SLOT(update_elmt(const QString &)));
-	connect (this, SIGNAL (send_process(const QString &)),this,SLOT(update_proces(const QString &)));
+    /*connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
+    connect (this, SIGNAL (send_elmt(const QString &)),this,SLOT(update_elmt(const QString &)));
+    connect (this, SIGNAL (send_process(const QString &)),this,SLOT(update_proces(const QString &)));
 
-	connect (this,SIGNAL(send_text(const QString &)),this,SLOT(on_progressBar_text(const QString &)));
-	connect (this,SIGNAL(send_min(const int &)),this,SLOT(on_progressBar_valueMin(const int &)));
-	connect (this,SIGNAL(send_max(const int &)),this,SLOT(on_progressBar_valueMax(const int &)));
-	connect (this,SIGNAL(send_actual(const int &)),this,SLOT(on_progressBar_valueChanged(const int &)));
+    connect (this,SIGNAL(send_text(const QString &)),this,SLOT(on_progressBar_text(const QString &)));
+    connect (this,SIGNAL(send_min(const int &)),this,SLOT(on_progressBar_valueMin(const int &)));
+    connect (this,SIGNAL(send_max(const int &)),this,SLOT(on_progressBar_valueMax(const int &)));
+    connect (this,SIGNAL(send_actual(const int &)),this,SLOT(on_progressBar_valueChanged(const int &)));*/
+}
+
+void dbManager::dbActivate(const QString &pathname)
+{
+    QString path = pathname;
+    m_db=QSqlDatabase::addDatabase("QSQLITE");
+    m_db.setDatabaseName(pathname);
+
+    if (!m_db.open())
+    {
+        /*QMessageBox::warning(this, tr("Application"),
+                  tr("Error : connection with database fails"));*/
+    }
+    else
+    {
+        /*QMessageBox::warning(this, tr("Application"),
+                  tr("Connection with database ok"));*/
+
+        m_db.exec("PRAGMA temp_store = FILE");
+        //m_db.exec("PRAGMA temp_store_directory = 'c:/temp/'");
+        m_db.exec("PRAGMA journal_mode = MEMORY");
+        m_db.exec("PRAGMA page_size = 4096");
+        m_db.exec("PRAGMA cache_size = 16384");
+        m_db.exec("PRAGMA locking_mode = EXCLUSIVE");
+        m_db.exec("PRAGMA synchronous = OFF");
+        //m_db.exec("PRAGMA journal_mode = OFF");
+    }
+
 }
 
 void dbManager::dbManager1(const QString &pathname)
 {
-	m_db=QSqlDatabase::addDatabase("QSQLITE");
-	m_db.setDatabaseName(pathname);
+    m_db=QSqlDatabase::addDatabase("QSQLITE");
+    //m_db.setDatabaseName(pathname);
+    QString path = pathname;
+    m_db.setDatabaseName(pathname);
 
 
-
-	if (!m_db.open())
+    if (!m_db.open())
 	{
 		/*QMessageBox::warning(this, tr("Application"),
 				  tr("Error : connection with database fails"));*/
-	}
+    }
 	else
 	{
-		/*QMessageBox::warning(this, tr("Application"),
-				  tr("Connection with database ok"));*/
+        /*QMessageBox::warning(this, tr("Application"),
+                  tr("Connection with database ok"));*/
 		
-		m_db.exec("PRAGMA temp_store = MEMORY");
+        m_db.exec("PRAGMA temp_store = FILE");
+        //m_db.exec("PRAGMA temp_store_directory = 'c:/temp/'");
 		m_db.exec("PRAGMA journal_mode = MEMORY");
 		m_db.exec("PRAGMA page_size = 4096");
 		m_db.exec("PRAGMA cache_size = 16384");
 		m_db.exec("PRAGMA locking_mode = EXCLUSIVE");
 		m_db.exec("PRAGMA synchronous = OFF");
-	}
+        //m_db.exec("PRAGMA journal_mode = OFF");
+    }
 
 }
 
 void dbManager::dbManager_close(const QString &pathname)
 {
+    QString path = pathname;
 	if (m_db.isOpen())
 	{
 		m_db.close();
 
-
+        //m_db.removeDatabase("QSQLITE");
 	}
+
 }
 
 void dbManager::dbManager_create_tables(const QString &pathname)
 {
-
+    QString path = pathname;
 	QsqlString="create table dxf_list (Index_count primary key, Code)";
 
 	m_db.exec(QsqlString);
@@ -513,6 +546,7 @@ void dbManager::dbManager_create_tables(const QString &pathname)
 
 int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
+    QString path = pathname;
 	m_db.transaction();
 	QSqlQuery Query1;
 
@@ -1195,6 +1229,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lin
 
 		//x2=Query1.exec();
 		x1++;
+        //m_db.commit();
 
 	}
 
@@ -1208,6 +1243,7 @@ int dbManager::dbManager_added_records(const QString &pathname, int32_t *Max_lin
 
 int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_lines, int32_t *Record_count, QString dxf_type)
 {
+    QString path = pathname;
 	connect (this ,SIGNAL (send_log(const QString &)),this,SLOT(update_log(const QString &)));
 
 	m_db.transaction();
@@ -2510,6 +2546,7 @@ int dbManager::DB_dbManager_added_records(const QString &pathname, int32_t *Max_
 
 void dbManager::dbManager_load_dxf(const QString &pathname)
 {
+    QString path = pathname;
 	//m_db.database().transaction();
 	m_db.transaction();
 
@@ -2582,6 +2619,7 @@ void dbManager::dbManager_load_dxf(const QString &pathname)
 
 void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int32_t Index_count_1,QString Block_naam_1, QString Block_value_1)
 {
+    QString path = pathname;
 
 	QSqlQuery Query_entitie;
 
@@ -2605,6 +2643,7 @@ void dbManager::dbManager_create_elmt_entitie (const QString &pathname, int32_t 
 
 void dbManager::dbManager_create_elmt_block (const QString &pathname, int32_t Index_count_2,QString Block_naam_2, QString Block_value_2)
 {
+    QString path = pathname;
 	QSqlQuery Query_block;
 
 	Qsql_Block = "INSERT INTO table_elmt_entities (Index_count, Block_Naam, Block_value";
@@ -2625,6 +2664,7 @@ void dbManager::dbManager_create_elmt_block (const QString &pathname, int32_t In
 
 void dbManager::dbManager_load_dxf_list(const QString &pathname)
 {
+    QString path = pathname;
 	m_db.transaction();
 
 	QSqlQuery Query_List;
@@ -2665,6 +2705,7 @@ void dbManager::dbManager_load_dxf_list(const QString &pathname)
 
 QString dbManager::db_split_header(const QString &pathname)
 {
+    QString path = pathname;
 	/*m_db.transaction();
 
 	QSqlTableModel dxf_tabel1;
@@ -2692,6 +2733,7 @@ QString dbManager::db_split_header(const QString &pathname)
 
 void dbManager::dbManager_transfer_dxf(const QString &pathname)
 {
+    QString path = pathname;
 	connect (this ,SIGNAL (send_log(const QString &)),parent(),SLOT(update_log(const QString &)));
 
 	m_db.transaction();
@@ -2789,7 +2831,7 @@ void dbManager::dbManager_transfer_dxf(const QString &pathname)
 
 		//Signal_log1.append("\n");
 
-		emit send_log(Signal_log1);
+        //emit send_log(Signal_log1);
 
 		Write_transfer.exec();
 
