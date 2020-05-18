@@ -70,7 +70,9 @@ void dbManager::dbManager1(const QString &pathname)
 		m_db.exec("PRAGMA locking_mode = EXCLUSIVE");
 		m_db.exec("PRAGMA synchronous = OFF");
         //m_db.exec("PRAGMA journal_mode = OFF");
+
     }
+
 
 }
 

@@ -60,7 +60,9 @@ DXFtoQET3DB::DXFtoQET3DB(QWidget *parent) :
 	connect (this,SIGNAL(send_max(const int &)),this,SLOT(on_progressBar_valueMax(const int &)));
 	connect (this,SIGNAL(send_actual(const int &)),this,SLOT(on_progressBar_valueChanged(const int &)));
 
+
     //connect (this,SIGNAL(send_lines(const int &)),this,SLOT(QETlines(const int &)));
+
 
 	ui->MainTab->setCurrentIndex(5);
 	ui->MainTab->repaint();
@@ -175,6 +177,7 @@ void DXFtoQET3DB::on_OpenFile_clicked()
 		emit send_log(Signal_log1);
 
         DXF_main_base[0].dxf_text_all.clear();
+
         int64_t filesize = info1.size();
         if (filesize > 4500000)
         {
@@ -187,6 +190,7 @@ void DXFtoQET3DB::on_OpenFile_clicked()
             DXF_main_base[0].dxf_text_all = in.readAll();
         }
 
+
 		file.close();
 
         DXF_Entities_List.DXF_Result.clear();
@@ -196,12 +200,14 @@ void DXFtoQET3DB::on_OpenFile_clicked()
         DXF_Entities_List.DXF_ResultBlock2.clear();
         DXF_Entities_List.DXF_ResultBlock2.clear();
         DXF_Entities_List.DXF_ResultEntitie.clear();
+
         DXF_Entities_List.DXF_ResultEntitieLine.clear();
         DXF_Entities_List.DXF_ResultEntitieLwpolyline.clear();
         DXF_Entities_List.DXF_ResultEntitieSolid.clear();
         DXF_Entities_List.DXF_ResultEntitieSpline.clear();
         DXF_Entities_List.DXF_ResultEntitieHatch.clear();
         DXF_Entities_List.DXF_ResultEntitiePolyline.clear();
+
 
 		ui->dxf_file_loaded->setPlainText(DXF_main_base[0].dxf_text_all);
 		ui->dxf_file_loaded->show();
@@ -595,6 +601,7 @@ void DXFtoQET3DB::on_Load_dxf_into_tables_clicked()
 	Signal_log1.append("============================================================================");
 
 	emit send_log(Signal_log1);
+
 	return;
 }
 
@@ -6544,7 +6551,9 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 
 	ui->Procesing_dxf->clear();
 
+
     ui->MainTab->setCurrentIndex(1);
+
 	ui->MainTab->repaint();
 
 
@@ -6667,11 +6676,13 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
     DXF_Entities_List.DXF_ResultBegin.append(NewBase.Uuid());
 
 
+
     stringsize=DXF_Entities_List.DXF_ResultBegin.size();
     emit send_lines(stringsize);
 
 	Signal_elmt1.clear();
     Signal_elmt1.append(DXF_Entities_List.DXF_ResultBegin);
+
 
     emit send_elmt(Signal_elmt1);
 
@@ -6685,10 +6696,12 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	Signal_elmt1.clear();
     Signal_elmt1.append(DXF_Entities_List.DXF_ResultBegin);
 
+
     emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.KindInformation());
     DXF_Entities_List.DXF_ResultBegin.append(NewBase.KindInformation());
+
 
 
     stringsize=DXF_Entities_List.DXF_ResultBegin.size();
@@ -6697,10 +6710,12 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	Signal_elmt1.clear();
 	Signal_elmt1.append(DXF_Entities_List.DXF_Result);
 
+
     emit send_elmt(Signal_elmt1);
 
 	//ResultELMT.append(NewBase.Informations());
     DXF_Entities_List.DXF_ResultBegin.append(NewBase.Informations());
+
 
 
     stringsize=DXF_Entities_List.DXF_ResultBegin.size();
@@ -6708,6 +6723,7 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 
 	Signal_elmt1.clear();
     Signal_elmt1.append(DXF_Entities_List.DXF_ResultBegin);
+
 
     emit send_elmt(Signal_elmt1);
 
@@ -6715,13 +6731,16 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
     DXF_Entities_List.DXF_ResultBegin.append(NewBase.DescriptionStart());
 
 
+
     stringsize=DXF_Entities_List.DXF_ResultBegin.size();
     emit send_lines(stringsize);
 
 	Signal_elmt1.clear();
     Signal_elmt1.append(DXF_Entities_List.DXF_ResultBegin);
 
+
     emit send_elmt(Signal_elmt1);
+
 
 	elmt_entities NewEntity(this);
 
@@ -6730,6 +6749,60 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	connect(&NewEntity ,SIGNAL (send_log(const QString &)),this ,SLOT(update_log(const QString &)));
 	connect(&NewEntity ,SIGNAL (send_elmt(const QString &)),this ,SLOT(update_elmt(const QString &)));
 
+    //file2.close();
+
+    Signal_log1.clear();
+    Signal_log1.append("============================================================================");
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result : ");
+    stringsize=DXF_Entities_List.DXF_Result.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Begin : ");
+    stringsize=DXF_Entities_List.DXF_ResultBegin.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitie.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie Line: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitieLine.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie Polyline: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitiePolyline.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie Lwpolyline: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitieLwpolyline.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie Spline: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitieSpline.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie Solid: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitieSolid.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Entitie Hatch: ");
+    stringsize=DXF_Entities_List.DXF_ResultEntitieHatch.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Block: ");
+    stringsize=DXF_Entities_List.DXF_ResultBlock.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Block 2: ");
+    stringsize=DXF_Entities_List.DXF_ResultBlock2.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    Signal_log1.append("DXF_Result Einde : ");
+    stringsize=DXF_Entities_List.DXF_ResultEinde.size();
+    Signal_log1.append(QString::number(stringsize));
+    Signal_log1.append(" \n");
+    emit send_log(Signal_log1);
 
 
     Signal_log1.clear();
@@ -6802,21 +6875,23 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
     NewEntity.Close_SQL_DB(Filename_db);
 
 	Signal_elmt1.clear();
+
     Signal_elmt1.append("append entities");
 
     emit send_elmt(Signal_elmt1);
 
 
 
+
 	//ResultELMT.append(NewBase.DescriptionEnd());
     DXF_Entities_List.DXF_ResultEinde.append(NewBase.DescriptionEnd());
-
 
     stringsize=DXF_Entities_List.DXF_ResultEinde.size();
     emit send_lines(stringsize);
 
 	Signal_elmt1.clear();
     Signal_elmt1.append(DXF_Entities_List.DXF_ResultEinde);
+
 
     emit send_elmt(Signal_elmt1);
 
@@ -6824,13 +6899,16 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
     DXF_Entities_List.DXF_ResultEinde.append(NewBase.DefinitionEnd());
 
 
+
     stringsize=DXF_Entities_List.DXF_ResultEinde.size();
     emit send_lines(stringsize);
 
 	Signal_elmt1.clear();
     Signal_elmt1.append(DXF_Entities_List.DXF_ResultEinde);
 
+
     emit send_elmt(Signal_elmt1);
+
 
     /*Signal_log1.clear();
 	Signal_log1.append("DXF file converted to ELMT file");
@@ -6841,17 +6919,23 @@ void DXFtoQET3DB::on_Create_QET_ELMT_clicked()
 	Signal_log1.append("============================================================================");
     Signal_log1.append("\n");
 
+
     emit send_log(Signal_log1);*/
 
 
 
+
+
     Signal_log1.clear();
+
     Signal_log1.append("============================================================================");
     Signal_log1.append(QTime::currentTime().toString());
     Signal_log1.append(" - Closed file : ");
     Signal_log1.append(DXF_main_base[0].dxf_savepath + "/" + DXF_main_base[0].dxf_openfile + ".elmt");
     Signal_log1.append("============================================================================");
+
     emit send_log(Signal_log1);
+
 }
 
 void DXFtoQET3DB::on_Choose_DB_clicked()
